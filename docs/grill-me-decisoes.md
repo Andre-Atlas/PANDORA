@@ -48,4 +48,4 @@ O planejamento seguiu o método **grill-me**: percorrer a árvore de decisões d
 2. Agregador definitivo (Pluggy × Belvo), conforme as condições de sandbox/trial disponíveis.
 3. Provedor de nuvem para o deploy.
 4. Possibilidade de validação do tom e do fluxo de crise com um profissional de saúde mental.
-5. Conferência das estatísticas marcadas com 🔎 em [01](01-problema-e-essential-question.md).
+5. ~~Conferência das estatísticas marcadas com 🔎~~: feita em 27/10/2026, com os números e as fontes em [01](01-problema-e-essential-question.md#2-o-problema).
