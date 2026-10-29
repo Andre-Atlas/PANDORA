@@ -2,7 +2,7 @@
 
 Este documento reúne notícias, reportagens de veículos oficiais e levantamentos de entidades nacionais (2024–2026) que demonstram a gravidade do endividamento, dos juros abusivos, da compulsão por apostas (*bets*) e dos golpes financeiros no Brasil.
 
-Cada item está vinculado diretamente às personas de [`docs/01-problema-e-essential-question.md`](../../01-problema-e-essential-question.md) e aos módulos do **PANDORA**.
+As personas citadas no problema estão em [`docs/01-problema-e-essential-question.md`](../../01-problema-e-essential-question.md#4-personas).
 
 ---
 
@@ -16,7 +16,6 @@ Cada item está vinculado diretamente às personas de [`docs/01-problema-e-essen
   - **81,7 milhões de brasileiros inadimplentes**, recorde histórico da série.
   - Mais de **332 milhões de dívidas ativas**, com valor médio de **R$ 6.598,13** por pessoa.
   - Crescimento de **38%** no número de inadimplentes em relação a 2016; cerca de **42%** já estavam negativados há uma década (cronicidade da dívida).
-- **Por que corrobora o PANDORA:** Mostra que feirões pontuais não resolvem a reincidência. É necessário acompanhamento contínuo de fluxo de caixa e mudança comportamental (**Módulos 1, 3 e 4**).
 
 ### 1.2 Pesquisa de Endividamento e Inadimplência do Consumidor (PEIC) — CNC
 - **Fonte:** Confederação Nacional do Comércio de Bens, Serviços e Turismo (CNC)
@@ -28,7 +27,6 @@ Cada item está vinculado diretamente às personas de [`docs/01-problema-e-essen
   - **81,7% das famílias brasileiras endividadas** em setembro de 2026 (após recorde de **82,0%** em julho e agosto).
   - **29,6%** possuem contas ou dívidas em atraso e **12,5%** declaram não ter condições de pagar (superendividamento severo).
   - O **cartão de crédito** está presente em **85,3%** das famílias endividadas.
-- **Por que corrobora o PANDORA:** Valida a persona **Carla (34 anos)** e justifica a priorização automática de dívidas pelo método *avalanche* (foco em Custo Efetivo Total - CET) e a orientação sobre a Lei do Superendividamento.
 
 ### 1.3 Juros do Cartão de Crédito Rotativo e Cheque Especial — Agência Brasil / Senado Notícias
 - **Fontes:** Agência Brasil (EBC) com estatísticas do Banco Central; Agência Senado
@@ -40,7 +38,6 @@ Cada item está vinculado diretamente às personas de [`docs/01-problema-e-essen
 - **Dados-chave:**
   - Rotativo do cartão de crédito atingiu **435,9% ao ano** (fev/2026).
   - Cheque especial em torno de **130% ao ano**, enquanto o crédito livre para PF ficou em **61,7% ao ano** (ago/2026).
-- **Por que corrobora o PANDORA:** O usuário médio não compreende a diferença exponencial entre 435% a.a. e uma linha de renegociação ou o limite legal de 100% do valor original da dívida (Lei 14.690/2023). O **Estrategista de Dívidas** traduz esses números e compara a taxa do contrato com a série oficial do BCB.
 
 ---
 
@@ -54,7 +51,6 @@ Cada item está vinculado diretamente às personas de [`docs/01-problema-e-essen
   - **R$ 20,8 bilhões** transferidos via Pix para 56 operadoras de apostas apenas em agosto de 2024 (média mensal entre R$ 18 bi e R$ 21 bi).
   - **24 milhões de pessoas físicas** realizaram ao menos um Pix para *bets*, com forte concentração entre jovens de **20 a 30 anos**.
   - Cerca de **5 milhões de beneficiários do Bolsa Família** enviaram aproximadamente **R$ 3 bilhões** às plataformas de apostas em um único mês, motivando decisão do STF para bloquear o uso de cartões e recursos de benefícios sociais em apostas.
-- **Por que corrobora o PANDORA:** Fundamenta diretamente a persona **Diego (24 anos, entregador de app)** e o **Módulo 2 (Detector de Compulsão)**, que identifica transferências recorrentes para CNPJs de operadoras de apostas, atua com comunicação não punitiva (*nudges* empáticos), sugere travas voluntárias e direciona para grupos de apoio (Jogadores Anônimos / CAPS).
 
 ---
 
@@ -68,16 +64,15 @@ Cada item está vinculado diretamente às personas de [`docs/01-problema-e-essen
   - **24 milhões de brasileiros** sofreram golpes financeiros via Pix ou boleto falso em 12 meses.
   - Prejuízo total estimado em **quase R$ 29 bilhões** (média de **R$ 1.198 por vítima**).
   - **Idosos** são as principais vítimas de boletos adulterados e falsas centrais telefônicas; jovens sofrem mais com fraudes em compras digitais.
-- **Por que corrobora o PANDORA:** Fundamenta a persona **Sr. Antônio (67 anos, aposentado)** e justifica a existência do **Módulo 5 (Proteção de Ativos / Guardião)** e do **Módulo 7 (Copiloto Multimodal)**, permitindo que o usuário envie uma foto ou *print* de um boleto/conversa suspeita para verificação imediata de CNPJ beneficiário, anomalias de valor e instruções passo a passo para acionar o **MED (Mecanismo Especial de Devolução do Pix)**.
 
 ---
 
-## 📊 Resumo de Impacto para o Pitch e Relatório
+## 📊 Resumo dos Indicadores
 
-| Indicador Nacional | Valor Oficial | Fonte | Módulo PANDORA Correspondente |
-|---|---|---|---|
-| Brasileiros inadimplentes | **81,7 milhões** | Serasa (mar/2026) | Raio-X Financeiro & Reestruturação |
-| Famílias endividadas | **81,7% a 82,0%** | CNC/Peic (jul–set/2026) | Orçamento & Metas |
-| Juros do rotativo do cartão | **435,9% a.a.** | BCB / Agência Brasil (fev/2026) | Estrategista de Dívidas |
-| Fluxo mensal em *bets* via Pix | **R$ 20,8 bilhões/mês** | BCB EE nº 119 (2024) | Detector de Compulsão |
-| Vítimas de golpes Pix/boleto (12m) | **24 milhões (R$ 29 bi)** | Datafolha / FBSP (ago/2025) | Guardião Antifraude & Copiloto Multimodal |
+| Indicador Nacional | Valor Oficial | Fonte |
+|---|---|---|
+| Brasileiros inadimplentes | **81,7 milhões** | Serasa (mar/2026) |
+| Famílias endividadas | **81,7% a 82,0%** | CNC/Peic (jul–set/2026) |
+| Juros do rotativo do cartão | **435,9% a.a.** | BCB / Agência Brasil (fev/2026) |
+| Fluxo mensal em *bets* via Pix | **R$ 20,8 bilhões/mês** | BCB EE nº 119 (2024) |
+| Vítimas de golpes Pix/boleto (12m) | **24 milhões (R$ 29 bi)** | Datafolha / FBSP (ago/2025) |
