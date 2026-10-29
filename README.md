@@ -22,6 +22,7 @@
 | Documento | Conteúdo |
 |---|---|
 | [Problema e Essential Question](docs/01-problema-e-essential-question.md) | Contexto, stakeholders, personas e fontes |
+| [Personas e Jornadas](docs/personas/README.md) | 5 personas exclusivas (fichas individuais, dores, casos de uso e barreiras) |
 | [Evidências](docs/evidencias/README.md) | Visão geral do acervo |
 | [Notícias](docs/evidencias/noticias/README.md) | Levantamentos e reportagens 2024–2026 |
 | [Artigos](docs/evidencias/artigos/README.md) | Estudos, escalas de bem-estar financeiro e marcos legais |
