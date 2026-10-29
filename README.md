@@ -74,6 +74,7 @@ Visão completa em [docs/03-arquitetura.md](docs/03-arquitetura.md).
 | [05 · Dados e integrações](docs/05-dados-e-integracoes.md) | Open Finance, ingestão, modelo de dados, LGPD | 1–2 |
 | [06 · Riscos e métricas](docs/06-riscos-e-metricas.md) | Matriz de riscos, métricas, plano de avaliação | 1, 7 |
 | [07 · Roadmap](docs/07-roadmap.md) | 7 semanas → entregáveis → agente responsável | todas |
+| [Evidências (Notícias, Datasets e Artigos)](docs/evidencias/README.md) | Acervo estruturado que corrobora a importância do problema e alimenta ML/RAG | contínuo |
 | [ADRs](docs/adr/) | Decisões técnicas justificadas | contínuo |
 | [Registro grill-me](docs/grill-me-decisoes.md) | Perguntas e decisões da sessão de planejamento | 1 |
 

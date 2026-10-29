@@ -85,6 +85,8 @@ As personas também são usadas para gerar **dados sintéticos** e o **golden se
 
 ## 6. Fontes de evidência (corpus inicial)
 
+> 📂 O acervo detalhado e catalogado por categoria encontra-se em [`docs/evidencias/`](evidencias/README.md), dividido em [`noticias/`](evidencias/noticias/README.md), [`datasets/`](evidencias/datasets/README.md) e [`artigos/`](evidencias/artigos/README.md).
+
 - Banco Central do Brasil: estatísticas de juros (API SGS), Estudo Especial nº 119/2024 (apostas), Relatório de Cidadania Financeira, estudos especiais, Open Finance Brasil.
 - CVM: Portal do Investidor, Resoluções 19/2021 e 20/2021 (consultoria e análise), 30/2021 (suitability).
 - Tesouro Nacional: Tesouro Direto.

@@ -1,0 +1,19 @@
+transaction_id,persona_id,posted_at,amount,payment_method,description_masked,mcc,category,is_bet,anomaly_score,ground_truth_note
+tx-0001,carla_34,2026-10-05T08:15:00,2850.00,PIX,CREDITO SALARIO EMPRESA *** LTDA,0000,RENDA,false,0.02,Salario liquido mensal de Carla
+tx-0002,carla_34,2026-10-06T10:22:00,-950.00,PIX,PAGAMENTO ALUGUEL RESIDENCIAL,6513,MORADIA,false,0.03,Despesa essencial fixa (minimo existencial)
+tx-0003,carla_34,2026-10-07T14:40:00,-620.50,DEBIT_CARD,ATACADAO SUPERMERCADO,5411,ALIMENTACAO,false,0.04,Despesa essencial de alimentacao dos 2 filhos
+tx-0004,carla_34,2026-10-10T09:00:00,-890.00,DIRECT_DEBIT,PAGAMENTO MINIMO FATURA CARTAO ROTATIVO,6012,DIVIDA_JUROS,false,0.78,Pagamento minimo entrando no rotativo (CET > 400% a.a.)
+tx-0005,carla_34,2026-10-10T09:05:00,-342.18,DIRECT_DEBIT,ENCARGOS ROTATIVO + IOF CARTAO,6012,DIVIDA_JUROS,false,0.85,Juros rotativos consumindo 12% da renda liquida no mes
+tx-0006,carla_34,2026-10-15T11:30:00,-480.00,DIRECT_DEBIT,PARCELA EMPRESTIMO PESSOAL BANCO A,6012,DIVIDA_JUROS,false,0.65,Comprometimento total de dividas ultrapassa 60% da renda
+tx-0007,diego_24,2026-10-07T09:10:00,1120.00,PIX,REPASSE SEMANAL PLATAFORMA ENTREGA,0000,RENDA,false,0.02,Repasse semanal de entregador de aplicativo
+tx-0008,diego_24,2026-10-07T09:28:00,-150.00,PIX,PIX ENVIADO OPERADORA BET.BR,7995,APOSTAS_BETS,true,0.72,Aposta realizada 18 minutos apos receber o repasse semanal
+tx-0009,diego_24,2026-10-07T23:54:00,-200.00,PIX,PIX ENVIADO OPERADORA BET.BR,7995,APOSTAS_BETS,true,0.84,Segunda aposta no mesmo dia em horario noturno
+tx-0010,diego_24,2026-10-08T01:42:00,-350.00,PIX,PIX ENVIADO INTERMEDIADORA JOGOS ONLINE,7995,APOSTAS_BETS,true,0.95,Padrao de chasing losses (tentativa de recuperar perda de madrugada)
+tx-0011,diego_24,2026-10-08T13:15:00,-65.00,DEBIT_CARD,POSTO COMBUSTIVEL MOTO,5541,TRANSPORTE,false,0.05,Insumo de trabalho de entregador
+tx-0012,antonio_67,2026-10-02T07:30:00,2412.00,DIRECT_DEBIT,BENEFICIO PREVIDENCIARIO INSS,0000,RENDA,false,0.01,Aposentadoria mensal do Sr. Antonio
+tx-0013,antonio_67,2026-10-02T07:35:00,-723.60,DIRECT_DEBIT,CONSIGNADO INSS CONTRATO 04,6012,DIVIDA_JUROS,false,0.55,Desconto direto de 30% do beneficio em consignado
+tx-0014,antonio_67,2026-10-12T16:18:00,-1198.00,BOLETO,PAGTO BOLETO COBRANCA TERCEIROSPF *** CPF,6012,FRAUDE_SUSPEITA,false,0.97,Boleto de renegociacao falsa com beneficiario PF divergente do banco credor
+tx-0015,antonio_67,2026-10-18T19:45:00,-1800.00,PIX,PIX ENVIADO CONTA DESCONHECIDA FORA PADRAO,4829,FRAUDE_SUSPEITA,false,0.98,Golpe da falsa central telefonica: transferencia de alto valor para novo destinatario
+tx-0016,julia_29,2026-10-05T08:00:00,4500.00,PIX,CREDITO SALARIO CLT EMPRESA TECH,0000,RENDA,false,0.01,Salario mensal de Julia apos quitar dividas antigas
+tx-0017,julia_29,2026-10-05T10:00:00,-500.00,DIRECT_DEBIT,APLICACAO TESOURO SELIC RESERVA EMERGENCIA,6211,INVESTIMENTO,false,0.02,Aporte automatico na Reserva de Emergencia logo apos receber salario
+tx-0018,julia_29,2026-10-11T19:20:00,-320.00,CREDIT_CARD,FARMACIA E SAUDE,5912,SAUDE,false,0.03,Despesa planejada dentro da meta do orcamento adaptativo
