@@ -22,6 +22,7 @@
 | Documento | Conteúdo |
 |---|---|
 | [Problema e Essential Question](docs/01-problema-e-essential-question.md) | Contexto, stakeholders, personas e fontes |
+| [Escopo e Concepção (MD + PDF)](docs/escopo/README.md) | Cenário, 10 Guiding Questions, 6 Stakeholders, 5 Personas, RF/RNF (4 Graus), Riscos, Premissas, Métricas e [PDF (5 páginas)](docs/escopo/PANDORA-Documento-de-Escopo-CBL.pdf) |
 | [Personas e Jornadas](docs/personas/README.md) | 5 personas exclusivas (fichas individuais, dores, casos de uso e barreiras) |
 | [Evidências](docs/evidencias/README.md) | Visão geral do acervo |
 | [Notícias](docs/evidencias/noticias/README.md) | Levantamentos e reportagens 2024–2026 |
