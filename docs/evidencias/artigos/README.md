@@ -52,3 +52,12 @@ Normas que definem os direitos do consumidor endividado, os limites de juros e a
 | **Lei nº 8.009/1990** & **CPC art. 833** | **Impenhorabilidade do Bem de Família e de Salários/Aposentadorias** | [Planalto — Lei 8.009/1990](https://www.planalto.gov.br/ccivil_03/leis/l8009.htm) |
 | **Resoluções CVM nº 19/2021, 20/2021 e 30/2021** | **Consultoria, Análise de Valores Mobiliários e Suitability** | [CVM — Legislação e Normas](https://www.gov.br/cvm/pt-br/assuntos/normas) |
 | **Lei nº 13.709/2018 (LGPD)** | **Lei Geral de Proteção de Dados Pessoais** | [Planalto — Lei 13.709/2018](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2018/lei/l13709.htm) |
+| **Resolução CMN nº 4.292/2013** | **Portabilidade de Operações de Crédito** | [BCB — Resolução CMN 4.292/2013](https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o&numero=4292) |
+| **Lei nº 1.521/1951, art. 4º** | **Crimes contra a Economia Popular (Usura/Agiotagem)** | [Planalto — Lei 1.521/1951](https://www.planalto.gov.br/ccivil_03/leis/l1521.htm) |
+| **Lei nº 8.078/1990 (CDC), art. 49** | **Direito de Arrependimento em Compras Fora do Estabelecimento** | [Planalto — Lei 8.078/1990](https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm) |
+| **Lei nº 12.506/2011** | **Aviso Prévio Proporcional ao Tempo de Serviço** | [Planalto — Lei 12.506/2011](https://www.planalto.gov.br/ccivil_03/_ato2011-2014/2011/lei/l12506.htm) |
+| **Lei nº 8.036/1990** & **Lei nº 13.932/2019** | **FGTS e Saque-Aniversário** | [Planalto — Lei 13.932/2019](https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2019/lei/l13932.htm) |
+| **Lei nº 7.998/1990** | **Seguro-Desemprego** | [Planalto — Lei 7.998/1990](https://www.planalto.gov.br/ccivil_03/leis/l7998.htm) |
+| **Lei nº 9.656/1998, art. 30** | **Manutenção do Plano de Saúde Coletivo após Demissão** | [Planalto — Lei 9.656/1998](https://www.planalto.gov.br/ccivil_03/leis/l9656.htm) |
+| **Lei nº 10.741/2003** | **Estatuto da Pessoa Idosa** | [Planalto — Lei 10.741/2003](https://www.planalto.gov.br/ccivil_03/leis/2003/l10.741.htm) |
+| **Código Civil, art. 1.783-A** (incluído pela Lei nº 13.146/2015) | **Tomada de Decisão Apoiada** | [Planalto — Lei 13.146/2015](https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13146.htm) |

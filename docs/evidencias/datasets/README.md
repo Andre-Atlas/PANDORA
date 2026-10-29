@@ -54,7 +54,7 @@ Bases públicas de transações financeiras e fraude, usadas como referência de
 
 ## 4. Amostra de Dataset Sintético das Personas PANDORA
 
-Amostra de transações **fictícias** das quatro personas do problema, com rótulos de categoria, apostas e fraude:
+Amostra de transações **fictícias** das dez personas do problema, com rótulos de categoria, apostas e fraude:
 
 📄 **[`amostra_transacoes_sinteticas_personas.csv`](amostra_transacoes_sinteticas_personas.csv)**
 
@@ -63,13 +63,13 @@ Amostra de transações **fictícias** das quatro personas do problema, com rót
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `transaction_id` | `string (UUID)` | Identificador único da transação sintética |
-| `persona_id` | `string` | `carla_34` (superendividada), `diego_24` (compulsão em bets), `antonio_67` (aposentado/alvo de golpe), `mariana_28` (renda variável MEI/impulso em cartões), `julia_31` (reconstrução/investimento) |
+| `persona_id` | `string` | `carla_34` (superendividada), `diego_24` (compulsão em bets), `antonio_67` (aposentado/alvo de golpe), `mariana_28` (renda variável MEI/impulso em cartões), `julia_31` (reconstrução/investimento), `rosangela_43` (benefício social/bets na família), `rafael_39` (cheque especial crônico), `lucas_19` (primeiro cartão/golpes digitais), `fernanda_46` (demissão/rescisão), `patricia_53` (cuidadora; linhas `CONTA DELEGADA MAE` vêm da visão delegada da conta da mãe) |
 | `posted_at` | `datetime (ISO)` | Data e hora da transação (inclui horários de madrugada para capturar compulsão e anomalias) |
 | `amount` | `decimal` | Valor em R$ (negativo para saídas, positivo para entradas) |
 | `payment_method` | `string` | `PIX`, `CREDIT_CARD`, `DEBIT_CARD`, `BOLETO`, `DIRECT_DEBIT` |
 | `description_masked` | `string` | Descrição normalizada e sem PII (conforme diretriz LGPD) |
 | `mcc` | `string` | *Merchant Category Code* (ex.: `7995` para apostas, `5411` supermercado, `6012` instituições financeiras) |
-| `category` | `string` | Categoria rotulada (`RENDA`, `MORADIA`, `ALIMENTACAO`, `DIVIDA_JUROS`, `APOSTAS_BETS`, `FRAUDE_SUSPEITA`, `INVESTIMENTO`, `TRANSPORTE`) |
+| `category` | `string` | Categoria rotulada (`RENDA`, `MORADIA`, `ALIMENTACAO`, `DIVIDA_JUROS`, `APOSTAS_BETS`, `FRAUDE_SUSPEITA`, `INVESTIMENTO`, `TRANSPORTE`, `COMPRAS_IMPULSO`, `SAUDE`) |
 | `is_bet` | `boolean` | `true` quando a transação é destinada a operadora de aposta |
 | `anomaly_score` | `float (0..1)` | Score de anomalia/risco calculado (valores `>= 0.80` indicam comportamento de risco) |
 | `ground_truth_note` | `string` | Explicação do comportamento representado |

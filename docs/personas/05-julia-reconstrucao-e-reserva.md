@@ -3,7 +3,7 @@
 > **Arquétipo:** Reconstrução Pós-Dívida, Ansiedade de Recaída e Educação de Investimentos sob Guardrails CVM
 > *"Finalmente limpei meu nome, mas morro de medo de voltar pro vermelho ou de perder meu dinheiro seguindo dica de influenciador."*
 
-[⬅️ Persona Anterior: Mariana (28)](04-mariana-impulso-e-cartoes.md) · [Voltar ao índice](README.md)
+[⬅️ Persona Anterior: Mariana (28)](04-mariana-impulso-e-cartoes.md) · [Voltar ao índice](README.md) · [Próxima Persona: Rosângela (43) ➡️](06-rosangela-beneficio-e-bets-na-familia.md)
 
 ---
 

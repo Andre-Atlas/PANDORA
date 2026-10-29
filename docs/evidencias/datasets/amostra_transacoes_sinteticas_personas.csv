@@ -21,3 +21,23 @@ tx-0019,mariana_28,2026-10-14T11:20:00,-980.00,CREDIT_CARD,PAGTO BOLETO FATURA C
 tx-0020,julia_31,2026-10-05T08:00:00,4500.00,PIX,CREDITO SALARIO CLT EMPRESA TECH,0000,RENDA,false,0.01,Salario mensal de Julia apos quitar dividas antigas
 tx-0021,julia_31,2026-10-05T10:00:00,-500.00,DIRECT_DEBIT,APLICACAO TESOURO SELIC RESERVA EMERGENCIA,6211,INVESTIMENTO,false,0.02,Aporte automatico na Reserva de Emergencia logo apos receber salario
 tx-0022,julia_31,2026-10-11T19:20:00,-320.00,CREDIT_CARD,FARMACIA E SAUDE,5912,SAUDE,false,0.03,Despesa planejada dentro da meta do orcamento adaptativo
+tx-0023,rosangela_43,2026-10-17T06:40:00,700.00,PIX,CREDITO BENEFICIO BOLSA FAMILIA,0000,RENDA,false,0.01,Beneficio social mensal de Rosangela (renda protegida)
+tx-0024,rosangela_43,2026-10-17T23:12:00,-120.00,PIX,PIX ENVIADO OPERADORA BET.BR,7995,APOSTAS_BETS,true,0.88,Aposta no mesmo dia do credito do beneficio feita pelo filho com a senha da titular
+tx-0025,rosangela_43,2026-10-18T02:05:00,-200.00,PIX,PIX ENVIADO INTERMEDIADORA JOGOS ONLINE,7995,APOSTAS_BETS,true,0.94,Escalada de madrugada em horario incompativel com a rotina da titular
+tx-0026,rosangela_43,2026-10-20T09:30:00,-160.00,PIX,PIX ENVIADO PESSOA FISICA *** EMPRESTIMO,4829,DIVIDA_JUROS,false,0.81,Juros de 20% a.m. pagos a agiota sem amortizacao do principal
+tx-0027,rafael_39,2026-10-10T06:00:00,5200.00,DIRECT_DEBIT,CREDITO VENCIMENTOS SERVIDOR ESTADUAL,0000,RENDA,false,0.01,Salario liquido de professor da rede estadual
+tx-0028,rafael_39,2026-10-10T06:05:00,-640.00,DIRECT_DEBIT,CONSIGNADO SERVIDOR BANCO B,6012,DIVIDA_JUROS,false,0.30,Consignado a 1.85% a.m. com margem livre de R$ 450
+tx-0029,rafael_39,2026-10-10T06:10:00,-205.40,DIRECT_DEBIT,JUROS + IOF CHEQUE ESPECIAL,6012,DIVIDA_JUROS,false,0.83,Juros de 7.9% a.m. sobre saldo medio negativo de R$ 2.600 (24 dias no vermelho)
+tx-0030,rafael_39,2026-10-15T08:00:00,-520.00,DIRECT_DEBIT,PARCELA EMPRESTIMO PESSOAL BANCO A,6012,DIVIDA_JUROS,false,0.72,Emprestimo a 5.2% a.m. contratado para zerar o cheque especial
+tx-0031,lucas_19,2026-10-05T10:00:00,1400.00,PIX,CREDITO BOLSA ESTAGIO,0000,RENDA,false,0.01,Bolsa-estagio mensal de Lucas
+tx-0032,lucas_19,2026-10-03T21:15:00,-159.00,CREDIT_CARD,LOJA ONLINE SMARTPHONE PARC 01/12,5732,COMPRAS_IMPULSO,false,0.45,Primeira compra parcelada em 12x no primeiro cartao de credito
+tx-0033,lucas_19,2026-10-09T22:47:00,-389.00,PIX,PIX ENVIADO PESSOA FISICA *** OUTLET,4829,FRAUDE_SUSPEITA,false,0.93,Golpe de loja falsa anunciada no Instagram (CNPJ inexistente e dominio recente)
+tx-0034,lucas_19,2026-10-21T19:30:00,-120.00,PIX,PIX ENVIADO PESSOA FISICA *** TAXA VIP,4829,FRAUDE_SUSPEITA,false,0.96,Golpe da tarefa paga: pagamento para liberar saque de comissoes
+tx-0035,fernanda_46,2026-10-01T09:00:00,13600.00,PIX,CREDITO VERBAS RESCISORIAS TRCT,0000,RENDA,false,0.10,Verbas rescisorias apos demissao sem justa causa (12 anos de CLT)
+tx-0036,fernanda_46,2026-10-06T11:00:00,28900.00,PIX,CREDITO MULTA 40% FGTS,0000,RENDA,false,0.08,Multa rescisoria liberada; saldo do FGTS bloqueado pelo saque-aniversario
+tx-0037,fernanda_46,2026-10-20T08:00:00,2500.00,PIX,CREDITO SEGURO-DESEMPREGO PARC 1/5,0000,RENDA,false,0.02,Primeira de 5 parcelas do seguro-desemprego (cobre 45% das despesas essenciais)
+tx-0038,fernanda_46,2026-10-10T07:00:00,-1450.00,DIRECT_DEBIT,PARCELA FINANCIAMENTO IMOBILIARIO SFH,6012,MORADIA,false,0.05,Despesa essencial fixa; amortizar agora reduziria o folego de ~10 para ~5 meses
+tx-0039,patricia_53,2026-10-02T07:30:00,-92.50,DIRECT_DEBIT,CONTA DELEGADA MAE DESCONTO RMC CARTAO CONSIGNADO,6012,FRAUDE_SUSPEITA,false,0.91,Reserva de margem de cartao consignado nao reconhecida no beneficio da mae (visao delegada)
+tx-0040,patricia_53,2026-10-02T07:31:00,-45.00,DIRECT_DEBIT,CONTA DELEGADA MAE CONTRIBUICAO ASSOCIATIVA,6012,FRAUDE_SUSPEITA,false,0.89,Desconto associativo nao autorizado no beneficio da mae (visao delegada)
+tx-0041,patricia_53,2026-10-08T14:20:00,-310.00,DEBIT_CARD,FARMACIA MEDICAMENTOS ALZHEIMER,5912,SAUDE,false,0.12,Medicamentos que podem ser obtidos gratuitamente pelo CEAF/SUS
+tx-0042,patricia_53,2026-10-12T09:00:00,-690.00,DIRECT_DEBIT,PARCELAMENTO FATURA CARTAO 03/12,6012,DIVIDA_JUROS,false,0.70,Parcelamento de fatura a 8% a.m. acumulado com custos do cuidado da mae
