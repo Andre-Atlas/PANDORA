@@ -63,7 +63,7 @@ Amostra de transações **fictícias** das quatro personas do problema, com rót
 | Coluna | Tipo | Descrição |
 |---|---|---|
 | `transaction_id` | `string (UUID)` | Identificador único da transação sintética |
-| `persona_id` | `string` | `carla_34` (superendividada), `diego_24` (compulsão em bets), `antonio_67` (aposentado/alvo de golpe), `julia_29` (reconstrução/investimento) |
+| `persona_id` | `string` | `carla_34` (superendividada), `diego_24` (compulsão em bets), `antonio_67` (aposentado/alvo de golpe), `mariana_28` (renda variável MEI/impulso em cartões), `julia_31` (reconstrução/investimento) |
 | `posted_at` | `datetime (ISO)` | Data e hora da transação (inclui horários de madrugada para capturar compulsão e anomalias) |
 | `amount` | `decimal` | Valor em R$ (negativo para saídas, positivo para entradas) |
 | `payment_method` | `string` | `PIX`, `CREDIT_CARD`, `DEBIT_CARD`, `BOLETO`, `DIRECT_DEBIT` |

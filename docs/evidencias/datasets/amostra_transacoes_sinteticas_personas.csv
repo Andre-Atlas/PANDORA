@@ -14,6 +14,10 @@ tx-0012,antonio_67,2026-10-02T07:30:00,2412.00,DIRECT_DEBIT,BENEFICIO PREVIDENCI
 tx-0013,antonio_67,2026-10-02T07:35:00,-723.60,DIRECT_DEBIT,CONSIGNADO INSS CONTRATO 04,6012,DIVIDA_JUROS,false,0.55,Desconto direto de 30% do beneficio em consignado
 tx-0014,antonio_67,2026-10-12T16:18:00,-1198.00,BOLETO,PAGTO BOLETO COBRANCA TERCEIROSPF *** CPF,6012,FRAUDE_SUSPEITA,false,0.97,Boleto de renegociacao falsa com beneficiario PF divergente do banco credor
 tx-0015,antonio_67,2026-10-18T19:45:00,-1800.00,PIX,PIX ENVIADO CONTA DESCONHECIDA FORA PADRAO,4829,FRAUDE_SUSPEITA,false,0.98,Golpe da falsa central telefonica: transferencia de alto valor para novo destinatario
-tx-0016,julia_29,2026-10-05T08:00:00,4500.00,PIX,CREDITO SALARIO CLT EMPRESA TECH,0000,RENDA,false,0.01,Salario mensal de Julia apos quitar dividas antigas
-tx-0017,julia_29,2026-10-05T10:00:00,-500.00,DIRECT_DEBIT,APLICACAO TESOURO SELIC RESERVA EMERGENCIA,6211,INVESTIMENTO,false,0.02,Aporte automatico na Reserva de Emergencia logo apos receber salario
-tx-0018,julia_29,2026-10-11T19:20:00,-320.00,CREDIT_CARD,FARMACIA E SAUDE,5912,SAUDE,false,0.03,Despesa planejada dentro da meta do orcamento adaptativo
+tx-0016,mariana_28,2026-10-08T15:10:00,3200.00,PIX,RECEBIMENTO PROJETO DESIGN MEI CLIENTE A,0000,RENDA,false,0.02,Receita variavel de projeto freelancer MEI
+tx-0017,mariana_28,2026-10-09T23:48:00,-489.90,CREDIT_CARD,MARKETPLACE FAST FASHION PARC 01/10,5651,COMPRAS_IMPULSO,false,0.82,Compra noturna por impulso parcelada no Cartao Digital 3
+tx-0018,mariana_28,2026-10-10T00:35:00,-319.00,CREDIT_CARD,LOJA ELETRONICOS ONLINE PARC 01/12,5732,COMPRAS_IMPULSO,false,0.86,Segunda compra de madrugada apos pico de estresse de trabalho
+tx-0019,mariana_28,2026-10-14T11:20:00,-980.00,CREDIT_CARD,PAGTO BOLETO FATURA CARTAO 1 NO CARTAO 2,6012,DIVIDA_JUROS,false,0.91,Rolo de divida: pagando fatura de um cartao usando limite de outro com taxa de 4.99% a.m.
+tx-0020,julia_31,2026-10-05T08:00:00,4500.00,PIX,CREDITO SALARIO CLT EMPRESA TECH,0000,RENDA,false,0.01,Salario mensal de Julia apos quitar dividas antigas
+tx-0021,julia_31,2026-10-05T10:00:00,-500.00,DIRECT_DEBIT,APLICACAO TESOURO SELIC RESERVA EMERGENCIA,6211,INVESTIMENTO,false,0.02,Aporte automatico na Reserva de Emergencia logo apos receber salario
+tx-0022,julia_31,2026-10-11T19:20:00,-320.00,CREDIT_CARD,FARMACIA E SAUDE,5912,SAUDE,false,0.03,Despesa planejada dentro da meta do orcamento adaptativo
