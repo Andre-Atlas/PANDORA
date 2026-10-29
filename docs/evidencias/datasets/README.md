@@ -17,7 +17,7 @@ O **Estrategista de Dívidas** e os **Simuladores Educacionais** consomem direta
 | Código SGS | Nome da Série Oficial (BCB) | Unidade | Uso no PANDORA |
 |---|---|---|---|
 | **`25477`** | Taxa média mensal de juros — Pessoas físicas — Cartão de crédito rotativo total | % a.m. | Detectar juros abusivos no cartão da persona **Carla** e priorizar quitação/renegociação. |
-| **`20749`** | Taxa média de juros — Pessoas físicas — Cartão de crédito rotativo total | % a.a. | Exibir comparativo anualizado no **Raio-X Financeiro** (ex.: 435,9% a.a.). |
+| **`22022`** | Taxa média de juros — Pessoas físicas — Cartão de crédito rotativo | % a.a. | Exibir comparativo anualizado no **Raio-X Financeiro** (ex.: 451,71% a.a. em set/2026). |
 | **`25463`** | Taxa média mensal de juros — Pessoas físicas — Cheque especial | % a.m. | Verificar conformidade com o teto regulatório de 8% a.m. (Resolução CMN 4.765/2019). |
 | **`25464`** | Taxa média mensal de juros — Pessoas físicas — Crédito pessoal não consignado | % a.m. | Simular troca de dívida cara (rotativo) por linha de custo menor. |
 | **`25467`** | Taxa média mensal de juros — Pessoas físicas — Crédito pessoal consignado INSS | % a.m. | Auditar contratos de consignado da persona **Sr. Antônio (67 anos)**. |
