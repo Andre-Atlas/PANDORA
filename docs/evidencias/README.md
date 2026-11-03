@@ -8,7 +8,7 @@ Este diretório consolida todas as **fontes primárias, marcos legais, jurisprud
 
 ---
 
-## 🧭 Índice de Navegação Rápida (Leitura Facilitada no GitHub)
+## 🧭 Índice de Navegação Rápida
 
 | # | Documento / Pasta | Conteúdo Principal | Leitura Direta |
 |---|---|---|---|
