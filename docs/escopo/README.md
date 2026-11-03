@@ -7,9 +7,10 @@
 
 ---
 
-## 📄 Versão Consolidada em PDF (Padrão Científico / Acadêmico)
+## 📄 Versões Consolidadas em PDF (Padrão Científico / Acadêmico)
 
-- 📕 **[`PANDORA-Documento-de-Escopo-CBL.pdf`](PANDORA-Documento-de-Escopo-CBL.pdf)** — Documento formatado em padrão de artigo científico/acadêmico (tipografia serifada *Cambria / Times New Roman*, margens amplas, espaçamento entre parágrafos e tabelas, Resumo, Palavras-chave, Sumário estruturado, Tabelas numeradas com fonte e Referências Bibliográficas).
+- 📕 **[`PANDORA-Documento-de-Escopo-CBL.pdf`](PANDORA-Documento-de-Escopo-CBL.pdf)** — Documento completo formatado em padrão de artigo científico/acadêmico (tipografia serifada *Cambria / Times New Roman*, margens amplas, espaçamento entre parágrafos e tabelas, Resumo, Palavras-chave, Sumário estruturado, Tabelas numeradas com fonte e Referências Bibliográficas).
+- 📘 **[`PANDORA-Documento-de-Escopo-CBL-5-Paginas.pdf`](PANDORA-Documento-de-Escopo-CBL-5-Paginas.pdf)** — **Versão Enxuta de 5 Páginas Exatas** ([`documento-enxuto-5-paginas.md`](documento-enxuto-5-paginas.md)), contendo Sumário, Resumo, Cenário, Problema, Essential Question, 10 Guiding Questions, 6 Stakeholders, 10 Personas, 18 RF + 9 RNF nos 4 Graus de Necessidade, 8 Riscos, 5 Premissas, Métricas e Referências.
 
 ---
 
