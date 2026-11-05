@@ -1,0 +1,52 @@
+/*
+ * Só layout do app. Cores, fontes, espaços e raios vêm de tokens.css e
+ * bundle.css: não redefina nenhum deles aqui.
+ */
+
+html,
+body {
+  margin: 0;
+}
+
+body {
+  min-height: 100dvh;
+  background: var(--superficie);
+}
+
+/* .pd-tela é a moldura de 390x844 da galeria; no app ela ocupa a tela. */
+.app-tela {
+  width: 100%;
+  max-width: 480px;
+  min-height: 100dvh;
+  margin-inline: auto;
+  border-radius: 0;
+  /* clip, e não hidden: hidden quebraria o position: sticky da navegação. */
+  overflow: clip visible;
+}
+
+.app-conteudo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.app-tela > .pd-nav {
+  position: sticky;
+  bottom: 0;
+  z-index: 1;
+  padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
+}
+
+.app-carregando {
+  align-items: center;
+  justify-content: center;
+  padding: var(--espaco-4);
+  text-align: center;
+}
+
+.app-carregando-erro {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--espaco-4);
+}

@@ -1,0 +1,15 @@
+{
+  "name": "pandora",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "frontend/design-system"
+  ],
+  "scripts": {
+    "dev": "npm run dev -w @pandora/web",
+    "build": "npm run build -w @pandora/web",
+    "lint": "npm run lint -w @pandora/web",
+    "test": "npm run test -w @pandora/web",
+    "typecheck": "npm run typecheck -w @pandora/web"
+  }
+}
