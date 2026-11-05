@@ -4,6 +4,10 @@ import * as React from "react";
 export interface IconeProps { nome: string; tamanho?: number; traco?: number; rotulo?: string; className?: string }
 export function Icone(props: IconeProps): React.ReactElement;
 
+/** Faixa fina de ornamento grego para o registro de leitura. */
+export interface FrisoProps { tipo?: "meandro" | "onda" | "palmeta" | "serra" | "ramo"; tom?: "forte" | "vaso" | "base"; curto?: boolean; grande?: boolean }
+export function Friso(props: FrisoProps): React.ReactElement;
+
 /** Friso grego que abre todo cabeçalho do mito. */
 export interface MeandroProps {  }
 export function Meandro(props: MeandroProps): React.ReactElement;
@@ -19,6 +23,10 @@ export function CaixaMarca(props: CaixaMarcaProps): React.ReactElement;
 /** Elpis, a assistente: a esperança que ficou na caixa, em medalhão de figura negra. */
 export interface ElpisProps { tamanho?: number; estado?: "normal" | "ouvindo"; rotulo?: string }
 export function Elpis(props: ElpisProps): React.ReactElement;
+
+/** Brasão de etapa da trilha: emblema em figura negra no medalhão de meandro. */
+export interface BrasaoProps { emblema: "templo" | "balanca" | "espiral" | "oliveira" | "elmo" | "anfora"; estado?: "feito" | "atual" | "proximo"; tamanho?: number; rotulo?: string }
+export function Brasao(props: BrasaoProps): React.ReactElement;
 
 /** Ânfora que enche conforme a reserva cresce. */
 export interface AnforaProps { nivel: number; altura?: number; rotulo?: string }
@@ -61,7 +69,7 @@ export interface ConsentimentoProps { marcado?: boolean; children: React.ReactNo
 export function Consentimento(props: ConsentimentoProps): React.ReactElement;
 
 /** Contêiner do registro de leitura. */
-export interface CartaoProps { titulo?: string; sobre?: string; tom?: "apoio" | "alerta" | "ok"; className?: string; children?: React.ReactNode }
+export interface CartaoProps { titulo?: string; sobre?: string; tom?: "apoio" | "alerta" | "ok"; marco?: boolean; className?: string; children?: React.ReactNode }
 export function Cartao(props: CartaoProps): React.ReactElement;
 
 /** Etiqueta curta de estado, sempre com ícone e palavra. */
@@ -113,15 +121,19 @@ export interface CabecalhoElpisProps { nota?: string }
 export function CabecalhoElpis(props: CabecalhoElpisProps): React.ReactElement;
 
 /** Caminho com as seis etapas de educação financeira. */
-export interface TrilhaCaminhoProps { etapas?: {n: number; t: string; x: number; lado: "d" | "e"; estado: "feito" | "atual" | "proximo"; marco: string | null}[] }
+export interface TrilhaCaminhoProps { etapas?: {n: number; t: string; x: number; lado: "d" | "e"; estado: "feito" | "atual" | "proximo"; marco: string | null; emblema: string}[] }
 export function TrilhaCaminho(props: TrilhaCaminhoProps): React.ReactElement;
 
 /** Resposta de quiz com retorno que explica. */
 export interface QuizOpcaoProps { letra: string; estado?: "neutra" | "certa" | "revisar"; onClick?: () => void; children: React.ReactNode }
 export function QuizOpcao(props: QuizOpcaoProps): React.ReactElement;
 
+/** Área rolável com a barra em forma de coluna. */
+export interface RolagemProps { rotulo?: string; children?: React.ReactNode }
+export function Rolagem(props: RolagemProps): React.ReactElement;
+
 /** Moldura de celular com 390px de tela para mostrar telas. */
-export interface AparelhoProps { topo?: "leitura" | "mito" | "base"; children?: React.ReactNode }
+export interface AparelhoProps { topo?: "leitura" | "mito" | "base"; altura?: number; children?: React.ReactNode }
 export function Aparelho(props: AparelhoProps): React.ReactElement;
 
 /** Cabeçalho do registro do mito, com meandro e serra. */

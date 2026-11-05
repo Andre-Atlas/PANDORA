@@ -13,6 +13,8 @@
   --texto-2: #5c4f44;
   --linha: #e3d3ba;
   --linha-forte: #857261;
+  --ornamento: #d2a57c;
+  --ornamento-forte: #a8430f;
   --acao: #a8430f;
   --on-acao: #ffffff;
   --selecao: #fdeedd;
@@ -40,6 +42,8 @@
   --texto-2: #d6c9b8;
   --linha: #43372c;
   --linha-forte: #a08e7c;
+  --ornamento: #7d5a40;
+  --ornamento-forte: #ff9a55;
   --acao: #ff9a55;
   --on-acao: #1a1410;
   --selecao: #3a2415;
@@ -68,6 +72,7 @@
   --alvo-minimo: 44px;
   --altura-botao: 52px;
   --altura-botao-ampliado: 72px;
-  --font-marca: "Cinzel", Georgia, serif;
-  --font-texto: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
+  --font-marca: "Cinzel Decorative", "Cinzel", Georgia, serif;
+  --font-texto: Optima, "Optima nova", "Ysabeau Office", sans-serif;
+  --font-acessivel: "Atkinson Hyperlegible Next", "Atkinson Hyperlegible", system-ui, sans-serif;
 }
