@@ -22,7 +22,7 @@
 
 ## 2. Ancoragem nas Evidências (Notícias, Artigos e Leis)
 
-- **Notícias e Estatísticas:** Representa os **81,7 milhões de brasileiros inadimplentes** ([Serasa, mar/2026](../evidencias/noticias/README.md)) e os **12,5% das famílias que declaram não ter condições de pagar suas contas em atraso** ([CNC/Peic, set/2026](../evidencias/noticias/README.md)). O uso do cartão para itens básicos colocou Carla no **rotativo do cartão**, cuja taxa média atingiu **435,9% ao ano** em fev/2026 ([Agência Brasil / BCB, Série SGS `20749`](../evidencias/datasets/README.md)).
+- **Notícias e Estatísticas:** Representa os **81,7 milhões de brasileiros inadimplentes** ([Serasa, mar/2026](../evidencias/noticias/README.md)) e os **12,5% das famílias que declaram não ter condições de pagar suas contas em atraso** ([CNC/Peic, set/2026](../evidencias/noticias/README.md)). O uso do cartão para itens básicos colocou Carla no **rotativo do cartão**, cuja taxa média atingiu **435,9% ao ano** em fev/2026 ([Agência Brasil / BCB, Série SGS `22022`](../evidencias/datasets/README.md)).
 - **Literatura Científica:** Apresenta pontuação crítica de estresse financeiro (*overwhelming financial distress*) na escala **InCharge IFDFW (Prawitz et al., 2006)**, com reflexos diretos em insônia e ansiedade.
 - **Marcos Legais:** Caso clássico de aplicação da **Lei do Superendividamento (Lei nº 14.181/2021)**, do teto de 100% sobre o valor original da dívida do rotativo (**Lei nº 14.690/2023**) e da impenhorabilidade salarial (**CPC, art. 833, IV**).
 
@@ -50,7 +50,7 @@
 
 ### Caso 1 · Diagnóstico Seguro via Upload de Faturas em PDF (`Módulo 1: Raio-X`)
 - **Como ela usa:** Com medo de conectar o banco via Open Finance e ter o salário retido pelo credor, Carla escolhe **"Enviar fatura ou extrato em PDF/Foto"**.
-- **O que o sistema faz:** O `Agente Multimodal` extrai os dados via OCR; o `Compliance Guard` mascara seu CPF; o `Analista de Dados` identifica que o CET de 448% a.a. está acima da média oficial do Banco Central (**Série SGS `20749`**) e mostra que R$ 342 do que ela pagou no mês foram apenas encargos.
+- **O que o sistema faz:** O `Agente Multimodal` extrai os dados via OCR; o `Compliance Guard` mascara seu CPF; o `Analista de Dados` identifica que o CET de 448% a.a. está acima da média oficial do Banco Central (**Série SGS `22022`**) e mostra que R$ 342 do que ela pagou no mês foram apenas encargos.
 
 ### Caso 2 · Blindagem do Mínimo Existencial e Priorização (`Módulo 3: Reestruturação`)
 - **Como ela usa:** Carla pergunta no chat: *"Se eu pagar a fatura inteira e o empréstimo, meus filhos ficam sem comer. O que eu pago primeiro?"*

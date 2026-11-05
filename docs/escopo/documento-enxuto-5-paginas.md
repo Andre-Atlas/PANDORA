@@ -154,7 +154,7 @@ O sistema foi modelado sobre **10 personas exclusivas** detalhadas em `docs/pers
 |---|---|---|---|---|
 | **RF01** | 1. Raio-X | Ingestão e normalização via **Open Finance *sandbox*** (Pluggy/Belvo) **e** upload de **OFX, CSV e PDF**. | P01, P04, P07, P09 | 🔴 **Grau 1 — Must-Have** |
 | **RF02** | 1. Raio-X | Classificação supervisionada de transações (8 categorias), segregando o **Mínimo Existencial** e insumos MEI. | Todas (P01–P10) | 🔴 **Grau 1 — Must-Have** |
-| **RF03** | 1. Raio-X | Consolidação do **Mapa de Dívidas** (CET, saldo, atraso) comparado às séries da **API SGS/BCB** (`20749`, `25477`, `25463`, `25467`). | P01, P03, P07, P10 | 🔴 **Grau 1 — Must-Have** |
+| **RF03** | 1. Raio-X | Consolidação do **Mapa de Dívidas** (CET, saldo, atraso) comparado às séries da **API SGS/BCB** (`22022`, `25477`, `25463`, `25467`). | P01, P03, P07, P10 | 🔴 **Grau 1 — Must-Have** |
 | **RF04** | 2. Compulsão | Detecção de apostas (*bets*) via MCC `7995` e **lista SPA/MF**, calculando **perda líquida real** e concentração noturna/pós-repasse. | P02, P06 | 🔴 **Grau 1 — Must-Have** |
 | **RF05** | 2. Compulsão | Diálogo empático sem estigma com disparo imediato do **Protocolo de Crise** (`CVV 188`, CAPS AD, JA) em sofrimento agudo. | P02, P01, P06 | 🔴 **Grau 1 — Must-Have** |
 | **RF06** | 3. Dívidas | Motor determinístico **Avalanche** vs. **Bola de Neve**, blindando 100% do Mínimo Existencial (**Lei 14.181**) e teto do rotativo (**Lei 14.690**). | P01, P07, P08 | 🔴 **Grau 1 — Must-Have** |
@@ -243,7 +243,7 @@ O sistema foi modelado sobre **10 personas exclusivas** detalhadas em `docs/pers
 
 ## 10. Referências Bibliográficas e Normativas
 
-1. **BANCO CENTRAL DO BRASIL (BCB).** *Estudo Especial nº 119/2024: Mercado de apostas online no Brasil*; *Resolução BCB nº 147/2021 (MED Pix)*; *API SGS (Séries 12, 432, 433, 20749, 25463, 25464, 25467, 25477)*. Brasília: BCB, 2021–2026.
+1. **BANCO CENTRAL DO BRASIL (BCB).** *Estudo Especial nº 119/2024: Mercado de apostas online no Brasil*; *Resolução BCB nº 147/2021 (MED Pix)*; *API SGS (Séries 12, 432, 433, 22022, 25463, 25464, 25467, 25477)*. Brasília: BCB, 2021–2026.
 2. **BRASIL.** *Lei nº 14.181/2021* (Superendividamento e Mínimo Existencial); *Lei nº 14.690/2023* (Teto do rotativo); *Lei nº 14.790/2023* (*Bets*); *Lei nº 8.009/1990* (Bem de família); *Lei nº 10.741/2003* (Estatuto do Idoso); *Lei nº 13.105/2015* (CPC, art. 833); *Lei nº 13.709/2018* (LGPD).
 3. **COMISSÃO DE VALORES MOBILIÁRIOS (CVM).** *Resoluções CVM nº 19/2021, nº 20/2021 e nº 30/2021 (Suitability)*. Rio de Janeiro: CVM, 2021.
 4. **CNC.** *Pesquisa de Endividamento e Inadimplência do Consumidor (PEIC)*. Rio de Janeiro: CNC, jul.–set. 2026.
