@@ -1,0 +1,24 @@
+regra_id,prioridade,arquetipo,categoria,subtipo,recorrente,hora_ini,hora_fim,valor_max,trab,is_essential,justificativa
+E01,1,*,TRANSPORTE,combustivel|manutencao_veiculo|ipva_seguro|pedagio_estacionamento,*,,,,True,True,"Veiculo usado para trabalhar (entregador, deslocamento ao emprego): sem ele cai a renda"
+E02,2,*,TRANSPORTE,bilhete_transporte,*,,,,*,True,Transporte publico: deslocamento basico
+E03,3,cuidadora_clt_plantoes,TRANSPORTE,app_transporte,*,22,5,,*,True,Plantao 12x36: sem transporte publico na madrugada
+E04,4,*,TRANSPORTE,combustivel|manutencao_veiculo|ipva_seguro|pedagio_estacionamento|app_transporte,*,,,,*,False,Uso pessoal ou lazer (inclui app de transporte fora de turno)
+E10,5,*,INSUMO_MEI,*,*,,,,True,True,"Insumo do trabalho do MEI (a mesma compra, feita para uso pessoal, vira LAZER e nao e essencial)"
+E20,6,*,SAUDE,estetica,*,,,,*,False,Estetica e discricionaria
+E21,7,*,SAUDE,*,*,,,,*,True,"Saude, plano, remedios e cuidador: minimo existencial"
+E30,8,*,ALIMENTACAO,mercado|padaria|feira,*,,,,*,True,Alimentacao basica
+E31,9,gig_economy_apostador|cuidadora_clt_plantoes,ALIMENTACAO,refeicao_trabalho,*,,,,*,True,Refeicao durante jornada ou plantao: nao ha como levar de casa
+E32,10,*,ALIMENTACAO,refeicao_trabalho|restaurante|delivery,*,,,,*,False,Refeicao fora de casa fora de contexto de turno: discricionaria
+E40,11,*,MORADIA,reparo,*,,,600,*,True,Manutencao basica da moradia ate R$ 600
+E41,12,*,MORADIA,reparo,*,,,,*,False,Reforma acima de R$ 600: nao e essencial
+E43,13,*,MORADIA,utensilios_casa,*,,,150,*,True,Utensilios basicos da casa ate R$ 150
+E44,14,*,MORADIA,utensilios_casa,*,,,,*,False,"Moveis, eletrodomesticos e decoracao acima de R$ 150 nao sao minimo existencial"
+E42,15,*,MORADIA,*,*,,,,*,True,"Aluguel, financiamento, condominio e IPTU"
+E50,16,*,UTILIDADES,tv_assinatura,*,,,,*,False,TV por assinatura e discricionaria
+E51,17,*,UTILIDADES,*,*,,,,*,True,"Luz, agua, gas, internet e celular"
+E60,18,*,EDUCACAO,mensalidade|cursinho|material_escolar,*,,,,*,True,Educacao formal da pessoa ou de dependente
+E61,19,demitida_rescisao,EDUCACAO,curso_online,True,,,,*,True,Requalificacao recorrente apos demissao
+E62,20,*,EDUCACAO,curso_online,*,,,,*,False,Curso livre e discricionario
+E70,21,*,LAZER|COMPRAS_IMPULSO,*,*,,,,*,False,Lazer e compras por impulso nao entram no minimo existencial
+E80,22,*,RENDA|DIVIDA_JUROS|INVESTIMENTO|TRANSFERENCIA|APOSTAS_BETS|FRAUDE_SUSPEITA,*,*,,,,*,False,"Classe de contexto: divida, renda, investimento e transferencia nao sao consumo essencial"
+E99,23,*,*,*,*,,,,*,False,Padrao: nao essencial

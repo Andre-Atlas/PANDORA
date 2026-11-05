@@ -1,0 +1,96 @@
+{
+  "seed": 42,
+  "criterio": "por persona_id (sem vazamento entre pessoas); previsor de fluxo com corte temporal adicional",
+  "alvo_70_15_15": [
+    0.7,
+    0.15,
+    0.15
+  ],
+  "personas": {
+    "treino": [
+      "diego_24",
+      "mariana_28",
+      "julia_31",
+      "fernanda_46",
+      "patricia_53"
+    ],
+    "validacao": [
+      "carla_34",
+      "lucas_19"
+    ],
+    "teste": [
+      "rafael_39"
+    ],
+    "holdout_generalizacao": [
+      "antonio_67",
+      "rosangela_43"
+    ]
+  },
+  "participacao_linhas_8_personas": {
+    "treino": 0.731,
+    "validacao": 0.171,
+    "teste": 0.097
+  },
+  "linhas": {
+    "treino": 9554,
+    "validacao": 2240,
+    "teste": 1269,
+    "holdout_generalizacao": 2337
+  },
+  "temporal_previsor": {
+    "treino_meses": [
+      "2025-11",
+      "2025-12",
+      "2026-01",
+      "2026-02",
+      "2026-03",
+      "2026-04",
+      "2026-05",
+      "2026-06",
+      "2026-07"
+    ],
+    "teste_meses": [
+      "2026-08",
+      "2026-09",
+      "2026-10"
+    ],
+    "treino_mes_idx": [
+      1,
+      2,
+      3,
+      4,
+      5,
+      6,
+      7,
+      8,
+      9
+    ],
+    "teste_mes_idx": [
+      10,
+      11,
+      12
+    ]
+  },
+  "colunas_alvo": [
+    "category",
+    "is_bet",
+    "is_fraud",
+    "anomaly_score",
+    "is_essential"
+  ],
+  "colunas_nao_usar_como_feature": [
+    "category",
+    "is_bet",
+    "is_fraud",
+    "anomaly_score",
+    "is_essential",
+    "regra_essencialidade_id",
+    "ground_truth_note",
+    "grafia_suja_bet",
+    "operadora_bet_autorizada",
+    "premio_recebido_bet",
+    "persona_id",
+    "sintetico"
+  ],
+  "observacao": "Com 10 personas o 70/15/15 exato por pessoa e impossivel; os grupos minimizam o desvio em participacao de linhas. O holdout (antonio_67, rosangela_43) fica fora do treino e da validacao."
+}

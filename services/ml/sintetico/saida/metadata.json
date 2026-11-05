@@ -1,0 +1,27 @@
+{
+  "seed": 42,
+  "n_meses": 12,
+  "personas": [
+    "carla_34",
+    "diego_24",
+    "antonio_67",
+    "mariana_28",
+    "julia_31",
+    "rosangela_43",
+    "rafael_39",
+    "lucas_19",
+    "fernanda_46",
+    "patricia_53"
+  ],
+  "fator_volume": 1.4,
+  "n_linhas": 15400,
+  "ruido_fn": 0.08,
+  "ruido_fp_lookalike": 0.08,
+  "holdout": [
+    "antonio_67",
+    "rosangela_43"
+  ],
+  "gerado_com": "numpy 2.5.3 pandas 3.0.6",
+  "sintetico": true,
+  "aviso": "Dados sinteticos. Nao representam pessoas reais."
+}

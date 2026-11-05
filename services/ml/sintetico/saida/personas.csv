@@ -1,0 +1,11 @@
+persona_id,nome_ficticio,idade,arquetipo,regime,escolaridade,score_credito,vulnerabilidade,renda_ref_mensal,n_contas,n_cartoes,n_tx_alvo,holdout,sintetico
+carla_34,Carla,34,superendividamento_clt,CLT,3,340,0.85,2850,1,1,1120,False,True
+diego_24,Diego,24,gig_economy_apostador,App/Autonomo,3,420,0.8,4850,1,1,2100,False,True
+antonio_67,Antonio,67,aposentado_vulneravel,INSS,2,560,0.95,2412,1,0,840,True,True
+mariana_28,Mariana,28,mei_volatil_impulso,MEI,5,450,0.75,4300,4,4,3500,False,True
+julia_31,Julia,31,pos_divida_clt,CLT,5,640,0.25,4500,1,1,1120,False,True
+rosangela_43,Rosangela,43,beneficiaria_social_bets_familia,Diarista+Bolsa Familia,1,280,0.9,1560,1,0,2100,True,True
+rafael_39,Rafael,39,servidor_cheque_especial,Servidor,5,520,0.5,7000,2,1,1120,False,True
+lucas_19,Lucas,19,jovem_primeiro_cartao,Estagio,4,500,0.55,1400,1,1,1680,False,True
+fernanda_46,Fernanda,46,demitida_rescisao,CLT -> Seguro-desemprego,4,600,0.35,4800,1,1,980,False,True
+patricia_53,Patricia,53,cuidadora_clt_plantoes,CLT 12x36 + plantoes,4,560,0.6,6650,2,1,1400,False,True
