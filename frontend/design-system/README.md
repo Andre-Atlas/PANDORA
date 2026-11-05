@@ -30,16 +30,37 @@ Toda tela combina dois registros. Nunca misture os dois no mesmo bloco.
 
 ## Tipografia
 
-- Use a família `texto` (Atkinson Hyperlegible Next) para todo texto e número. É uma fonte desenhada para baixa visão.
-- Use a família `marca` (Cinzel) só em títulos curtos da marca: `marca-xl`, `marca-lg`.
-- O corpo nunca fica abaixo de 16px (`corpo`). `apoio`, com 14px, serve só para metadados.
+- Use a família `texto` (Optima) para todo texto e número. Ela vem instalada em Mac e iPhone. Em Android e Windows entra Ysabeau Office, gratuita, e `font-size-adjust` iguala a altura de x das duas.
+- Use a família `marca` (Cinzel Decorative) só em títulos importantes, marcos e Abertura: `marca-xl`, `marca-lg`, `marca-md`. Ela pede no mínimo 20px e até cinco palavras. Nunca vai em parágrafo, número ou botão.
+- Use a família `acessivel` (Atkinson Hyperlegible Next) só em `TelaGuardiaoAmpliada` e `TelaCrise`, com a classe `.pd-acessivel`. Ali, ler sem esforço vem antes da marca.
+- O corpo nunca fica abaixo de 17px (`corpo`), porque a Optima tem altura de x baixa. `apoio`, com 15px, serve só para metadados.
+- A Optima só tem pesos 400, 700 e 900. Não peça 500 nem 800.
 - Números usam `valor-xl` ou `valor-lg`, com algarismos tabulares e formato brasileiro: R$ 2.100,00.
 - Nunca troque letras latinas por letras gregas para dar clima (Σ no lugar de E): isso destrói a leitura.
+
+## Ornamentos
+
+Os motivos gregos saem do vaso e entram no dia a dia da interface: meandro, onda, palmeta, ramo, serra, rosácea, coluna e voluta. Todos são vetores próprios. Use `Friso` para faixas soltas. Nas caixas e nos botões, eles já vêm no componente.
+
+- **Caixas de texto:** `Cartao`, `LinhaDivida`, `LinkCartao` e `OpcaoCartao` têm corte de folha, com chave grega nos dois cantos retos.
+- **Avisos:** cada estado tem sua forma. Alerta usa serra, ok usa ramo, insight usa palmeta, apoio usa meandro, e fonte oficial usa coluna jônica. A forma reforça o ícone e a palavra.
+- **Conversa:** o balão de Elpis tem filete de meandro e cauda em voluta. O balão da pessoa tem linha incisa laranja, como figura negra. Turnos diferentes podem ser separados por `Friso tipo="onda" curto`.
+- **Botões:** primário, mito e claro têm filete interno e chave nas pontas. Secundário tem borda dupla. Fantasma não tem ornamento.
+- **Rolagem:** a barra é uma coluna com caneluras, capitel e base. Use `Rolagem`, que traz um trilho próprio no toque, onde o sistema ignora o estilo da barra.
+
+Limites que mantêm o refino:
+
+- Um ornamento por bloco, nunca atrás de texto.
+- Ornamento decorativo usa `ornamento`. Ornamento que reforça estado ou ação usa `ornamento-forte` ou a cor do estado.
+- Ornamento fica parado e escondido de leitores de tela.
+- `.pd-contido` deixa só filetes, para a leitura ampliada. `.pd-sem-ornamento` tira todos, para o fluxo de crise.
+- O meandro corre em um só sentido. Nunca gire o ladrilho em quatro direções nem use formas de cruz gancheada.
+- Espadas, troféus e máscaras ficam de fora: não têm relação com o mito nem com um produto sem competição.
 
 ## Espaço, forma e sombra
 
 - A margem lateral é `espaco-4`. Cartões ficam separados por `espaco-3`.
-- Cartões usam `raio-md`, botões usam `raio-pilula`. A única sombra é `sombra-cartao`.
+- Cartões usam corte de folha: `raio-md` em dois cantos e 2px nos dois com chave. Botões usam `raio-pilula`. A única sombra é `sombra-cartao`.
 - Alvo de toque mínimo: `alvo-minimo` (44px). Botões têm `altura-botao`, ou `altura-botao-ampliado` em leitura ampliada.
 - Uma decisão por tela nos fluxos de pergunta: título centrado, opções em cartão, CTA em pílula embaixo.
 - A base preta do vaso vira a navegação: `NavBase` sobe no centro para acolher Elpis, com 5 itens sempre rotulados.
@@ -56,6 +77,7 @@ Toda tela combina dois registros. Nunca misture os dois no mesmo bloco.
 - Ícones de `Icone`: traço de 2px, grade de 24px, pontas arredondadas, cor herdada do texto. Sem emoji.
 - Os espíritos da caixa usam `traco` com contorno em `tinta`, como figura reservada em vaso.
 - `Elpis` é um medalhão: mulher em figura negra sobre `laranja-vaso`, dentro do anel de meandro. A partir de 72px mostra a figura inteira. Abaixo disso, mostra o busto em anel simples. Não recolora, não recorte e não adicione expressões.
+- `Brasao` leva o mesmo medalhão à trilha, com um emblema por etapa: templo, balança, espiral de onda, ramo de oliveira, elmo e ânfora. Etapas à frente aparecem em contorno, nunca com cadeado.
 - `CaixaMarca` é a marca do produto. `Anfora` representa reserva guardada e enche conforme o valor.
 - A cena da abertura é a ilustração do mito do grupo `Cena`. Não redesenhe a figura de Pandora à mão.
 
@@ -63,7 +85,7 @@ Toda tela combina dois registros. Nunca misture os dois no mesmo bloco.
 
 Parte do público tem compulsão por apostas ou vive sob estresse financeiro. A trilha mostra progresso sem criar pressão.
 
-- Use: caminho visível, marcos fixos e previsíveis, conquistas por competência demonstrada, refazer sem custo.
+- Use: caminho visível com brasões, marcos fixos e previsíveis, conquistas por competência demonstrada, refazer sem custo.
 - Não use: recompensa aleatória, sorteio, ranking, contagem que zera, perda por erro, moeda virtual.
 - Quando a pessoa erra, explique com os números dela e com a fonte. Escreva "Vale rever este ponto", nunca "Errado".
 
