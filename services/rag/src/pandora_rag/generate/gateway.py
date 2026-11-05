@@ -54,7 +54,7 @@ class Gateway:
             self._anthropic = anthropic.Anthropic(max_retries=3, timeout=120)
         return self._anthropic
 
-    def gerar(self, chave: str, sistema: str, usuario: str, max_tokens: int = 1024) -> Completude:
+    def gerar(self, chave: str, sistema: str, usuario: str, max_tokens: int = 1024, json_modo: bool = False) -> Completude:
         m = self.config["modelos"][chave]
         mascarada: dict = {}
         if m.get("externo"):
@@ -65,7 +65,7 @@ class Gateway:
                 raise OrcamentoExcedido(f"orçamento de US$ {self.orcamento:.2f} atingido (gasto US$ {self.gasto:.2f})")
         t0 = time.perf_counter()
         if m["provedor"] == "ollama":
-            texto, tin, tout = self._ollama(m, sistema, usuario, max_tokens)
+            texto, tin, tout = self._ollama(m, sistema, usuario, max_tokens, json_modo)
         else:
             texto, tin, tout = self._anthropic_chamar(m, sistema, usuario, max_tokens)
         latencia = time.perf_counter() - t0
@@ -78,11 +78,11 @@ class Gateway:
                 f.write(json.dumps({"chave": chave, **{k: v for k, v in r.__dict__.items() if k != "texto"}}, ensure_ascii=False) + "\n")
         return r
 
-    def _ollama(self, m: dict, sistema: str, usuario: str, max_tokens: int) -> tuple[str, int, int]:
+    def _ollama(self, m: dict, sistema: str, usuario: str, max_tokens: int, json_modo: bool = False) -> tuple[str, int, int]:
         resp = httpx.post(
             f"{OLLAMA_URL}/api/chat",
             json={
-                "model": m["id"], "stream": False,
+                "model": m["id"], "stream": False, **({"format": "json"} if json_modo else {}),
                 "messages": [{"role": "system", "content": sistema}, {"role": "user", "content": usuario}],
                 "options": {"temperature": 0, "seed": 7, "num_ctx": 8192, "num_predict": max_tokens},
             },

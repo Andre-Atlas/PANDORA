@@ -8,4 +8,6 @@ modelos:
   llama31-8b: {provedor: ollama, id: "llama3.1:8b", externo: false}
   qwen25-7b:  {provedor: ollama, id: "qwen2.5:7b", externo: false}
   gemma2-9b:  {provedor: ollama, id: "gemma2:latest", externo: false}
+  qwen25-14b: {provedor: ollama, id: "qwen2.5:14b", externo: false}
+  gemma3-12b: {provedor: ollama, id: "gemma3:12b", externo: false}
   mistral-7b: {provedor: ollama, id: "mistral:latest", externo: false}
