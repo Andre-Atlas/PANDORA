@@ -3,6 +3,7 @@ import "@pandora/design-system/tokens.css";
 import "@pandora/design-system/components/bundle.css";
 import "./globals.css";
 import { CascaApp } from "@/components/CascaApp";
+import { CriseProvider } from "@/components/crise/CriseProvider";
 import { TemaProvider } from "@/components/TemaProvider";
 import { PandoraProvider } from "@/lib/pandora/PandoraProvider";
 import { scriptTemaInicial } from "@/lib/tema";
@@ -38,7 +39,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <TemaProvider>
           <PandoraProvider>
-            <CascaApp>{children}</CascaApp>
+            <CriseProvider>
+              <CascaApp>{children}</CascaApp>
+            </CriseProvider>
           </PandoraProvider>
         </TemaProvider>
       </body>

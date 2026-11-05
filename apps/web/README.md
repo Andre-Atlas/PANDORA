@@ -25,7 +25,8 @@ app/
   manifest.ts         manifesto do PWA (cores lidas de tokens.json)
   inicio/ dividas/ elpis/ trilha/ guardiao/   uma rota por aba
 components/
-  CascaApp.tsx        conteúdo + navegação inferior
+  CascaApp.tsx        conteúdo + navegação inferior (ou a tela de crise)
+  crise/              fluxo de crise: estado, tela e entrada pelo Guardião
   NavegacaoInferior.tsx   NavBase ligada ao roteador
   TemaProvider.tsx    preferência de tema (Sistema, Claro, Escuro)
   SeletorTema.tsx     Segmento para trocar o tema
@@ -35,6 +36,7 @@ lib/
   tema.ts             regras do tema e script que roda antes da pintura
   tokens.ts           leitura de tokens.json para onde CSS não chega
   navegacao.ts        abas e rotas
+  crise/contatos.ts   contatos de apoio, cada um com a fonte oficial conferida
 scripts/gerar-icones.mjs  ícones do PWA a partir da marca
 ```
 
@@ -56,7 +58,19 @@ Os tipos vêm de `components/index.d.ts`. Enquanto o bundle carrega, o app mostr
 
 **Casca.** O app usa a classe `.pd-tela` para herdar fonte, cor e foco do design system, mas ocupa a tela inteira em vez da moldura de 390×844 da galeria. A navegação fica presa ao rodapé e respeita a área segura do iPhone. O conteúdo vem antes da navegação no DOM.
 
+**Fluxo de crise (#81, RF05).** Fica num contexto acima de todas as rotas (`useCrise()`). Quando está ativo, a casca troca qualquer tela pela de apoio e tira a navegação. Nada de metas, avisos ou cobranças até a pessoa tocar em "Voltar quando eu quiser". O estado fica no `sessionStorage`, então recarregar a página não tira a pessoa da tela de apoio. O foco vai para o título ao abrir.
+
+- Hoje a tela abre pelo Guardião ("Precisa de apoio agora?"). O chat (#80) deve chamar `abrirCrise()` quando o classificador de crise (#64) disparar.
+- Toda meta ou aviso que for criado (#87, notificações) precisa checar `useCrise().ativa` antes de aparecer, porque a tela promete "Pausei metas e avisos".
+- Os contatos ficam em `lib/crise/contatos.ts`, cada um com a fonte oficial e a data em que foi conferido (5/11/2026). Os botões de contato são `<a>` com a aparência de `Botao`, porque o `Botao` do design system é sempre `<button>` e não aceita `href`.
+
 ## Pendências conhecidas
+
+- **Contatos do fluxo de crise, para o grupo decidir:**
+  - **Jogadores Anônimos** está fora da tela. Nenhuma fonte oficial confirmou o site: `jogadoresanonimos.com.br` responde, mas não deu para confirmar que é o JA Brasil. Quando alguém confirmar, basta preencher `href` e `fonte` em `contatos.ts`.
+  - **"Encontrar um CAPS AD"** abre a página de CAPS do Ministério da Saúde, porque não há buscador nacional oficial confirmado. A página explica que o CAPS atende sem consulta marcada e como achar o mais próximo (UBS ou Secretaria de Saúde).
+  - **SAMU 192** foi acrescentado para perigo imediato. Não está na galeria; o grupo deve validar.
+- **Proibição das apostas (MP nº 1.394, de 25/9/2026):** proíbe as apostas de quota fixa no Brasil. Por causa dela, a Plataforma Centralizada de Autoexclusão está indisponível. O guia de autoexclusão da galeria ("Guia passo a passo para sites .bet.br") não foi feito: o grupo precisa decidir o que ele vira. Afeta também a aba Apostas do Guardião, o RF04, o RF11 e a lista de operadoras da SPA/MF (#59).
 
 - **Componentes que ainda não podem ser controlados:** `CampoPergunta`, `Consentimento`, `Alternador` e `EscalaSentimento` não têm `onChange` nem `value`, e o `Alternador` guarda o próprio estado. A Abertura (#71), o chat (#80) e as travas (#81) precisam disso no design system.
 - **As `Tela*` não recebem dados:** são as telas estáticas da galeria. As telas reais devem ser montadas com os componentes menores.

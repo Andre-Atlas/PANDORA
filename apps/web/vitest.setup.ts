@@ -10,5 +10,7 @@ beforeEach(() => {
 afterEach(() => {
   cleanup();
   localStorage.clear();
+  sessionStorage.clear();
+  document.title = "";
   delete document.documentElement.dataset.theme;
 });

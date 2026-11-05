@@ -50,3 +50,10 @@ body {
   align-items: center;
   gap: var(--espaco-4);
 }
+
+/* Links de texto seguem a regra do design system: cor de ação. */
+.app-tela a:not(.pd-botao) {
+  color: var(--acao);
+  font-weight: 700;
+  text-underline-offset: 3px;
+}
