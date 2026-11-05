@@ -1,18 +1,17 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { BotaoLink } from "@/components/BotaoLink";
 import { EMERGENCIA, contatosVisiveis } from "@/lib/crise/contatos";
 import { usePandora } from "@/lib/pandora/PandoraProvider";
 import { useCrise } from "./CriseProvider";
 
 /**
  * Tela de crise (galeria E1), montada com as peças do design system.
- *
- * Os contatos são <a> com a aparência de `Botao`, porque o `Botao` do design
- * system é sempre <button> e não aceita href. Ligar e abrir página são links.
+ * Os contatos usam `BotaoLink`: ligar e abrir página são links, não botões.
  */
 export function TelaCrise() {
-  const { Elpis, Icone, Botao } = usePandora();
+  const { Elpis, Botao } = usePandora();
   const { fecharCrise } = useCrise();
   const titulo = useRef<HTMLHeadingElement>(null);
 
@@ -34,20 +33,11 @@ export function TelaCrise() {
       </h1>
       <p>Parece que este momento está pesado. Pausei metas e avisos. Falar com alguém pode ajudar, e é de graça.</p>
 
-      {contatosVisiveis().map((contato) => {
-        const externo = contato.href!.startsWith("http");
-        return (
-          <a
-            key={contato.id}
-            href={contato.href!}
-            className={`pd-botao pd-botao-${contato.variante} pd-botao-bloco`}
-            {...(externo ? { target: "_blank", rel: "noopener noreferrer" } : {})}
-          >
-            <Icone nome={contato.icone} tamanho={22} />
-            {contato.rotulo}
-          </a>
-        );
-      })}
+      {contatosVisiveis().map((contato) => (
+        <BotaoLink key={contato.id} href={contato.href!} icone={contato.icone} variante={contato.variante}>
+          {contato.rotulo}
+        </BotaoLink>
+      ))}
 
       <p className="pd-apoio">
         Se você corre perigo agora, ligue para o <a href={EMERGENCIA.href}>{EMERGENCIA.rotulo}</a>.
