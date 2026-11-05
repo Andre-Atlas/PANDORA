@@ -141,11 +141,18 @@
   }
   function SeloCalculado() { return h(Selo, { tom: 'fonte', icone: 'check' }, 'Calculado'); }
 
+  /* Disco de ícone para estados: o ícone vem sempre com palavra ao lado. */
+  function Disco(p) {
+    return h('span', { className: cx('pd-disco', 'pd-disco-' + p.tom, p.tamanho && 'pd-disco-' + p.tamanho), 'aria-hidden': true }, h(Icone, { nome: p.icone, tamanho: p.tamanho === 'grande' ? 34 : p.tamanho === 'pequeno' ? 16 : 20, traco: 2.6 }));
+  }
+
   /* Dados */
   function Cartao(p) {
+    var disco = p.tom === 'alerta' ? 'alerta' : p.tom === 'ok' ? 'check' : null;
+    var titulo = p.titulo ? h('h3', { className: p.marco ? 'pd-no-marco' : 'pd-cartao-titulo' }, p.titulo) : null;
     return h('section', { className: cx('pd-cartao', p.tom && 'pd-cartao-' + p.tom, p.className) },
       p.sobre ? h('p', { className: 'pd-cartao-sobre' }, p.sobre) : null,
-      p.titulo ? h('h3', { className: p.marco ? 'pd-no-marco' : 'pd-cartao-titulo' }, p.titulo) : null, p.children);
+      disco && titulo ? h('div', { className: 'pd-cartao-cabeca' }, h(Disco, { tom: p.tom, icone: disco }), titulo) : titulo, p.children);
   }
   function Trilho(p) {
     var total = p.total || p.partes.reduce(function (s, x) { return s + x.valor; }, 0);
@@ -489,7 +496,7 @@
       h(Botao, { bloco: true, icone: 'camera' }, 'Verificar boleto ou print'),
       h(Cartao, { tom: 'alerta', titulo: 'Não pague este boleto' },
         h('p', null, '“Quitação com 70% de desconto”, recebido por WhatsApp. ', h('strong', { className: 'pd-num' }, 'R$ 1.198,00'), '.'),
-        h('ul', { className: 'pd-lista' }, [['check', 'Linha digitável', 'Lida e conferida'], ['x', 'Banco do boleto', 'Diferente do banco credor'], ['x', 'Quem recebe', 'Conta de pessoa física']].map(function (l) { return h('li', { key: l[1] }, h(Icone, { nome: l[0], tamanho: 22, traco: 2.5 }), h('span', { className: 'pd-lista-texto' }, h('strong', null, l[1]), h('br'), l[2])); })),
+        h('ul', { className: 'pd-lista' }, [['check', 'Linha digitável', 'Lida e conferida'], ['x', 'Banco do boleto', 'Diferente do banco credor'], ['x', 'Quem recebe', 'Conta de pessoa física']].map(function (l) { return h('li', { key: l[1] }, h(Disco, { tom: l[0] === 'check' ? 'ok' : 'alerta', icone: l[0], tamanho: 'pequeno' }), h('span', { className: 'pd-lista-texto' }, h('strong', null, l[1]), h('br'), l[2])); })),
         h(Botao, { variante: 'secundario', bloco: true, icone: 'pessoas' }, 'Avisar pessoa de confiança')),
       h(Cartao, { titulo: 'Já fez o Pix?' },
         h('p', null, 'Dá para pedir a devolução pelo MED em até 80 dias.'),
@@ -502,7 +509,7 @@
   function TelaGuardiaoAmpliada() {
     return h(Aparelho, null, h('div', { className: 'pd-ampliado pd-acessivel pd-contido' },
       h('div', { className: 'pd-ampliado-veredito' },
-        h(Icone, { nome: 'alerta', tamanho: 44, traco: 2.5, className: 'pd-icone-tom', rotulo: 'Alerta' }),
+        h('span', { role: 'img', 'aria-label': 'Alerta' }, h(Disco, { tom: 'alerta', icone: 'alerta', tamanho: 'grande' })),
         h('h1', { className: 'pd-ampliado-titulo' }, 'PARE!'),
         h('p', { style: { fontWeight: 700 } }, 'Sr. Antônio, não pague este boleto.')),
       h('p', null, 'Ele tem o desenho do banco, mas o dinheiro vai para a conta de uma pessoa desconhecida.'),
@@ -577,7 +584,7 @@
   }
 
   window.Pandora = {
-    Icone: Icone, Friso: Friso, Meandro: Meandro, Serra: Serra, CaixaMarca: CaixaMarca, Elpis: Elpis, Brasao: Brasao, Anfora: Anfora,
+    Icone: Icone, Disco: Disco, Friso: Friso, Meandro: Meandro, Serra: Serra, CaixaMarca: CaixaMarca, Elpis: Elpis, Brasao: Brasao, Anfora: Anfora,
     Botao: Botao, BotaoIcone: BotaoIcone, BotaoVoz: BotaoVoz, Selo: Selo, SeloCalculado: SeloCalculado,
     Cartao: Cartao, Trilho: Trilho, Insight: Insight, LinkCartao: LinkCartao, CampoPergunta: CampoPergunta,
     Progresso: Progresso, OpcaoCartao: OpcaoCartao, EscalaSentimento: EscalaSentimento, Consentimento: Consentimento, Segmento: Segmento, Alternador: Alternador,
