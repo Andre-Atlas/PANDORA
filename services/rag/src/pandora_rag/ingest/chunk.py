@@ -25,9 +25,11 @@ ASPAS_ABRE = "“‘\"'"
 ASPAS_FECHA = "”’\"'"
 RE_ARTIGO = re.compile(r"^[“‘\"'\s]*Art\.?\s*(\d+(?:\.\d+)*)\s*(?:º|°|o\b)?\s*(?:-\s*([A-Z]))?(?![\wÀ-ú])", re.U)
 RE_CABECALHO = re.compile(r"^[“‘\"'\s]*Art\.?\s*[\d.]+\s*(?:º|°)?\s*(?:-\s*[A-Z])?\.?\s*", re.U)
+RE_ALTERADORA = re.compile(r"\b(?:passa|passam) a vigorar|\bacrescid[oa]s?\b|\bfica(?:m)? acrescid", re.I)
+RE_NORMA_ALVO = re.compile(r"((?:Lei(?: Complementar)?|Decreto-Lei|Decreto|Resolução(?: CMN| BCB)?) n[º°o]\s*[\d.]+(?:\s*,\s*de\s+\d{1,2}[º°]?\s+de\s+\w+\s+de\s+\d{4}|\s*,\s*de\s+\d{4})?)", re.I)
 RE_ESTRUTURA = re.compile(r"^(LIVRO|PARTE|TÍTULO|CAPÍTULO|SEÇÃO|SUBSEÇÃO)\b", re.I)
 RE_SUMULA = re.compile(r"^S[ÚU]MULA\s+(\d+)\s*(\(S[ÚU]MULA CANCELADA\))?\s*VEJA MAIS", re.I)
-RE_MARCADOR = re.compile(r"^\(\s*(Revogad[oa]|Vetad[oa]|VETADO|Vig[êe]ncia)[^)]*\)\.?(\s*\(Vig[êe]ncia\))?$", re.I)
+RE_MARCADOR = re.compile(r"^(\)\s*)?(\(\s*(Revogad[oa]|Vetad[oa]|VETADO|Vig[êe]ncia)[^)]*\)\.?(\s*\(Vig[êe]ncia\))?|(Vig[êe]ncia encerrada\s*)+)$", re.I)
 RE_ANOTACAO = re.compile(
     r"\s*\((?:Reda[çc][ãa]o dada|Inclu[íi]d[oa]|Vide|Vig[êe]ncia|Regulament|Produ[çc][ãa]o de efeito|Revogad)[^)]*\)\.?", re.I
 )
@@ -44,6 +46,7 @@ class Chunk:
     ordem: int = 0
     estrategia: str = "estrutural"
     citado: bool = False  # artigo entre aspas, inserido em outra norma
+    alvo: str | None = None  # norma alterada, quando citado
     descartes: dict = field(default_factory=dict)
 
     @property
@@ -56,7 +59,10 @@ class Chunk:
 
 
 def limpar_anotacoes(texto: str) -> str:
-    return re.sub(r"\s+", " ", RE_ANOTACAO.sub("", texto)).strip()
+    texto = RE_ANOTACAO.sub("", texto)
+    texto = re.sub(r"\(?\s*Vig[êe]ncia encerrada\s*\)?", " ", texto, flags=re.I)
+    texto = re.sub(r"[.…]{4,}", "[...]", texto)  # trecho inalterado em leis alteradoras
+    return re.sub(r"\s+", " ", texto).strip()
 
 
 def _sem_aspas(texto: str) -> str:
@@ -89,6 +95,7 @@ def por_artigo(fonte: Fonte, blocos: list[dict]) -> list[Chunk]:
     secao: str | None = None
     secao_pendente: str | None = None
     atual: dict | None = None
+    alvo_atual: str | None = None
     descartes = {"marcadores": 0, "artigos_revogados": 0, "fora_da_lista": 0}
     permitidos = set(fonte.itens) if fonte.itens else None
 
@@ -115,13 +122,14 @@ def por_artigo(fonte: Fonte, blocos: list[dict]) -> list[Chunk]:
                 sufixo = f"-p{k}" if len(partes) > 1 else ""
                 chunks.append(
                     Chunk(
-                        id=f"{fonte.id}#{atual['numero'] or 'preambulo'}{sufixo}",
+                        id=f"{fonte.id}#{'c' if atual['citado'] else ''}{atual['numero'] or 'preambulo'}{sufixo}",
                         fonte_id=fonte.id,
                         texto=texto,
                         artigo=rotulo,
                         secao=atual["secao"],
                         ordem=len(chunks),
                         citado=atual["citado"],
+                        alvo=atual["alvo"],
                     )
                 )
         atual = None
@@ -148,11 +156,14 @@ def por_artigo(fonte: Fonte, blocos: list[dict]) -> list[Chunk]:
                 "blocos": [_sem_aspas(t)],
                 "secao": secao,
                 "citado": t.lstrip()[:1] in ASPAS_ABRE,
+                "alvo": alvo_atual if t.lstrip()[:1] in ASPAS_ABRE else None,
             }
+            if not atual["citado"] and RE_ALTERADORA.search(t) and (m := RE_NORMA_ALVO.search(t)):
+                alvo_atual = re.sub(r"\s+", " ", m.group(1)).replace(" ,", ",")
             secao_pendente = None
             continue
         if atual is None:
-            atual = {"numero": None, "blocos": [t], "secao": "Preâmbulo", "citado": False}
+            atual = {"numero": None, "blocos": [t], "secao": "Preâmbulo", "citado": False, "alvo": None}
         else:
             atual["blocos"].append(_sem_aspas(t) if t.rstrip()[-1:] in ASPAS_FECHA else t)
     fechar()
@@ -289,11 +300,23 @@ def fixo(fonte: Fonte, blocos: list[dict], janela: int = JANELA_FIXA, sobreposic
     return chunks
 
 
+def garantir_ids_unicos(chunks: list[Chunk]) -> list[Chunk]:
+    """Anexos que reiniciam a numeração geram ids repetidos: o 2º recebe ~2, o 3º ~3."""
+    vistos: dict[str, int] = {}
+    for c in chunks:
+        vistos[c.id] = vistos.get(c.id, 0) + 1
+        if vistos[c.id] > 1:
+            c.id = f"{c.id}~{vistos[c.id]}"
+    return chunks
+
+
 def dividir(fonte: Fonte, blocos: list[dict], estrategia: str = "estrutural") -> list[Chunk]:
     if estrategia == "fixo":
-        return fixo(fonte, blocos)
-    if fonte.tipo in ("lei", "decreto", "resolucao"):
-        return por_artigo(fonte, blocos)
-    if fonte.tipo == "sumula":
-        return por_sumula(fonte, blocos)
-    return por_secao(fonte, blocos)
+        chunks = fixo(fonte, blocos)
+    elif fonte.tipo in ("lei", "decreto", "resolucao"):
+        chunks = por_artigo(fonte, blocos)
+    elif fonte.tipo == "sumula":
+        chunks = por_sumula(fonte, blocos)
+    else:
+        chunks = por_secao(fonte, blocos)
+    return garantir_ids_unicos(chunks)

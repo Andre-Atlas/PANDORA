@@ -103,3 +103,23 @@ def test_bloco_longo_de_cartilha_e_partido_em_frases():
     frase = "Esta é uma frase de teste com algumas palavras para contar. "
     ch = por_secao(f, blocos(frase * 80))
     assert len(ch) > 1 and all(c.palavras <= 330 for c in ch)
+
+
+def test_ids_unicos_com_artigo_citado_e_anexo_repetido():
+    b = blocos("Art. 1º A Lei passa a vigorar:", "‘Art. 2º ..........................................’", "Art. 2º Esta Lei vigora.", "ANEXO", "Art. 2º Outro anexo.")
+    ids = [c.id for c in por_artigo(fonte(), b)]
+    from pandora_rag.ingest.chunk import garantir_ids_unicos
+    assert "x#c2" in ids and "x#2" in ids
+    assert len(set(c.id for c in garantir_ids_unicos(por_artigo(fonte(), b)))) == len(ids)
+
+
+def test_texto_de_preenchimento_e_vigencia_encerrada_saem():
+    assert limpar_anotacoes("Art. 4º ........................ § 2º Novo.") == "Art. 4º [...] § 2º Novo."
+    assert limpar_anotacoes("Texto Vigência encerrada") == "Texto"
+
+
+def test_artigo_citado_guarda_a_norma_alterada():
+    b = blocos("Art. 30. A Lei nº 10.406, de 10 de janeiro de 2002 (Código Civil), passa a vigorar com as seguintes alterações:",
+               "“Art. 1.368-B. A alienação fiduciária confere ao credor.”", "Art. 31. Esta Lei entra em vigor.")
+    c = [x for x in por_artigo(fonte(), b) if x.citado][0]
+    assert c.alvo == "Lei nº 10.406, de 10 de janeiro de 2002"

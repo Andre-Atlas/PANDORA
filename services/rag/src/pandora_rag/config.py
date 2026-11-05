@@ -15,3 +15,17 @@ TEXT_DIR = DATA_DIR / "text"
 DB_URL = os.environ.get(
     "PANDORA_DB_URL", "postgresql://pandora:pandora_local@localhost:5433/pandora_rag"
 )
+
+
+def carregar_env(caminho: Path = ROOT / ".env") -> None:
+    """Lê chaves de .env (fora do git) sem sobrescrever variáveis já definidas."""
+    if not caminho.exists():
+        return
+    for linha in caminho.read_text(encoding="utf-8").splitlines():
+        linha = linha.strip()
+        if linha and not linha.startswith("#") and "=" in linha:
+            chave, _, valor = linha.partition("=")
+            os.environ.setdefault(chave.strip(), valor.strip().strip("\"'"))
+
+
+carregar_env()

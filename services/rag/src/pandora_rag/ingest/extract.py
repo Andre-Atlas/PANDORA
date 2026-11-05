@@ -73,14 +73,14 @@ def blocos_pdf(dados: bytes) -> list[tuple[int, str]]:
         blocos = [b for b in pagina.get_text("blocks", sort=True) if b[6] == 0]
         paginas.append([normalizar(b[4].replace("\n", " ")) for b in blocos])
     chave = lambda t: re.sub(r"\d+", "#", t)[:80]  # noqa: E731
-    # cabeçalho e rodapé: só os 2 primeiros e os 2 últimos blocos de cada página
-    freq = Counter(chave(t) for pag in paginas for t in set(pag[:2] + pag[-2:]) if t)
+    # cabeçalho e rodapé: só os 5 primeiros e os 3 últimos blocos de cada página
+    freq = Counter(chave(t) for pag in paginas for t in set(pag[:5] + pag[-3:]) if t)
     limite = max(3, int(len(paginas) * 0.4))
     saida: list[tuple[int, str]] = []
     for n, pag in enumerate(paginas, start=1):
         for k, t in enumerate(pag):
-            borda = k < 2 or k >= len(pag) - 2
-            if not t or len(t) < 2 or (borda and len(paginas) > 4 and freq[chave(t)] >= limite and len(t) < 120 and not PRESERVAR.match(t)):
+            borda = k < 5 or k >= len(pag) - 3
+            if not t or len(t) < 2 or (borda and len(paginas) > 4 and freq[chave(t)] >= limite and len(t) < 300 and not PRESERVAR.match(t)):
                 continue
             saida.append((n, t))
     return saida
