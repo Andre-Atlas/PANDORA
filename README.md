@@ -17,6 +17,51 @@
 | Pix para apostas online | **R$ 20,8 bilhões** em ago/2024 | [BCB, Estudo Especial 119/2024](https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE119_Analise_tecnica_sobre_o_mercado_de_apostas_online_no_Brasil_e_o_perfil_dos_apostadores.pdf) |
 | Vítimas de golpes com Pix ou boleto | **24 milhões**, quase R$ 29 bi (jul/2024–jun/2025) | [Datafolha/FBSP](https://www12.senado.leg.br/radio/1/noticia/2025/08/18/mais-de-24-milhoes-de-pessoas-foram-vitimas-de-golpes-pelo-pix) |
 
+## Telas
+
+Protótipo gerado pelo [design system](frontend/design-system/README.md): 7 telas e 2 estados, em 16 quadros.
+
+<table>
+  <tr>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-01.png" alt="1a · Abertura" width="200"><br><sub>1a · Abertura</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-02.png" alt="1b · Como se sente" width="200"><br><sub>1b · Como se sente</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-03.png" alt="1c · O que pesa" width="200"><br><sub>1c · O que pesa</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-04.png" alt="1d · Como começar" width="200"><br><sub>1d · Como começar</sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-05.png" alt="2 · Início (Raio-X)" width="200"><br><sub>2 · Início (Raio-X)</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-06.png" alt="3 · Dívidas" width="200"><br><sub>3 · Dívidas</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-07.png" alt="4a · Elpis: resposta com fonte" width="200"><br><sub>4a · Elpis: resposta com fonte</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-08.png" alt="4b · Elpis: limites" width="200"><br><sub>4b · Elpis: limites</sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-09.png" alt="4c · Elpis: voz" width="200"><br><sub>4c · Elpis: voz</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-10.png" alt="5a · Trilha" width="200"><br><sub>5a · Trilha</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-11.png" alt="5b · Trilha: lição" width="200"><br><sub>5b · Trilha: lição</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-12.png" alt="6a · Guardião: golpes" width="200"><br><sub>6a · Guardião: golpes</sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-13.png" alt="6b · Guardião: apostas" width="200"><br><sub>6b · Guardião: apostas</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-14.png" alt="7 · Metas e previsão" width="200"><br><sub>7 · Metas e previsão</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-15.png" alt="E1 · Fluxo de crise" width="200"><br><sub>E1 · Fluxo de crise</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-16.png" alt="E2 · Leitura ampliada" width="200"><br><sub>E2 · Leitura ampliada</sub></td>
+  </tr>
+</table>
+
+## Identidade visual
+
+<table>
+  <tr>
+    <td align="center"><img src="frontend/design-system/assets/Cena/pandora-cena.png" alt="Cena da abertura" width="200"><br><sub>Cena da abertura</sub></td>
+    <td align="center"><img src="frontend/design-system/assets/Marca/caixa-esperanca.svg" alt="Marca: caixa da esperança" width="120"><br><sub>Marca: caixa da esperança</sub></td>
+    <td align="center"><img src="frontend/design-system/assets/Marca/elpis-medalhao.svg" alt="Medalhão de Elpis" width="120"><br><sub>Medalhão de Elpis</sub></td>
+  </tr>
+</table>
+
+<img src="frontend/design-system/assets/Ornamentos/meandro.svg" alt="Ornamento meandro" width="480">
+
+<img src="frontend/design-system/assets/Ornamentos/serra.svg" alt="Ornamento serra" width="480">
+
 ## Documentação
 
 | Documento | Conteúdo |
