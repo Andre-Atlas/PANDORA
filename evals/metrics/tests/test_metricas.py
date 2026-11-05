@@ -121,3 +121,10 @@ def test_diferenca_pareada_e_mcnemar():
     assert d == pytest.approx(0.5) and lo > 0
     assert est.mcnemar_exato([True] * 20 + [False] * 5, [False] * 20 + [True] * 5) < 0.01
     assert est.mcnemar_exato([True, False], [True, False]) == 1.0
+
+
+def test_media_ignora_nan():
+    from evals.metrics.recuperacao import media
+
+    r = media([{"a": 1.0, "b": float("nan")}, {"a": 0.0, "b": 1.0}])
+    assert r["a"] == 0.5 and r["b"] == 1.0

@@ -81,5 +81,9 @@ def acerto_artigo(recuperados: list[tuple[str, str | None]], ouros: list[Ouro], 
 
 
 def media(linhas: list[dict[str, float]]) -> dict[str, float]:
-    chaves = linhas[0].keys()
-    return {c: sum(l[c] for l in linhas) / len(linhas) for c in chaves}
+    """Média por métrica ignorando NaN (ex.: acerto de artigo não se aplica a cartilha)."""
+    saida = {}
+    for c in linhas[0]:
+        v = [l[c] for l in linhas if not math.isnan(l[c])]
+        saida[c] = sum(v) / len(v) if v else float("nan")
+    return saida
