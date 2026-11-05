@@ -1,0 +1,13 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.DS_Store
+
+# Dados e pesos: reproduzíveis por corpus.lock e publicados em GitHub Releases
+services/rag/data/
+training/**/saida/
+mlruns/
+mlflow.db

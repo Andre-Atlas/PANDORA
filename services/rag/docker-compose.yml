@@ -1,0 +1,19 @@
+services:
+  db:
+    image: pgvector/pgvector:0.8.1-pg17
+    container_name: pandora-rag-db
+    environment:
+      POSTGRES_DB: pandora_rag
+      POSTGRES_USER: pandora
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pandora_local}
+    ports:
+      - "5433:5432"
+    volumes:
+      - pandora_rag_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pandora -d pandora_rag"]
+      interval: 5s
+      retries: 10
+
+volumes:
+  pandora_rag_db:

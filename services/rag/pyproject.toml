@@ -1,0 +1,41 @@
+[project]
+name = "pandora-rag"
+version = "0.1.0"
+description = "RAG híbrido do PANDORA sobre fontes oficiais de finanças pessoais"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+  "anthropic>=0.40",
+  "beautifulsoup4>=4.12",
+  "bm25s>=0.2",
+  "httpx>=0.27",
+  "lxml>=5.0",
+  "nltk>=3.9",
+  "numpy>=1.26",
+  "pgvector>=0.3",
+  "psycopg[binary]>=3.2",
+  "pydantic>=2.7",
+  "pymupdf>=1.24",
+  "pyyaml>=6.0",
+  "sentence-transformers>=5.0",
+  "typer>=0.12",
+]
+
+[project.optional-dependencies]
+eval = ["ragas>=0.2", "rouge-score>=0.1.2", "sacrebleu>=2.4", "scipy>=1.13"]
+train = ["accelerate>=1.0", "datasets>=3.0", "dspy>=2.5", "mlflow>=3.0", "optuna>=4.0", "scikit-learn>=1.5"]
+lora = ["mlx-lm>=0.20"]
+dev = ["pytest>=8.0", "ruff>=0.6"]
+
+[project.scripts]
+pandora-rag = "pandora_rag.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/pandora_rag"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests", "../../evals/metrics/tests"]
+pythonpath = ["src", "../.."]
