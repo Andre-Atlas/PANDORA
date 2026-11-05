@@ -8,6 +8,10 @@ export function Icone(props: IconeProps): React.ReactElement;
 export interface FrisoProps { tipo?: "meandro" | "onda" | "palmeta" | "serra" | "ramo"; tom?: "forte" | "vaso" | "base"; curto?: boolean; grande?: boolean }
 export function Friso(props: FrisoProps): React.ReactElement;
 
+/** Disco de ícone para estados, com anel duplo como os botões redondos. */
+export interface DiscoProps { tom: "alerta" | "ok"; icone: string; tamanho?: "pequeno" | "grande" }
+export function Disco(props: DiscoProps): React.ReactElement;
+
 /** Friso grego que abre todo cabeçalho do mito. */
 export interface MeandroProps {  }
 export function Meandro(props: MeandroProps): React.ReactElement;
