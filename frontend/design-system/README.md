@@ -1,0 +1,80 @@
+PANDORA é um copiloto financeiro com IA para pessoas endividadas ou com comportamento compulsivo. No mito, o que fica na caixa é a esperança: o sistema visual leva essa ideia para um app que precisa ser lido por quem está cansado, ansioso ou com pouca visão.
+
+## Princípio: dois registros
+
+Toda tela combina dois registros. Nunca misture os dois no mesmo bloco.
+
+**Registro do mito.** Laranja e preto de vaso grego em figura negra. Use em `CabecalhoMito`, na abertura, nos marcos da trilha e no medalhão de Elpis. Fundo `laranja-vaso`, texto e figuras em `tinta`, com `Meandro` em cima e `Serra` embaixo. Comporta um título curto e um único número-herói. Mantém as mesmas cores nos dois temas, porque é a pintura do vaso.
+
+**Registro de leitura.** Tudo o que a pessoa precisa decidir: valores, listas, perguntas, respostas. Fundo `superficie`, cartões em `cartao`, texto em `texto` e `texto-2`, ações em `acao`.
+
+## Conteúdo e voz
+
+- Escreva em português do Brasil, com "você", frases curtas e voz ativa. Use o nome da pessoa quando houver.
+- Acolha sem julgar. A culpa é dos juros, nunca da pessoa. Escreva "O plano começa pela ordem certa", nunca "Você gastou demais".
+- Traduza toda sigla em reais por mês e, quando ajudar, em algo da vida real: "R$ 342,18 da sua fatura foram só juros e IOF. É metade do mercado do mês."
+- Dê um único próximo passo por tela.
+- Use sentence case em títulos e botões. PANDORA vai sempre em maiúsculas. Sem emoji.
+- Botões dizem o que acontece: "Ver o plano", "Gerar dossiê em PDF". Nunca ofereça "Pagar", "Depositar" ou "Investir": o produto só lê e nunca movimenta dinheiro.
+- Diante de golpe, seja direto: "Não pague este boleto." Em crise, retire toda meta e cobrança da tela.
+- Elpis é o nome da assistente, a Esperança do mito. Ela diz quando não sabe: "prefiro não adivinhar". Nunca recomenda ação, fundo ou título específico.
+
+## Cor
+
+- `laranja-vaso` nunca é cor de texto sobre `superficie` (2,6:1). Texto branco sobre `laranja-vaso` também reprova (2,8:1): use `tinta`.
+- Botões e links usam `acao` com `on-acao`. No tema escuro `acao` clareia e `on-acao` escurece.
+- `ok`, `alerta` e `fonte` são estados. Nunca use como decoração nem como cor de série. Vêm sempre com ícone e palavra, porque verde e vermelho não se distinguem só pela cor.
+- `fonte` também marca o que veio de fonte oficial ou de cálculo determinístico, para separar isso de texto gerado.
+- A navegação e outros blocos sobre `base` usam `papiro`, e o item ativo usa `laranja-claro`.
+- Anel de foco: 3px sólido em `foco`, com 2px de afastamento. Dentro de `.pd-mito`, tinta nos dois temas.
+
+## Tipografia
+
+- Use a família `texto` (Atkinson Hyperlegible Next) para todo texto e número. É uma fonte desenhada para baixa visão.
+- Use a família `marca` (Cinzel) só em títulos curtos da marca: `marca-xl`, `marca-lg`.
+- O corpo nunca fica abaixo de 16px (`corpo`). `apoio`, com 14px, serve só para metadados.
+- Números usam `valor-xl` ou `valor-lg`, com algarismos tabulares e formato brasileiro: R$ 2.100,00.
+- Nunca troque letras latinas por letras gregas para dar clima (Σ no lugar de E): isso destrói a leitura.
+
+## Espaço, forma e sombra
+
+- A margem lateral é `espaco-4`. Cartões ficam separados por `espaco-3`.
+- Cartões usam `raio-md`, botões usam `raio-pilula`. A única sombra é `sombra-cartao`.
+- Alvo de toque mínimo: `alvo-minimo` (44px). Botões têm `altura-botao`, ou `altura-botao-ampliado` em leitura ampliada.
+- Uma decisão por tela nos fluxos de pergunta: título centrado, opções em cartão, CTA em pílula embaixo.
+- A base preta do vaso vira a navegação: `NavBase` sobe no centro para acolher Elpis, com 5 itens sempre rotulados.
+
+## Movimento
+
+- Transições de 200 a 240ms, com saída suave. Nada pisca nem chacoalha.
+- Elpis ouvindo: o anel de meandro gira devagar em torno dela e `BotaoVoz` pulsa.
+- Respeite `prefers-reduced-motion`: os dois efeitos acima param.
+- Na trilha, nada de sorteio, roleta, moedas caindo ou celebração que lembre cassino.
+
+## Iconografia
+
+- Ícones de `Icone`: traço de 2px, grade de 24px, pontas arredondadas, cor herdada do texto. Sem emoji.
+- Os espíritos da caixa usam `traco` com contorno em `tinta`, como figura reservada em vaso.
+- `Elpis` é um medalhão: mulher em figura negra sobre `laranja-vaso`, dentro do anel de meandro. A partir de 72px mostra a figura inteira. Abaixo disso, mostra o busto em anel simples. Não recolora, não recorte e não adicione expressões.
+- `CaixaMarca` é a marca do produto. `Anfora` representa reserva guardada e enche conforme o valor.
+- A cena da abertura é a ilustração do mito do grupo `Cena`. Não redesenhe a figura de Pandora à mão.
+
+## Gamificação sem punição
+
+Parte do público tem compulsão por apostas ou vive sob estresse financeiro. A trilha mostra progresso sem criar pressão.
+
+- Use: caminho visível, marcos fixos e previsíveis, conquistas por competência demonstrada, refazer sem custo.
+- Não use: recompensa aleatória, sorteio, ranking, contagem que zera, perda por erro, moeda virtual.
+- Quando a pessoa erra, explique com os números dela e com a fonte. Escreva "Vale rever este ponto", nunca "Errado".
+
+## Confiança no RAG
+
+- Toda afirmação sobre lei, prazo ou direito leva `CitacaoCartao` com norma, artigo e link.
+- Toda conta leva `BlocoCalculado` ou `SeloCalculado`: vem do motor determinístico, não do modelo.
+- Sem fonte suficiente, Elpis se abstém com o selo "Sem fonte suficiente".
+- Pedido de recomendação de ativo vira "Recusa educativa", com critérios para a pessoa avaliar.
+- O modo de crise tem prioridade sobre qualquer tela.
+
+## Telas
+
+`Galeria` monta o mapa completo: 7 telas e 2 estados, em 16 quadros. A navegação inferior tem Início, Dívidas, Elpis, Trilha e Guardião. Metas e previsão abre a partir de Início.
