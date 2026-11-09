@@ -1,0 +1,12 @@
+{
+ "dev": {
+  "n": 8,
+  "original": 0.875,
+  "corrigido": 0.875
+ },
+ "teste": {
+  "n": 10,
+  "original": 0.6,
+  "corrigido": 0.7
+ }
+}

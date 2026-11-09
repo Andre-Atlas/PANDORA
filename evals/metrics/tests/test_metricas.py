@@ -128,3 +128,10 @@ def test_media_ignora_nan():
 
     r = media([{"a": 1.0, "b": float("nan")}, {"a": 0.0, "b": 1.0}])
     assert r["a"] == 0.5 and r["b"] == 1.0
+
+
+def test_decimal_zero_equivale_a_inteiro():
+    from evals.metrics.textos import numeros
+
+    assert numeros("R$ 600,00 por mês") == numeros("R$ 600")
+    assert "600" in numeros("R$ 600,00") and "600.00" not in numeros("R$ 600,00")

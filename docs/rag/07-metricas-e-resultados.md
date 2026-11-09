@@ -47,7 +47,10 @@ Configuração final: qwen2.5:14b, top-3, resposta de até 350 tokens, portão d
 
 **Leitura honesta.**
 - Citação e abstenção ficam abaixo da meta. Na normativa, 4% das respostas não trazem fonte válida.
-- O acerto de número caiu de 0,88 (dev) para 0,60 (teste). É a principal diferença entre os dois conjuntos e precisa ser investigada no segundo refinamento. Como o golden não foi revisado por humanos, parte dessa queda pode ser referência ruim e não resposta ruim.
+- O acerto de número ficou em 0,60 no teste (0,88 no dev). Investigado depois da rodada:
+  - Um dos dez itens era erro de métrica: `600,00` e `600` contavam como números diferentes. Corrigido, o teste vai para **0,70**. O valor original está preservado em `metrica_numero_corrigida.json` da execução. A correção foi feita depois de ver o teste; é um defeito do normalizador, não um parâmetro, e tem teste unitário.
+  - Os outros três itens são omissões reais: a resposta sobre penalidades de apostas usou outros valores em vez do "até 100%" do trecho (dois itens), e uma resposta de persona não citou a Lei 14.181.
+  - Com 8 itens no dev e 10 no teste, a diferença entre 0,88 e 0,70 é de uma ou duas perguntas. Não é estatisticamente conclusiva.
 - A latência média cumpre, mas o p95 não.
 - Os números do teste não guiaram nenhuma escolha.
 
