@@ -116,3 +116,37 @@ class Reranker:
 
     def pontuar(self, pergunta: str, textos: list[str]) -> list[float]:
         return [float(x) for x in self._ce.predict([(pergunta, t) for t in textos], batch_size=self.batch_size, show_progress_bar=False)]
+
+
+class RerankerQwen3:
+    """Qwen3-Reranker: LLM que responde sim/não; a nota é P(sim) entre as duas respostas possíveis."""
+
+    INSTRUCAO = "Dada uma pergunta de um consumidor, julgue se o trecho de norma ou cartilha a responde"
+    PREFIXO = ('<|im_start|>system\nJudge whether the Document meets the requirements based on the Query and the Instruct '
+               'provided. Note that the answer can only be "yes" or "no".<|im_end|>\n<|im_start|>user\n')
+    SUFIXO = "<|im_end|>\n<|im_start|>assistant\n<think>\n\n</think>\n\n"
+
+    def __init__(self, modelo: str = "Qwen/Qwen3-Reranker-4B", max_length: int = 1024, batch_size: int = 4):
+        import torch
+        from transformers import AutoModelForCausalLM, AutoTokenizer
+
+        self.modelo, self.max_length, self.batch_size = modelo, max_length, batch_size
+        self._tok = AutoTokenizer.from_pretrained(modelo, padding_side="left")
+        dispositivo = "mps" if torch.backends.mps.is_available() else "cpu"
+        self._lm = AutoModelForCausalLM.from_pretrained(modelo, torch_dtype=torch.float16).to(dispositivo).eval()
+        self._dispositivo = dispositivo
+        self._sim, self._nao = self._tok.convert_tokens_to_ids("yes"), self._tok.convert_tokens_to_ids("no")
+
+    def pontuar(self, pergunta: str, textos: list[str]) -> list[float]:
+        import torch
+
+        saida: list[float] = []
+        for i in range(0, len(textos), self.batch_size):
+            pares = [f"{self.PREFIXO}<Instruct>: {self.INSTRUCAO}\n<Query>: {pergunta}\n<Document>: {t}{self.SUFIXO}"
+                     for t in textos[i : i + self.batch_size]]
+            ent = self._tok(pares, return_tensors="pt", padding=True, truncation=True, max_length=self.max_length).to(self._dispositivo)
+            with torch.no_grad():
+                logits = self._lm(**ent).logits[:, -1, :]
+            duas = torch.stack([logits[:, self._nao], logits[:, self._sim]], dim=1).float()
+            saida += torch.softmax(duas, dim=1)[:, 1].cpu().tolist()
+        return saida

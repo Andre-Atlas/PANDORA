@@ -12,6 +12,7 @@ from pandora_rag.retrieve.hybrid import Parametros
 
 MINILM = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 BGE = "BAAI/bge-m3"
+QWEN_EMB = "Qwen/Qwen3-Embedding-4B"
 E5 = "intfloat/multilingual-e5-large"
 LEGAL = "rufimelo/Legal-BERTimbau-sts-large-ma-v3"
 HIB = Parametros()
@@ -35,6 +36,9 @@ CONFIGS = [
     ("3", "3e-hibrido-k1-2.0-b-0.75", "estrutural", BGE, HIB, True, 2.0, 0.75),
     ("3", "3f-hibrido-k1-1.5-b-0.5", "estrutural", BGE, HIB, True, 1.5, 0.5),
     ("3", "3g-hibrido-rrf-k-30", "estrutural", BGE, Parametros(rrf_k=30), True, 1.5, 0.75),
+    ("2q", "2e-estrutural-qwen3emb4b-hibrido", "estrutural", QWEN_EMB, HIB, True, 1.5, 0.75),
+    ("2q", "2f-estrutural-qwen3emb4b-vetor", "estrutural", QWEN_EMB, VET, True, 1.5, 0.75),
+    ("4q", "4b-hibrido-rerank-qwen3-4b", "estrutural", BGE, HIB, True, 1.5, 0.75),
     ("4", "4a-hibrido-rerank-bge", "estrutural", BGE, HIB, True, 1.5, 0.75),
 ]
 COLS = ["hit@1", "hit@3", "hit@5", "hit@10", "mrr", "ndcg@10", "artigo_top3"]
@@ -47,10 +51,13 @@ def main(estagios: set[str]):
         if estagios and est not in estagios:
             continue
         rr = None
-        if est == "4":
-            from pandora_rag.retrieve.hybrid import Reranker
-            reranker = reranker or Reranker()
-            rr = reranker
+        if est in ("4", "4q"):
+            from pandora_rag.retrieve.hybrid import Reranker, RerankerQwen3
+            if est == "4q":
+                rr = RerankerQwen3()
+            else:
+                reranker = reranker or Reranker()
+                rr = reranker
         r = rodar(nome, estr, modelo, params, "dev.v1", cab, k1, b, rr)
         g = r["geral"]
         linhas.append((nome, g))

@@ -22,7 +22,14 @@ dependencies = [
 
 [project.optional-dependencies]
 eval = ["ragas>=0.2", "rouge-score>=0.1.2", "sacrebleu>=2.4", "scipy>=1.13"]
-train = ["accelerate>=1.0", "datasets>=3.0", "dspy>=2.5", "mlflow>=3.0", "optuna>=4.0", "scikit-learn>=1.5"]
+train = [
+    "accelerate>=1.1.0",
+    "datasets>=3.0",
+    "dspy>=2.5",
+    "mlflow>=3.0",
+    "optuna>=4.0",
+    "scikit-learn>=1.5",
+]
 lora = ["mlx-lm>=0.20"]
 dev = ["pytest>=8.0", "ruff>=0.6"]
 
