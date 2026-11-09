@@ -1,0 +1,27 @@
+PERGUNTA: Minha dívida do cartão está muito alta. O que a Lei do Superendividamento prevê para eu renegociar com todos os credores de uma vez?
+
+CHUNKS RECUPERADOS:
+  [1] Cartilha do Superendividamento do Procon de Juiz de Fora   score=0.994
+      "Lei do superendividamento, você sabe o que diz? A Lei Federal nº. 14.181/21 altera a Lei nº 8.078, de 11 de setembro de 1990 (Código de Defesa do Consumidor), e a Lei nº 10.741, de 1º de outubro de 2003 (Estatuto do Idos..."
+  [2] Cartilha do Superendividamento do Procon de Juiz de Fora   score=0.980
+      "O que pode ser renegociado? A renegociação engloba as chamadas dívidas de consumo, como são os boletos e carnês, em sua maioria. Contas de água e luz, empréstimos contratados em bancos e financeiras, crediários e parcela..."
+  [3] Cartilha sobre o Tratamento do Superendividamento do Consumidor   score=0.969
+      "13. No Brasil, há proteção legal ao superendividado? Sim, o Código de Defesa do Consumidor previu a possibilidade de revisão e/ou repactuação das dívidas de forma consensual ou obrigatória para reorganizar o orçamento fa..."
+  [4] Lei 14.181/2021 (Lei do Superendividamento), inserido em Código de Defesa do Consumidor (Lei 8.078/1990) Art. 104-B  score=0.964
+      "Art. 104-B. Se não houver êxito na conciliação em relação a quaisquer credores, o juiz, a pedido do consumidor, instaurará processo por superendividamento para revisão e integração dos contratos e repactuação das dívidas..."
+  [5] Lei 14.181/2021 (Lei do Superendividamento), inserido em Código de Defesa do Consumidor (Lei 8.078/1990) Art. 104-C  score=0.961
+      "Art. 104-C. Compete concorrente e facultativamente aos órgãos públicos integrantes do Sistema Nacional de Defesa do Consumidor a fase conciliatória e preventiva do processo de repactuação de dívidas, nos moldes do art. 1..."
+
+RESPOSTA (qwen2.5:14b, 6.2s, US$ 0.0000):
+A Lei do Superendividamento permite que você renegocie todas as suas dívidas de consumo ao mesmo tempo, incluindo cartões de crédito, empréstimos e parcelamentos, em um único processo. Você pode procurar os órgãos de defesa do consumidor ou o Judiciário para iniciar esse procedimento. Durante a conciliação, será elaborado um plano de pagamentos que caiba no seu orçamento, garantindo que você possa manter as necessidades básicas de sobrevivência. Se algum credor não comparecer ou recusar a renegociação, o juiz pode instaurar um processo judicial para definir um plano compulsório de pagamento. [1][2][4]
+
+FONTES:
+  [1] Cartilha do Superendividamento do Procon de Juiz de Fora 
+      https://www.pjf.mg.gov.br/administracao_indireta/procon/material_grafico/cartilhas/arquivos/superendividamento.pdf
+      trecho: "Lei do superendividamento, você sabe o que diz? A Lei Federal nº. 14.181/21 altera a Lei nº 8.078, de 11 de setembro de 1990 (Código de Defesa do Consumidor), e a Lei nº 10.741, de 1º de outubro de 2003 (Estatuto do Idos..."
+  [2] Cartilha do Superendividamento do Procon de Juiz de Fora 
+      https://www.pjf.mg.gov.br/administracao_indireta/procon/material_grafico/cartilhas/arquivos/superendividamento.pdf
+      trecho: "O que pode ser renegociado? A renegociação engloba as chamadas dívidas de consumo, como são os boletos e carnês, em sua maioria. Contas de água e luz, empréstimos contratados em bancos e financeiras, crediários e parcela..."
+  [4] Lei 14.181/2021 (Lei do Superendividamento), inserido em Código de Defesa do Consumidor (Lei 8.078/1990) Art. 104-B
+      https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14181.htm
+      trecho: "Art. 104-B. Se não houver êxito na conciliação em relação a quaisquer credores, o juiz, a pedido do consumidor, instaurará processo por superendividamento para revisão e integração dos contratos e repactuação das dívidas..."

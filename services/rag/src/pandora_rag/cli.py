@@ -72,25 +72,26 @@ def buscar(pergunta: str, k: int = 5, tabela: str = "chunks", rerank: bool = Fal
 
 
 @app.command()
-def ask(pergunta: str, llm: str = "haiku", k: int = 5, tabela: str = "chunks", rerank: bool = True,
+def ask(pergunta: str, llm: str = "qwen25-14b", k: int = 5, tabela: str = "chunks", rerank: bool = True,
         modelo: str = MODELO_EMBEDDING, saida_json: Optional[bool] = False) -> None:
     """Consulta completa: busca, resposta fundamentada e fontes."""
+    from pandora_rag.config import LIMIAR_ABSTENCAO
     from pandora_rag.generate.answer import responder
     from pandora_rag.generate.gateway import Gateway
 
     retr = _retriever(modelo, tabela, rerank)
     hits = retr.buscar(pergunta, k)
-    resp = responder(Gateway(), llm, pergunta, hits)
+    resp = responder(Gateway(), llm, pergunta, hits, limiar_abstencao=LIMIAR_ABSTENCAO if rerank else None)
     if saida_json:
         typer.echo(json.dumps({"pergunta": pergunta, "resposta": resp.texto, "abstencao": resp.abstencao,
                                "citacoes": [c.__dict__ for c in resp.citacoes]}, ensure_ascii=False, indent=2))
         return
     typer.echo(f"PERGUNTA: {pergunta}\n\nCHUNKS RECUPERADOS:")
     for n, h in enumerate(hits, start=1):
-        typer.echo(f"  [{n}] {h.registro.norma} {h.registro.artigo or ''}  score={h.score:.3f}")
+        typer.echo(f"  [{n}] {h.registro.norma} {h.registro.artigo or ''}  score={h.score:.3f}\n      \"{' '.join(h.registro.texto.split())[:220]}...\"")
     typer.echo(f"\nRESPOSTA ({resp.modelo}, {resp.latencia_s:.1f}s, US$ {resp.custo_usd:.4f}):\n{resp.texto}\n\nFONTES:")
     for c in resp.citacoes:
-        typer.echo(f"  [{c.n}] {c.norma} {c.artigo or ''}\n      {c.link}")
+        typer.echo(f"  [{c.n}] {c.norma} {c.artigo or ''}\n      {c.link}\n      trecho: \"{' '.join(c.trecho.split())[:220]}...\"")
     if resp.abstencao:
         typer.echo("  (abstenção: sem trecho que sustente a resposta)")
 

@@ -61,3 +61,15 @@ def test_orcamento_bloqueia_chamada_externa():
     g.gasto = 1.0
     with pytest.raises(OrcamentoExcedido):
         g.gerar("m", "s", "u")
+
+
+class GatewayProibido:
+    def gerar(self, *a, **k):
+        raise AssertionError("o portão deveria barrar antes de chamar o LLM")
+
+
+def test_portao_barra_recuperacao_fraca_sem_chamar_llm():
+    h = hit()
+    h.score_rerank = 0.001
+    r = responder(GatewayProibido(), "qwen25-14b", "pergunta fora do corpus", [h], limiar_abstencao=0.02)
+    assert r.abstencao and r.modelo == "portao" and r.custo_usd == 0.0
