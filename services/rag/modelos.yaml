@@ -1,0 +1,13 @@
+# Candidatos do LLM Gateway. Trocar de modelo é trocar a chave; nenhum agente chama SDK direto.
+# Preços em US$ por 1M de tokens: tabela oficial da Anthropic em 2026-10-06 (reconferir antes de rodadas pagas).
+orcamento_usd: 30.0
+modelos:
+  haiku:    {provedor: anthropic, id: claude-haiku-5-5,  usd_in: 0.10, usd_out: 0.50, externo: true, effort: low}
+  sonnet:   {provedor: anthropic, id: claude-sonnet-5-5, usd_in: 2.00, usd_out: 10.00, externo: true, effort: low}
+  juiz:     {provedor: anthropic, id: claude-sonnet-5-5, usd_in: 2.00, usd_out: 10.00, externo: true, effort: medium}
+  llama31-8b: {provedor: ollama, id: "llama3.1:8b", externo: false}
+  qwen25-7b:  {provedor: ollama, id: "qwen2.5:7b", externo: false}
+  gemma2-9b:  {provedor: ollama, id: "gemma2:latest", externo: false}
+  qwen25-14b: {provedor: ollama, id: "qwen2.5:14b", externo: false}
+  gemma3-12b: {provedor: ollama, id: "gemma3:12b", externo: false}
+  mistral-7b: {provedor: ollama, id: "mistral:latest", externo: false}
