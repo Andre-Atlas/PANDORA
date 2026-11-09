@@ -1,0 +1,11 @@
+{
+ "citacao_valida": 1.0,
+ "recusa_indevida": 0.0,
+ "abstencao_correta": 0.4,
+ "acerto_numerico": 0.875,
+ "rougeL": 0.30180816505460406,
+ "bleu": 10.58990454978083,
+ "latencia_media_s": 8.602394957467457,
+ "latencia_p95_s": 13.777750749955885,
+ "n": 51
+}
