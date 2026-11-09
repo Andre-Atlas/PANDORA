@@ -1,0 +1,11 @@
+flowchart TD
+    A[fontes.yaml<br/>id, URL, órgão, tipo, vigência, ressalva] --> B[Etapa 1: Coleta<br/>HTTP/1.1, 3 tentativas, pausa de 1 s]
+    B --> C[(data/raw<br/>HTML, PDF, JSON do BCB)]
+    B --> D[corpus.lock<br/>SHA-256, bytes, data de coleta]
+    C --> E[Etapa 2: Extração<br/>HTML por blocos, PDF com pymupdf<br/>remove texto riscado e cabeçalhos]
+    E --> F[(data/text/id.jsonl)]
+    F --> G[Etapa 3: Chunking estrutural<br/>lei por artigo, súmula por verbete,<br/>cartilha por pergunta ou seção]
+    G --> H[Enriquecimento<br/>norma, artigo, link, vigência, ressalva, hash]
+    H --> I[Etapa 4: Embeddings bge-m3<br/>cache por conteúdo]
+    H --> J[Índice BM25 em memória<br/>reconstruído a cada versão]
+    I --> K[(PostgreSQL + pgvector<br/>tabela chunks, índice HNSW)]

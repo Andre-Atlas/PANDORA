@@ -75,9 +75,12 @@ def montar_citacoes(hits: list[Hit], numeros: list[int]) -> list[Citacao]:
     return saida
 
 
-def responder(gateway: Gateway, modelo: str, pergunta: str, hits: list[Hit], max_tokens: int = 700) -> Resposta:
+def responder(gateway: Gateway, modelo: str, pergunta: str, hits: list[Hit], max_tokens: int = 700,
+              limiar_abstencao: float | None = None) -> Resposta:
     if not hits:
         return Resposta(MENSAGEM_ABSTENCAO, True)
+    if limiar_abstencao is not None and hits[0].score_rerank is not None and hits[0].score_rerank < limiar_abstencao:
+        return Resposta(MENSAGEM_ABSTENCAO, True, [], hits, "portao", 0.0, 0.0)  # recuperação fraca: o LLM nem é chamado
     c = gateway.gerar(modelo, SISTEMA, montar_prompt(pergunta, hits), max_tokens=max_tokens)
     texto = c.texto.strip()
     numeros = citacoes_validas(texto, len(hits))

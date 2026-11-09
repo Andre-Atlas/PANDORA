@@ -1,0 +1,24 @@
+PERGUNTA: Sou jovem e gasto quase todo o meu salário em apostas online. Alguma lei me protege ou limita isso?
+
+CHUNKS RECUPERADOS:
+  [1] Estudo Especial BCB 119/2024: mercado de apostas online   score=0.078
+      "Idade ≤ 20 anos Pessoas Média de gasto Esses números se originam de um primeiro levantamento feito pelo BCB, com base em estimativas de valores apostados em agosto de 2024 a partir de transações via Pix. Para identificar..."
+  [2] Estudo Especial BCB 119/2024: mercado de apostas online   score=0.061
+      "Ainda em relação ao perfil dos apostadores, estima-se que, em agosto de 2024, 5 milhões de pessoas pertencentes a famílias beneficiárias do Bolsa Família (PBF) enviaram R$ 3 bilhões às empresas de aposta utilizando a pla..."
+  [3] Estudo Especial BCB 119/2024: mercado de apostas online   score=0.042
+      "Transferências Retenção Os valores mensais variaram entre R$ 18 bilhões e R$ 21 bilhões. Vale ressaltar que esses valores representam as transferências brutas; ou seja, são uma estimativa do quanto foi apostado no mês. C..."
+  [4] Lei 14.790/2023 (Apostas de quota fixa) Art. 21-A  score=0.042
+      "Art. 21-A. Constatada, pela autoridade reguladora ou supervisora competente, a exploração de loteria de apostas de quota fixa por pessoa natural ou jurídica não autorizada, as instituições financeiras, as instituições de..."
+  [5] Lei 14.790/2023 (Apostas de quota fixa) Art. 1  score=0.039
+      "Art. 1º [...] [...] § 7º O ato de autorização poderá impor limitação, por número de inscrição no Cadastro de Pessoas Físicas (CPF), da participação de consumidores em cada um dos sorteios, vales-brindes, concursos ou ope..."
+
+RESPOSTA (qwen2.5:14b, 9.8s, US$ 0.0000):
+Sim, há leis que podem limitar sua capacidade de fazer apostas online. A Lei 14.790/2023 permite que o ato de autorização imponha limitações por CPF na participação em sorteios ou operações semelhantes. Isso significa que as empresas de apostas podem ser obrigadas a limitar o quanto você pode apostar. Além disso, o Banco Central do Brasil pode bloquear contas de pessoas que realizam transações suspeitas relacionadas a apostas, como é o caso de quem gasta quase todo o salário nessa atividade [1][4]. É importante buscar ajuda financeira para controlar esse gasto e evitar problemas futuros.
+
+FONTES:
+  [1] Estudo Especial BCB 119/2024: mercado de apostas online 
+      https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE119_Analise_tecnica_sobre_o_mercado_de_apostas_online_no_Brasil_e_o_perfil_dos_apostadores.pdf
+      trecho: "Idade ≤ 20 anos Pessoas Média de gasto Esses números se originam de um primeiro levantamento feito pelo BCB, com base em estimativas de valores apostados em agosto de 2024 a partir de transações via Pix. Para identificar..."
+  [4] Lei 14.790/2023 (Apostas de quota fixa) Art. 21-A
+      https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14790.htm
+      trecho: "Art. 21-A. Constatada, pela autoridade reguladora ou supervisora competente, a exploração de loteria de apostas de quota fixa por pessoa natural ou jurídica não autorizada, as instituições financeiras, as instituições de..."
