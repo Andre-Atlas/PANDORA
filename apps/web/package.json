@@ -1,0 +1,39 @@
+{
+  "name": "@pandora/web",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "eslint",
+    "typecheck": "next typegen && tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "icones": "node scripts/gerar-icones.mjs",
+    "api:tipos": "openapi-typescript ../api/openapi.json -o lib/api/esquema.d.ts"
+  },
+  "dependencies": {
+    "@pandora/design-system": "*",
+    "next": "16.4.5",
+    "react": "19.3.0",
+    "react-dom": "19.3.0"
+  },
+  "devDependencies": {
+    "@testing-library/dom": "^10.4.2",
+    "@testing-library/jest-dom": "^7.0.1",
+    "@testing-library/react": "^16.3.3",
+    "@testing-library/user-event": "^14.6.8",
+    "@types/node": "^20.19.43",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
+    "@vitejs/plugin-react": "^6.2.1",
+    "eslint": "^9.39.5",
+    "eslint-config-next": "^16.4.5",
+    "eslint-plugin-jsx-a11y": "^6.10.2",
+    "jsdom": "^31.0.0",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5.9.3",
+    "vitest": "^5.1.0"
+  }
+}

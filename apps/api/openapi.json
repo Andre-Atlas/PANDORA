@@ -1,0 +1,2331 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "PANDORA API",
+    "description": "\nAPI do PANDORA. Front, ingestão, modelos e agentes conversam por aqui.\n\n- **Valores** em centavos inteiros. **Taxas** em decimal, enviadas como texto para não perder precisão.\n- **Erros** em `application/problem+json`.\n- Recursos que ainda não existem respondem **501** com a issue que vai implementá-los.\n- **Autenticação**: `POST /auth/sessoes` devolve um token; envie `Authorization: Bearer <token>`.\n- **Transação**: esquema em **rascunho** (dataset da #51), a fechar com a ingestão (#57).\n",
+    "version": "0.1.0"
+  },
+  "paths": {
+    "/saude": {
+      "get": {
+        "tags": [
+          "sistema"
+        ],
+        "summary": "A API está no ar",
+        "operationId": "saude",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Saude"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/cadastro": {
+      "post": {
+        "tags": [
+          "conta"
+        ],
+        "summary": "Criar conta",
+        "operationId": "cadastrar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Cadastro"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioSaida"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "Conflict",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Unprocessable Entity",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sessoes": {
+      "post": {
+        "tags": [
+          "conta"
+        ],
+        "summary": "Entrar",
+        "operationId": "entrar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/Credenciais"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SessaoSaida"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/sessoes/atual": {
+      "delete": {
+        "tags": [
+          "conta"
+        ],
+        "summary": "Sair",
+        "operationId": "sair",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/eu": {
+      "get": {
+        "tags": [
+          "conta"
+        ],
+        "summary": "Quem está conectado",
+        "operationId": "eu",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UsuarioSaida"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/consentimentos": {
+      "get": {
+        "tags": [
+          "privacidade"
+        ],
+        "summary": "Listar consentimentos, do mais novo ao mais antigo",
+        "operationId": "listar_consentimentos",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/ConsentimentoSaida"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Consentimentos"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      },
+      "post": {
+        "tags": [
+          "privacidade"
+        ],
+        "summary": "Registrar consentimento",
+        "operationId": "registrar_consentimento",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ConsentimentoEntrada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentimentoSaida"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/consentimentos/{consentimento_id}/revogacao": {
+      "post": {
+        "tags": [
+          "privacidade"
+        ],
+        "summary": "Revogar consentimento",
+        "operationId": "revogar_consentimento",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "consentimento_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Consentimento Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ConsentimentoSaida"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/eu/dados": {
+      "delete": {
+        "tags": [
+          "privacidade"
+        ],
+        "summary": "Apagar todos os meus dados",
+        "description": "Exclusão total e imediata: conta, sessões, consentimentos e tudo o que vier a ser guardado (RNF01).",
+        "operationId": "apagar_tudo",
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/extratos": {
+      "post": {
+        "tags": [
+          "raio-x"
+        ],
+        "summary": "Enviar extrato ou fatura (OFX, CSV ou PDF)",
+        "description": "Exige consentimento ativo para `diagnostico_financeiro`. O conteúdo do arquivo é tratado só como dado.",
+        "operationId": "enviar_extrato",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/Body_enviar_extrato"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "202": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtratoSaida"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "Forbidden",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/extratos/{extrato_id}": {
+      "get": {
+        "tags": [
+          "raio-x"
+        ],
+        "summary": "Situação de um extrato enviado",
+        "operationId": "situacao_extrato",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "extrato_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Extrato Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ExtratoSaida"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transacoes": {
+      "get": {
+        "tags": [
+          "raio-x"
+        ],
+        "summary": "Listar transações",
+        "operationId": "listar_transacoes",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mes",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^\\d{4}-\\d{2}$",
+                  "examples": [
+                    "2026-10"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Mes"
+            }
+          },
+          {
+            "name": "categoria",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "$ref": "#/components/schemas/Categoria"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "Categoria"
+            }
+          },
+          {
+            "name": "pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "minimum": 1,
+              "default": 1,
+              "title": "Pagina"
+            }
+          },
+          {
+            "name": "por_pagina",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "maximum": 200,
+              "minimum": 1,
+              "default": 50,
+              "title": "Por Pagina"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PaginaTransacoes"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/transacoes/{transacao_id}/categoria": {
+      "patch": {
+        "tags": [
+          "raio-x"
+        ],
+        "summary": "Corrigir a categoria com um toque (RF10)",
+        "operationId": "corrigir_categoria",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "transacao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid",
+              "title": "Transacao Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CorrecaoCategoria"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TransacaoSaida"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/raio-x": {
+      "get": {
+        "tags": [
+          "raio-x"
+        ],
+        "summary": "Raio-X do mês",
+        "operationId": "obter_raio_x",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "mes",
+            "in": "query",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "pattern": "^\\d{4}-\\d{2}$",
+              "examples": [
+                "2026-10"
+              ],
+              "title": "Mes"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RaioX"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/dividas": {
+      "get": {
+        "tags": [
+          "dividas"
+        ],
+        "summary": "Mapa de dívidas, com CET comparado à média do BCB (RF03)",
+        "operationId": "listar_dividas",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/DividaSaida"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Dividas"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/score": {
+      "get": {
+        "tags": [
+          "dividas"
+        ],
+        "summary": "Score de saúde financeira explicável (RF10)",
+        "operationId": "obter_score",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Score"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/plano": {
+      "post": {
+        "tags": [
+          "dividas"
+        ],
+        "summary": "Plano de pagamento: Avalanche ou Bola de Neve (RF06)",
+        "operationId": "gerar_plano",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PlanoEntrada"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Plano"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    },
+    "/previsao": {
+      "get": {
+        "tags": [
+          "previsao"
+        ],
+        "summary": "Previsão de caixa para 30, 60 ou 90 dias (RF13)",
+        "operationId": "obter_previsao",
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "horizonte",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "$ref": "#/components/schemas/Horizonte",
+              "description": "Dias à frente: 30, 60 ou 90.",
+              "default": 30
+            },
+            "description": "Dias à frente: 30, 60 ou 90."
+          },
+          {
+            "name": "a_partir_de",
+            "in": "query",
+            "required": false,
+            "schema": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "format": "date"
+                },
+                {
+                  "type": "null"
+                }
+              ],
+              "title": "A Partir De"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Previsao"
+                }
+              }
+            }
+          },
+          "401": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Unauthorized"
+          },
+          "501": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Not Implemented"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/chat": {
+      "post": {
+        "tags": [
+          "chat"
+        ],
+        "summary": "Perguntar à Elpis (RF09)",
+        "operationId": "perguntar",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PerguntaChat"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaChat"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "501": {
+            "description": "Not Implemented",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "HTTPBearer": []
+          }
+        ]
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "AlertaDivida": {
+        "properties": {
+          "tipo": {
+            "type": "string",
+            "enum": [
+              "risco_corte",
+              "teto_rotativo",
+              "acima_media_bcb"
+            ],
+            "title": "Tipo"
+          },
+          "mensagem": {
+            "type": "string",
+            "title": "Mensagem"
+          }
+        },
+        "type": "object",
+        "required": [
+          "tipo",
+          "mensagem"
+        ],
+        "title": "AlertaDivida"
+      },
+      "Body_enviar_extrato": {
+        "properties": {
+          "arquivo": {
+            "type": "string",
+            "contentMediaType": "application/octet-stream",
+            "title": "Arquivo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "arquivo"
+        ],
+        "title": "Body_enviar_extrato"
+      },
+      "Cadastro": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "senha": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 8,
+            "title": "Senha"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "senha"
+        ],
+        "title": "Cadastro"
+      },
+      "Calculo": {
+        "properties": {
+          "fonte": {
+            "type": "string",
+            "const": "motor_deterministico",
+            "title": "Fonte",
+            "default": "motor_deterministico"
+          },
+          "entradas": {
+            "items": {
+              "$ref": "#/components/schemas/EntradaCalculo"
+            },
+            "type": "array",
+            "title": "Entradas",
+            "description": "Valores usados no cálculo (#65)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "entradas"
+        ],
+        "title": "Calculo",
+        "description": "Presente em todo valor que vem do motor determinístico (RNF03).\n\nO front mostra o selo \"Calculado\" só quando este bloco existe."
+      },
+      "Categoria": {
+        "type": "string",
+        "enum": [
+          "MORADIA",
+          "UTILIDADES",
+          "ALIMENTACAO",
+          "SAUDE",
+          "TRANSPORTE",
+          "EDUCACAO",
+          "LAZER",
+          "COMPRAS_IMPULSO",
+          "INSUMO_MEI",
+          "RENDA",
+          "DIVIDA_JUROS",
+          "INVESTIMENTO",
+          "TRANSFERENCIA",
+          "APOSTAS_BETS",
+          "FRAUDE_SUSPEITA"
+        ],
+        "title": "Categoria"
+      },
+      "CitacaoSaida": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "norma": {
+            "type": "string",
+            "title": "Norma"
+          },
+          "artigo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Artigo"
+          },
+          "link": {
+            "type": "string",
+            "title": "Link"
+          },
+          "trecho": {
+            "type": "string",
+            "title": "Trecho"
+          },
+          "pagina": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Pagina"
+          },
+          "ressalva": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Ressalva",
+            "description": "Aviso de vigência da norma, quando houver."
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "norma",
+          "artigo",
+          "link",
+          "trecho"
+        ],
+        "title": "CitacaoSaida",
+        "description": "Mesmo formato da `Citacao` do RAG (services/rag, generate/answer.py)."
+      },
+      "ComponenteScore": {
+        "properties": {
+          "nome": {
+            "type": "string",
+            "enum": [
+              "comprometimento_renda",
+              "custo_medio_divida",
+              "reserva",
+              "dias_sem_apostas"
+            ],
+            "title": "Nome"
+          },
+          "valor": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Valor"
+          },
+          "peso": {
+            "type": "string",
+            "title": "Peso"
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome",
+          "valor",
+          "peso"
+        ],
+        "title": "ComponenteScore"
+      },
+      "ConsentimentoEntrada": {
+        "properties": {
+          "finalidade": {
+            "$ref": "#/components/schemas/Finalidade"
+          },
+          "versao_termo": {
+            "type": "string",
+            "maxLength": 40,
+            "minLength": 1,
+            "title": "Versao Termo",
+            "description": "Versão do termo aceito.",
+            "examples": [
+              "2026-11"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "finalidade",
+          "versao_termo"
+        ],
+        "title": "ConsentimentoEntrada"
+      },
+      "ConsentimentoSaida": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "finalidade": {
+            "$ref": "#/components/schemas/Finalidade"
+          },
+          "versao_termo": {
+            "type": "string",
+            "title": "Versao Termo"
+          },
+          "aceito_em": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Aceito Em"
+          },
+          "revogado_em": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "date-time"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Revogado Em"
+          },
+          "ativo": {
+            "type": "boolean",
+            "title": "Ativo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "finalidade",
+          "versao_termo",
+          "aceito_em",
+          "revogado_em",
+          "ativo"
+        ],
+        "title": "ConsentimentoSaida"
+      },
+      "CorrecaoCategoria": {
+        "properties": {
+          "categoria": {
+            "$ref": "#/components/schemas/Categoria"
+          }
+        },
+        "type": "object",
+        "required": [
+          "categoria"
+        ],
+        "title": "CorrecaoCategoria"
+      },
+      "Credenciais": {
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "senha": {
+            "type": "string",
+            "maxLength": 128,
+            "title": "Senha"
+          }
+        },
+        "type": "object",
+        "required": [
+          "email",
+          "senha"
+        ],
+        "title": "Credenciais"
+      },
+      "DividaSaida": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "credor": {
+            "type": "string",
+            "title": "Credor"
+          },
+          "saldo_centavos": {
+            "type": "integer",
+            "title": "Saldo Centavos"
+          },
+          "parcela_mensal_centavos": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Parcela Mensal Centavos"
+          },
+          "cet_anual": {
+            "type": "string",
+            "title": "Cet Anual",
+            "description": "Custo efetivo total ao ano, em %."
+          },
+          "media_bcb_cet_anual": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Media Bcb Cet Anual",
+            "description": "Média do BCB para a modalidade, em % ao ano."
+          },
+          "serie_sgs": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Serie Sgs",
+            "examples": [
+              "22022"
+            ]
+          },
+          "dias_atraso": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Dias Atraso"
+          },
+          "servico_essencial": {
+            "type": "boolean",
+            "title": "Servico Essencial",
+            "description": "Ex.: luz e água, com risco de corte."
+          },
+          "alertas": {
+            "items": {
+              "$ref": "#/components/schemas/AlertaDivida"
+            },
+            "type": "array",
+            "title": "Alertas"
+          },
+          "calculo": {
+            "$ref": "#/components/schemas/Calculo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "credor",
+          "saldo_centavos",
+          "parcela_mensal_centavos",
+          "cet_anual",
+          "dias_atraso",
+          "servico_essencial",
+          "alertas",
+          "calculo"
+        ],
+        "title": "DividaSaida"
+      },
+      "EntradaCalculo": {
+        "properties": {
+          "nome": {
+            "type": "string",
+            "title": "Nome",
+            "examples": [
+              "Renda do mês"
+            ]
+          },
+          "valor": {
+            "type": "string",
+            "title": "Valor",
+            "examples": [
+              "R$ 2.850,00"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "nome",
+          "valor"
+        ],
+        "title": "EntradaCalculo"
+      },
+      "ExtratoSaida": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "nome_arquivo": {
+            "type": "string",
+            "title": "Nome Arquivo"
+          },
+          "status": {
+            "$ref": "#/components/schemas/StatusExtrato"
+          },
+          "transacoes_importadas": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Transacoes Importadas"
+          },
+          "avisos": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Avisos",
+            "description": "Ex.: linhas que não deu para ler. Nada é inventado."
+          },
+          "recebido_em": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Recebido Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "nome_arquivo",
+          "status",
+          "recebido_em"
+        ],
+        "title": "ExtratoSaida"
+      },
+      "Finalidade": {
+        "type": "string",
+        "enum": [
+          "diagnostico_financeiro"
+        ],
+        "title": "Finalidade",
+        "description": "Para que a pessoa autoriza o uso dos dados (LGPD, art. 7º, I)."
+      },
+      "FormaPagamento": {
+        "type": "string",
+        "enum": [
+          "PIX",
+          "DEBIT_CARD",
+          "CREDIT_CARD",
+          "BOLETO",
+          "DIRECT_DEBIT"
+        ],
+        "title": "FormaPagamento"
+      },
+      "GastoPorCategoria": {
+        "properties": {
+          "categoria": {
+            "$ref": "#/components/schemas/Categoria"
+          },
+          "total_centavos": {
+            "type": "integer",
+            "title": "Total Centavos"
+          },
+          "essencial_centavos": {
+            "type": "integer",
+            "title": "Essencial Centavos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "categoria",
+          "total_centavos",
+          "essencial_centavos"
+        ],
+        "title": "GastoPorCategoria"
+      },
+      "HTTPValidationError": {
+        "properties": {
+          "detail": {
+            "items": {
+              "$ref": "#/components/schemas/ValidationError"
+            },
+            "type": "array",
+            "title": "Detail"
+          }
+        },
+        "type": "object",
+        "title": "HTTPValidationError"
+      },
+      "Horizonte": {
+        "type": "integer",
+        "enum": [
+          30,
+          60,
+          90
+        ],
+        "title": "Horizonte"
+      },
+      "ItemPlano": {
+        "properties": {
+          "posicao": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Posicao"
+          },
+          "divida_id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Divida Id"
+          },
+          "motivo": {
+            "type": "string",
+            "title": "Motivo",
+            "examples": [
+              "Maior custo total (CET)"
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "posicao",
+          "divida_id",
+          "motivo"
+        ],
+        "title": "ItemPlano"
+      },
+      "MetodoPlano": {
+        "type": "string",
+        "enum": [
+          "avalanche",
+          "bola_de_neve"
+        ],
+        "title": "MetodoPlano"
+      },
+      "OrigemCategoria": {
+        "type": "string",
+        "enum": [
+          "modelo",
+          "pessoa"
+        ],
+        "title": "OrigemCategoria"
+      },
+      "PaginaTransacoes": {
+        "properties": {
+          "itens": {
+            "items": {
+              "$ref": "#/components/schemas/TransacaoSaida"
+            },
+            "type": "array",
+            "title": "Itens"
+          },
+          "total": {
+            "type": "integer",
+            "title": "Total"
+          },
+          "pagina": {
+            "type": "integer",
+            "title": "Pagina"
+          },
+          "por_pagina": {
+            "type": "integer",
+            "title": "Por Pagina"
+          }
+        },
+        "type": "object",
+        "required": [
+          "itens",
+          "total",
+          "pagina",
+          "por_pagina"
+        ],
+        "title": "PaginaTransacoes"
+      },
+      "ParcelaSaida": {
+        "properties": {
+          "numero": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Numero"
+          },
+          "total": {
+            "type": "integer",
+            "minimum": 1.0,
+            "title": "Total"
+          }
+        },
+        "type": "object",
+        "required": [
+          "numero",
+          "total"
+        ],
+        "title": "ParcelaSaida"
+      },
+      "PerguntaChat": {
+        "properties": {
+          "pergunta": {
+            "type": "string",
+            "maxLength": 2000,
+            "minLength": 1,
+            "title": "Pergunta"
+          },
+          "conversa_id": {
+            "anyOf": [
+              {
+                "type": "string",
+                "format": "uuid"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Conversa Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "pergunta"
+        ],
+        "title": "PerguntaChat"
+      },
+      "Plano": {
+        "properties": {
+          "metodo": {
+            "$ref": "#/components/schemas/MetodoPlano"
+          },
+          "minimo_existencial_centavos": {
+            "type": "integer",
+            "title": "Minimo Existencial Centavos"
+          },
+          "folga_mensal_centavos": {
+            "type": "integer",
+            "title": "Folga Mensal Centavos"
+          },
+          "ordem": {
+            "items": {
+              "$ref": "#/components/schemas/ItemPlano"
+            },
+            "type": "array",
+            "title": "Ordem"
+          },
+          "calculo": {
+            "$ref": "#/components/schemas/Calculo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metodo",
+          "minimo_existencial_centavos",
+          "folga_mensal_centavos",
+          "ordem",
+          "calculo"
+        ],
+        "title": "Plano"
+      },
+      "PlanoEntrada": {
+        "properties": {
+          "metodo": {
+            "$ref": "#/components/schemas/MetodoPlano"
+          }
+        },
+        "type": "object",
+        "required": [
+          "metodo"
+        ],
+        "title": "PlanoEntrada"
+      },
+      "PontoPrevisao": {
+        "properties": {
+          "data": {
+            "type": "string",
+            "format": "date",
+            "title": "Data"
+          },
+          "saldo_previsto_centavos": {
+            "type": "integer",
+            "title": "Saldo Previsto Centavos"
+          },
+          "faixa_inferior_centavos": {
+            "type": "integer",
+            "title": "Faixa Inferior Centavos"
+          },
+          "faixa_superior_centavos": {
+            "type": "integer",
+            "title": "Faixa Superior Centavos"
+          }
+        },
+        "type": "object",
+        "required": [
+          "data",
+          "saldo_previsto_centavos",
+          "faixa_inferior_centavos",
+          "faixa_superior_centavos"
+        ],
+        "title": "PontoPrevisao"
+      },
+      "Previsao": {
+        "properties": {
+          "horizonte_dias": {
+            "$ref": "#/components/schemas/Horizonte"
+          },
+          "pontos": {
+            "items": {
+              "$ref": "#/components/schemas/PontoPrevisao"
+            },
+            "type": "array",
+            "title": "Pontos"
+          },
+          "probabilidade_furo": {
+            "type": "number",
+            "maximum": 1.0,
+            "minimum": 0.0,
+            "title": "Probabilidade Furo"
+          },
+          "alerta_furo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Alerta Furo",
+            "description": "Texto sem culpar a pessoa."
+          }
+        },
+        "type": "object",
+        "required": [
+          "horizonte_dias",
+          "pontos",
+          "probabilidade_furo"
+        ],
+        "title": "Previsao"
+      },
+      "Problema": {
+        "properties": {
+          "type": {
+            "type": "string",
+            "title": "Type",
+            "examples": [
+              "urn:pandora:erro:nao-implementado"
+            ]
+          },
+          "title": {
+            "type": "string",
+            "title": "Title"
+          },
+          "status": {
+            "type": "integer",
+            "title": "Status"
+          },
+          "detail": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Detail"
+          },
+          "issue": {
+            "anyOf": [
+              {
+                "type": "integer"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Issue",
+            "description": "Issue do GitHub que vai implementar o recurso (só em 501)."
+          }
+        },
+        "type": "object",
+        "required": [
+          "type",
+          "title",
+          "status"
+        ],
+        "title": "Problema"
+      },
+      "RaioX": {
+        "properties": {
+          "mes": {
+            "type": "string",
+            "pattern": "^\\d{4}-\\d{2}$",
+            "title": "Mes",
+            "examples": [
+              "2026-10"
+            ]
+          },
+          "renda_centavos": {
+            "type": "integer",
+            "title": "Renda Centavos"
+          },
+          "minimo_existencial_centavos": {
+            "type": "integer",
+            "title": "Minimo Existencial Centavos",
+            "description": "Protegido: nenhum plano mexe nesse valor."
+          },
+          "folga_centavos": {
+            "type": "integer",
+            "title": "Folga Centavos"
+          },
+          "gastos": {
+            "items": {
+              "$ref": "#/components/schemas/GastoPorCategoria"
+            },
+            "type": "array",
+            "title": "Gastos"
+          },
+          "calculo": {
+            "$ref": "#/components/schemas/Calculo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "mes",
+          "renda_centavos",
+          "minimo_existencial_centavos",
+          "folga_centavos",
+          "gastos",
+          "calculo"
+        ],
+        "title": "RaioX"
+      },
+      "RespostaChat": {
+        "properties": {
+          "texto": {
+            "type": "string",
+            "title": "Texto"
+          },
+          "abstencao": {
+            "type": "boolean",
+            "title": "Abstencao",
+            "description": "True quando não há fonte suficiente: o front mostra 'Sem fonte suficiente'."
+          },
+          "citacoes": {
+            "items": {
+              "$ref": "#/components/schemas/CitacaoSaida"
+            },
+            "type": "array",
+            "title": "Citacoes"
+          },
+          "crise": {
+            "type": "boolean",
+            "title": "Crise",
+            "description": "O classificador de crise (#64) disparou: o front abre o fluxo de crise.",
+            "default": false
+          },
+          "modelo": {
+            "type": "string",
+            "title": "Modelo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "texto",
+          "abstencao",
+          "citacoes",
+          "modelo"
+        ],
+        "title": "RespostaChat"
+      },
+      "Saude": {
+        "properties": {
+          "status": {
+            "type": "string",
+            "const": "ok",
+            "title": "Status",
+            "default": "ok"
+          },
+          "versao": {
+            "type": "string",
+            "title": "Versao"
+          }
+        },
+        "type": "object",
+        "required": [
+          "versao"
+        ],
+        "title": "Saude"
+      },
+      "Score": {
+        "properties": {
+          "valor": {
+            "type": "integer",
+            "maximum": 100.0,
+            "minimum": 0.0,
+            "title": "Valor"
+          },
+          "componentes": {
+            "items": {
+              "$ref": "#/components/schemas/ComponenteScore"
+            },
+            "type": "array",
+            "title": "Componentes"
+          },
+          "calculo": {
+            "$ref": "#/components/schemas/Calculo"
+          }
+        },
+        "type": "object",
+        "required": [
+          "valor",
+          "componentes",
+          "calculo"
+        ],
+        "title": "Score"
+      },
+      "SessaoSaida": {
+        "properties": {
+          "token": {
+            "type": "string",
+            "title": "Token",
+            "description": "Envie em `Authorization: Bearer <token>`. Só é mostrado agora."
+          },
+          "tipo": {
+            "type": "string",
+            "const": "Bearer",
+            "title": "Tipo",
+            "default": "Bearer"
+          },
+          "expira_em": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Expira Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "token",
+          "expira_em"
+        ],
+        "title": "SessaoSaida"
+      },
+      "StatusExtrato": {
+        "type": "string",
+        "enum": [
+          "recebido",
+          "processando",
+          "concluido",
+          "falhou"
+        ],
+        "title": "StatusExtrato"
+      },
+      "TransacaoSaida": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "conta_id": {
+            "type": "string",
+            "title": "Conta Id"
+          },
+          "data_hora": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Data Hora"
+          },
+          "valor_centavos": {
+            "type": "integer",
+            "title": "Valor Centavos",
+            "description": "Negativo para saída, positivo para entrada."
+          },
+          "forma_pagamento": {
+            "$ref": "#/components/schemas/FormaPagamento"
+          },
+          "descricao_mascarada": {
+            "type": "string",
+            "title": "Descricao Mascarada",
+            "description": "Sem nome, CPF ou conta (RNF01)."
+          },
+          "mcc": {
+            "anyOf": [
+              {
+                "type": "string",
+                "pattern": "^\\d{4}$"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Mcc"
+          },
+          "categoria": {
+            "$ref": "#/components/schemas/Categoria"
+          },
+          "origem_categoria": {
+            "$ref": "#/components/schemas/OrigemCategoria"
+          },
+          "confianca_categoria": {
+            "anyOf": [
+              {
+                "type": "number",
+                "maximum": 1.0,
+                "minimum": 0.0
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Confianca Categoria"
+          },
+          "versao_modelo": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Versao Modelo"
+          },
+          "essencial": {
+            "type": "boolean",
+            "title": "Essencial",
+            "description": "Faz parte do Mínimo Existencial (Lei 14.181/2021)."
+          },
+          "parcela": {
+            "anyOf": [
+              {
+                "$ref": "#/components/schemas/ParcelaSaida"
+              },
+              {
+                "type": "null"
+              }
+            ]
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "conta_id",
+          "data_hora",
+          "valor_centavos",
+          "forma_pagamento",
+          "descricao_mascarada",
+          "categoria",
+          "origem_categoria",
+          "essencial"
+        ],
+        "title": "TransacaoSaida",
+        "description": "RASCUNHO: segue o dataset sintético da #51; falta fechar com a ingestão (#57)."
+      },
+      "UsuarioSaida": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "title": "Id"
+          },
+          "email": {
+            "type": "string",
+            "format": "email",
+            "title": "Email"
+          },
+          "criado_em": {
+            "type": "string",
+            "format": "date-time",
+            "title": "Criado Em"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "email",
+          "criado_em"
+        ],
+        "title": "UsuarioSaida"
+      },
+      "ValidationError": {
+        "properties": {
+          "loc": {
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "integer"
+                }
+              ]
+            },
+            "type": "array",
+            "title": "Location"
+          },
+          "msg": {
+            "type": "string",
+            "title": "Message"
+          },
+          "type": {
+            "type": "string",
+            "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
+          }
+        },
+        "type": "object",
+        "required": [
+          "loc",
+          "msg",
+          "type"
+        ],
+        "title": "ValidationError"
+      }
+    },
+    "securitySchemes": {
+      "HTTPBearer": {
+        "type": "http",
+        "description": "Token de `POST /auth/sessoes`.",
+        "scheme": "bearer"
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "sistema"
+    },
+    {
+      "name": "conta",
+      "description": "Cadastro e sessão."
+    },
+    {
+      "name": "privacidade",
+      "description": "Consentimento e exclusão total (LGPD)."
+    },
+    {
+      "name": "raio-x",
+      "description": "Extratos, transações e Raio-X (#72)."
+    },
+    {
+      "name": "dividas",
+      "description": "Mapa de dívidas, score e plano (#65, #71, #72)."
+    },
+    {
+      "name": "previsao",
+      "description": "Previsão de caixa (#84)."
+    },
+    {
+      "name": "chat",
+      "description": "Elpis, com RAG e agentes (#85)."
+    }
+  ]
+}

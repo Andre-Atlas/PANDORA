@@ -1,0 +1,52 @@
+"use client";
+
+import { useEffect, useRef } from "react";
+import { BotaoLink } from "@/components/BotaoLink";
+import { EMERGENCIA, contatosVisiveis } from "@/lib/crise/contatos";
+import { usePandora } from "@/lib/pandora/PandoraProvider";
+import { useCrise } from "./CriseProvider";
+
+/**
+ * Tela de crise (galeria E1), montada com as peças do design system.
+ * Os contatos usam `BotaoLink`: ligar e abrir página são links, não botões.
+ */
+export function TelaCrise() {
+  const { Elpis, Botao } = usePandora();
+  const { fecharCrise } = useCrise();
+  const titulo = useRef<HTMLHeadingElement>(null);
+
+  // Leva o foco ao título, para leitor de tela e teclado começarem por aqui.
+  useEffect(() => {
+    titulo.current?.focus();
+    const tituloAnterior = document.title;
+    document.title = "Apoio · PANDORA";
+    return () => {
+      document.title = tituloAnterior;
+    };
+  }, []);
+
+  return (
+    <div className="pd-crise pd-acessivel pd-sem-ornamento">
+      <Elpis tamanho={120} />
+      <h1 className="pd-crise-titulo" ref={titulo} tabIndex={-1}>
+        Agora o dinheiro pode esperar.
+      </h1>
+      <p>Parece que este momento está pesado. Pausei metas e avisos. Falar com alguém pode ajudar, e é de graça.</p>
+
+      {contatosVisiveis().map((contato) => (
+        <BotaoLink key={contato.id} href={contato.href!} icone={contato.icone} variante={contato.variante}>
+          {contato.rotulo}
+        </BotaoLink>
+      ))}
+
+      <p className="pd-apoio">
+        Se você corre perigo agora, ligue para o <a href={EMERGENCIA.href}>{EMERGENCIA.rotulo}</a>.
+      </p>
+      <p className="pd-apoio">Elpis não substitui um profissional de saúde.</p>
+      <div className="pd-empurra" />
+      <Botao bloco variante="fantasma" onClick={fecharCrise}>
+        Voltar quando eu quiser
+      </Botao>
+    </div>
+  );
+}
