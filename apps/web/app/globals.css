@@ -1,6 +1,8 @@
 /*
- * Só layout do app. Cores, fontes, espaços e raios vêm de tokens.css e
- * bundle.css: não redefina nenhum deles aqui.
+ * Só o que é do app. Cores, fontes, espaços e raios vêm de tokens.css, e o
+ * layout responsivo (navegação embaixo ou em trilho, colunas de 720px e
+ * 1200px, abertura lado a lado) vem de bundle.css, a partir de `.pd-fluido`.
+ * Não redefina nenhum deles aqui.
  */
 
 html,
@@ -13,31 +15,17 @@ body {
   background: var(--superficie);
 }
 
-/* .pd-tela é a moldura de 390x844 da galeria; no app ela ocupa a tela. */
-.app-tela {
-  width: 100%;
-  max-width: 480px;
-  min-height: 100dvh;
-  margin-inline: auto;
-  border-radius: 0;
-  /* clip, e não hidden: hidden quebraria o position: sticky da navegação. */
-  overflow: clip visible;
-}
-
 .app-conteudo {
   flex: 1;
   display: flex;
   flex-direction: column;
 }
 
-.app-tela > .pd-nav {
-  position: sticky;
-  bottom: 0;
-  z-index: 1;
-  padding-bottom: calc(26px + env(safe-area-inset-bottom, 0px));
-}
-
+/* Tela de carregamento: aparece antes do bundle, fora da moldura fluida. */
 .app-carregando {
+  width: 100%;
+  min-height: 100dvh;
+  border-radius: 0;
   align-items: center;
   justify-content: center;
   padding: var(--espaco-4);
@@ -56,4 +44,159 @@ body {
   color: var(--acao);
   font-weight: 700;
   text-underline-offset: 3px;
+}
+
+.app-tela .pd-botao {
+  text-decoration: none;
+}
+
+/*
+ * Títulos que recebem foco por código (tabindex="-1": crise, perguntas, voz,
+ * veredito) para o leitor de tela começar por eles. Não são controles, então
+ * não desenham o anel de foco. Botões e links continuam com o anel.
+ */
+.app-tela [tabindex="-1"]:focus {
+  outline: none;
+}
+
+/*
+ * `.pd-fluido` troca o padding de cima do primeiro bloco pela área segura do
+ * aparelho, o que serve ao cabeçalho do mito. Os blocos de leitura que abrem
+ * a tela (cabeçalho da Elpis, tela de crise) perderiam o próprio respiro e
+ * colariam no topo: aqui eles somam os dois.
+ */
+.pd-fluido .pd-tela-conteudo > .pd-chat-cabeca:first-child {
+  padding-top: calc(var(--espaco-3) + env(safe-area-inset-top, 0px));
+}
+
+.pd-fluido .pd-tela-conteudo > .pd-crise:first-child {
+  padding-top: calc(var(--espaco-6) + env(safe-area-inset-top, 0px));
+}
+
+/* ---------------------------------------------------------------------
+ * Abertura: o topo é a .pd-abertura do design system, do tamanho da janela
+ * ------------------------------------------------------------------ */
+
+.abertura {
+  display: flex;
+  flex-direction: column;
+}
+
+.abertura-heroi {
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* Registro de leitura abaixo da primeira tela: o que o app faz e o combinado. */
+.abertura-mais {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-8);
+  width: 100%;
+  max-width: 1200px;
+  margin-inline: auto;
+  padding: var(--espaco-8) var(--espaco-4);
+}
+
+.abertura-secao {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+}
+
+/* Marca só em título curto e a partir de 20px (README do design system). */
+.abertura-secao-titulo {
+  font-family: var(--font-marca);
+  font-size-adjust: none;
+  font-size: clamp(1.625rem, 1.3rem + 1.6cqi, 2.25rem);
+  line-height: 1.2;
+  font-weight: 700;
+}
+
+.abertura-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
+  gap: var(--espaco-3);
+}
+
+.abertura-fim {
+  width: 100%;
+  max-width: 420px;
+  margin-inline: auto;
+}
+
+@container pd-tela (min-width: 600px) {
+  .abertura-mais {
+    padding-inline: var(--espaco-8);
+  }
+}
+
+/* ---------------------------------------------------------------------
+ * Telas: ajustes que a galeria fazia com estilo em linha
+ * ------------------------------------------------------------------ */
+
+/* Fluxos de tela cheia: a pergunta abre com respiro, como na galeria. */
+.app-tela-fluxo .app-conteudo {
+  padding-top: var(--espaco-4);
+}
+
+.app-degraus-reserva {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+  text-align: center;
+}
+
+.app-degrau-reserva {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+
+.app-degrau-reserva strong {
+  font-size: 14px;
+  line-height: 18px;
+}
+
+/* Número de passo menor, nas listas numeradas dentro de cartões. */
+.app-ordem-pequena {
+  width: 28px;
+  height: 28px;
+  font-size: 14px;
+}
+
+/* ---------------------------------------------------------------------
+ * Aviso de demonstração: acima da navegação embaixo, no canto com o trilho
+ * ------------------------------------------------------------------ */
+
+.app-aviso-demo {
+  position: fixed;
+  left: 50%;
+  bottom: calc(150px + env(safe-area-inset-bottom, 0px));
+  z-index: 10;
+  width: min(calc(100% - 2 * var(--espaco-4)), 420px);
+  transform: translateX(-50%);
+  pointer-events: none;
+}
+
+.app-aviso-demo-texto {
+  margin: 0;
+  padding: var(--espaco-3) var(--espaco-4);
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio-md);
+  background: var(--cartao);
+  box-shadow: var(--sombra-cartao);
+  color: var(--texto);
+  font-family: var(--font-texto);
+  font-size: 15px;
+  line-height: 22px;
+  text-align: center;
+}
+
+/* As mesmas faixas em que o design system põe a navegação no trilho lateral. */
+@media (min-width: 1024px), (orientation: landscape) and (max-height: 520px) and (min-width: 568px) {
+  .app-aviso-demo {
+    bottom: var(--espaco-6);
+  }
 }

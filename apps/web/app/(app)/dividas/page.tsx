@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { TelaProvisoria } from "@/components/TelaProvisoria";
+import { Dividas } from "@/components/telas/Dividas";
 
 export const metadata: Metadata = { title: "Dívidas" };
 
 export default function PaginaDividas() {
-  return <TelaProvisoria titulo="Dívidas" issue={71} />;
+  return <Dividas />;
 }

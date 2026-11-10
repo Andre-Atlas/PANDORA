@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { TelaProvisoria } from "@/components/TelaProvisoria";
+import { Trilha } from "@/components/telas/Trilha";
 
 export const metadata: Metadata = { title: "Trilha" };
 
 export default function PaginaTrilha() {
-  return <TelaProvisoria titulo="Trilha" issue={81} />;
+  return <Trilha />;
 }
