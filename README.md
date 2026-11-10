@@ -21,6 +21,35 @@
 
 Protótipo gerado pelo [design system](frontend/design-system/README.md): 7 telas e 2 estados, em 16 quadros.
 
+### Versões das interfaces
+
+| Versão | O que mudou | Onde ver |
+|---|---|---|
+| **3 · Responsiva** (10/11/2026, [#106](https://github.com/Andre-Atlas/PANDORA/pull/106)) | Layout para celular, tablet e desktop, em retrato e paisagem. Meandro no lugar da serra, navbar retrátil, mito em figura negra no tema claro e em figura vermelha no escuro, abertura com a cena esfumada. | [Figma: telas em 6 tamanhos e 2 temas](https://www.figma.com/design/g19U79NnQEMfGIXxPwgdDe) · [Prévia interativa](https://claude.ai/artifact/CrTqPZbKTiQSULhxNSWJLW) · [Design system](https://claude.ai/artifact/PiHQsMY79M1frKVo9tcNDX) · [capturas](frontend/design-system/assets/Telas/responsivo) |
+| **2 · Ornamentos gregos** (05/11/2026, [#100](https://github.com/Andre-Atlas/PANDORA/pull/100) e [#101](https://github.com/Andre-Atlas/PANDORA/pull/101)) | Optima e Cinzel Decorative, ornamentos nos componentes, brasões na trilha. Só celular. | A grade abaixo · [código desta versão](https://github.com/Andre-Atlas/PANDORA/tree/a6b3970/frontend/design-system) |
+| **1 · Identidade visual** (05/11/2026, [#2](https://github.com/Andre-Atlas/PANDORA/pull/2) e [#3](https://github.com/Andre-Atlas/PANDORA/pull/3)) | Primeira versão: tokens, componentes e galeria de 16 quadros. | [Telas desta versão](https://github.com/Andre-Atlas/PANDORA/tree/7219288/frontend/design-system/assets/Telas) · [código desta versão](https://github.com/Andre-Atlas/PANDORA/tree/7219288/frontend/design-system) |
+
+Para ver a versão atual no navegador, abra [`frontend/design-system/index.html`](frontend/design-system/index.html) (a galeria completa), ou rode `node frontend/design-system/src/teste.js --saida <pasta>` e abra `tela.html` e `responsivo.html` dessa pasta. A Prévia interativa e o Design system ficam no claude.ai e só abrem para quem recebeu acesso.
+
+<table>
+  <tr>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/responsivo/inicio-celular-claro.jpg" alt="Início no celular, tema claro" width="150"><br><sub>Início · celular · claro</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/responsivo/inicio-celular-escuro.jpg" alt="Início no celular, tema escuro" width="150"><br><sub>Início · celular · escuro</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/responsivo/navbar-recolhida-celular.jpg" alt="Início no celular com a navbar recolhida" width="150"><br><sub>Navbar recolhida · celular</sub></td>
+    <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/responsivo/abertura-celular.jpg" alt="Abertura no celular" width="150"><br><sub>Abertura · celular</sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" colspan="2"><img src="frontend/design-system/assets/Telas/responsivo/inicio-desktop-claro.jpg" alt="Início no desktop, tema claro, com o trilho lateral" width="320"><br><sub>Início · desktop · claro</sub></td>
+    <td align="center" valign="top" colspan="2"><img src="frontend/design-system/assets/Telas/responsivo/abertura-desktop.jpg" alt="Abertura no desktop com a cena esfumada" width="320"><br><sub>Abertura · desktop</sub></td>
+  </tr>
+  <tr>
+    <td align="center" valign="top" colspan="2"><img src="frontend/design-system/assets/Telas/responsivo/dividas-tablet-escuro.jpg" alt="Dívidas no tablet deitado, tema escuro" width="320"><br><sub>Dívidas · tablet deitado · escuro</sub></td>
+    <td align="center" valign="top" colspan="2"><img src="frontend/design-system/assets/Telas/responsivo/navbar-recolhida-desktop-escuro.jpg" alt="Início no desktop, tema escuro, com o trilho recolhido" width="320"><br><sub>Navbar recolhida · desktop · escuro</sub></td>
+  </tr>
+</table>
+
+Versão 2, só celular:
+
 <table>
   <tr>
     <td align="center" valign="top"><img src="frontend/design-system/assets/Telas/tela-01.png" alt="1a · Abertura" width="200"><br><sub>1a · Abertura</sub></td>
