@@ -115,3 +115,5 @@ Parte do público tem compulsão por apostas ou vive sob estresse financeiro. A 
 ## Telas
 
 `Galeria` monta o mapa completo: 7 telas e 2 estados, em 16 quadros. A navegação inferior tem Início, Dívidas, Elpis, Trilha e Guardião. Metas e previsão abre a partir de Início.
+
+As versões anteriores das interfaces, o arquivo no Figma e as prévias estão em [Versões das interfaces](../../README.md#versões-das-interfaces), no README do projeto.
