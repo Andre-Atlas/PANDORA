@@ -1,0 +1,22 @@
+flowchart TB
+    subgraph ING["Ingestão (offline)"]
+        F[fontes.yaml<br/>33 fontes oficiais] --> C[Coleta<br/>HTTP + SHA-256]
+        C --> X[Extração<br/>HTML/PDF para texto]
+        X --> K[Chunking estrutural<br/>norma, artigo, seção]
+    end
+    K --> E[Embeddings bge-m3<br/>1024 dim]
+    K --> B[Índice BM25<br/>tokenizador RSLP]
+    E --> P[(pgvector<br/>HNSW cosseno)]
+    subgraph CON["Consulta (online)"]
+        Q[Pergunta] --> V[Busca vetorial<br/>top-50]
+        Q --> BQ[Busca BM25<br/>top-50]
+        V --> R[Fusão RRF]
+        BQ --> R
+        R --> RR[Reranker<br/>bge-reranker-v2-m3<br/>top-30]
+        RR --> G{Portão de abstenção<br/>nota do 1º chunk ≥ 0,02?}
+        G -- não --> A[Mensagem de abstenção<br/>LLM não é chamado]
+        G -- sim --> L[LLM local<br/>qwen2.5:14b, top-5]
+        L --> S[Resposta com citações n<br/>+ lista de fontes e links]
+    end
+    P --> V
+    B --> BQ

@@ -1,0 +1,27 @@
+{
+ "nome": "1a-fixo-bge-hibrido",
+ "estrategia": "fixo",
+ "modelo": "BAAI/bge-m3",
+ "parametros": {
+  "k_vetor": 50,
+  "k_bm25": 50,
+  "rrf_k": 60,
+  "peso_vetor": 1.0,
+  "peso_bm25": 1.0,
+  "k_rerank": 30,
+  "usar_vetor": true,
+  "usar_bm25": true
+ },
+ "conjunto": "dev.v1",
+ "cabecalho": false,
+ "k1": 1.5,
+ "b": 0.75,
+ "reranker": null,
+ "git": "c1c43cd",
+ "versao_corpus": "9ce8ae1f94f0",
+ "chunks": 1149,
+ "golden_lock": {
+  "golden.v1": "6ea2de79f8186b417de45de4e2c73cf0c0a2c7c7bfcb86029d2423fdc605caba",
+  "dev.v1": "20d9680a6167fee2ecff158d137c86ce6e09cf7b79c3f48bafd23dd313ef6e9a"
+ }
+}

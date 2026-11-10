@@ -1,0 +1,202 @@
+{
+  "fontes": {
+    "bcb-147": {
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20BCB&p2=147",
+      "sha256_bruto": "cae09e726de61d15795780a334bff24e87c991b6291aa8cc5e2129a6fd927f3c",
+      "bytes": 32620,
+      "coletado_em": "2026-11-05T18:32:43Z"
+    },
+    "bcb-caderno": {
+      "url": "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/caderno_cidadania_financeira.pdf",
+      "sha256_bruto": "e42aa64c16d7e35ccaba4c73b28f604873e442fa1b093f13cfc2ec056db90cc3",
+      "bytes": 8160797,
+      "coletado_em": "2026-11-05T18:33:02Z"
+    },
+    "bcb-cidadania-8": {
+      "url": "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/serie_cidadania/serie_cidadania_financeira_8_endividamento_risco_2ed.pdf",
+      "sha256_bruto": "43929be37cdc91e33ad60cc774378e5aa02fa1baef5e96693b7197fd0ff9c67f",
+      "bytes": 1414530,
+      "coletado_em": "2026-11-05T18:33:33Z"
+    },
+    "bcb-ee119": {
+      "url": "https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE119_Analise_tecnica_sobre_o_mercado_de_apostas_online_no_Brasil_e_o_perfil_dos_apostadores.pdf",
+      "sha256_bruto": "a63d07a8d68154cbbca509bbb525f644c989f004ca4e92cf07b2142f3e45c638",
+      "bytes": 306330,
+      "coletado_em": "2026-11-05T18:33:38Z"
+    },
+    "cdc": {
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm",
+      "sha256_bruto": "73c662713792a4630764032301e5a11c47444b1e9575a6e7c758814baf8a6f95",
+      "bytes": 170672,
+      "coletado_em": "2026-11-05T18:32:16Z"
+    },
+    "cmn-4558": {
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o&p2=4558",
+      "sha256_bruto": "2a4e14314e2772e04cae70a558512da274a3efb5940bbb6f403a6c18a949b719",
+      "bytes": 3234,
+      "coletado_em": "2026-11-05T18:32:41Z"
+    },
+    "cmn-4881": {
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=4881",
+      "sha256_bruto": "260590ef0b4bb34d9fd074af06201fff562d5a0159f9cacf779af937f48fc809",
+      "bytes": 16327,
+      "coletado_em": "2026-11-05T18:32:38Z"
+    },
+    "cmn-4882": {
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=4882",
+      "sha256_bruto": "c3d3c0acaa5c0da3d5fb34432fb3f0bfe555ce69e8055ac285afc5942c29aaf1",
+      "bytes": 11264,
+      "coletado_em": "2026-11-05T18:32:40Z"
+    },
+    "cmn-5057": {
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=5057",
+      "sha256_bruto": "9c29690ce7acc5d195d77ffed08f738538d545c6c9092b2f3893ae2dbb1ef755",
+      "bytes": 51691,
+      "coletado_em": "2026-11-05T18:32:36Z"
+    },
+    "cmn-5112": {
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=5112",
+      "sha256_bruto": "0cf2915a78d73994192b66167e3b569ac915c659b477d5a60655dd5d71107300",
+      "bytes": 27682,
+      "coletado_em": "2026-11-05T18:32:35Z"
+    },
+    "cnj-cartilha": {
+      "url": "https://www.cnj.jus.br/wp-content/uploads/2022/08/cartilha-superendividamento.pdf",
+      "sha256_bruto": "c7a3e03bbadeda98946134a15517ef105c36b25510b801e70bd4a9ae4b664bba",
+      "bytes": 3632925,
+      "coletado_em": "2026-11-05T18:33:07Z"
+    },
+    "cpc": {
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13105.htm",
+      "sha256_bruto": "a031339b58a426b79f26d3a3adeaa75f41d5e4df3fcb0b9858e579716da8c1c3",
+      "bytes": 1691185,
+      "coletado_em": "2026-11-05T18:32:26Z"
+    },
+    "cvm-19": {
+      "url": "https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol019.pdf",
+      "sha256_bruto": "e375ad67291f6456992e65725bcd29ddc6d05ac91b2b9eb56e49ba97114635bb",
+      "bytes": 364469,
+      "coletado_em": "2026-11-05T18:32:44Z"
+    },
+    "cvm-20": {
+      "url": "https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol020.pdf",
+      "sha256_bruto": "27edaffb395be314cb417e8e36aecfa0f290ab6000bad5a64a96ab29b50d05a1",
+      "bytes": 293340,
+      "coletado_em": "2026-11-05T18:32:45Z"
+    },
+    "cvm-30": {
+      "url": "https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol030.pdf",
+      "sha256_bruto": "8d540375deae27f393b90fe6eb67b9b95e693ef6d37eb41cce507d3793c311c1",
+      "bytes": 226974,
+      "coletado_em": "2026-11-05T18:32:47Z"
+    },
+    "cvm-vieses-2": {
+      "url": "https://www.gov.br/investidor/pt-br/educacional/publicacoes-educacionais/cvm-comportamental/volume-2-vieses-do-poupador.pdf/@@display-file/file",
+      "sha256_bruto": "28625b0b45085dd62faed818730be33e7c06a363bb85f1fe40022a46b8a27e73",
+      "bytes": 827636,
+      "coletado_em": "2026-11-05T18:33:35Z"
+    },
+    "cvm-vieses-3": {
+      "url": "https://www.gov.br/investidor/pt-br/educacional/publicacoes-educacionais/cvm-comportamental/volume-3-vieses-do-consumidor.pdf/@@display-file/file",
+      "sha256_bruto": "96682e27793c16bb8199661c90f0d37904c14077145b9ff40eecf8f112639f5d",
+      "bytes": 934368,
+      "coletado_em": "2026-11-05T18:33:37Z"
+    },
+    "decreto-11150": {
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2022/decreto/d11150.htm",
+      "sha256_bruto": "d121b83dc638d59709531ccf67fe1e31b980797479dfdb5abfd3db11f1164d31",
+      "bytes": 28188,
+      "coletado_em": "2026-11-05T18:32:19Z"
+    },
+    "decreto-11567": {
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/decreto/d11567.htm",
+      "sha256_bruto": "5f83b27488071e20c70ab1162931d6d484fb8e0217eafdd38e7ae9da06a3e876",
+      "bytes": 16840,
+      "coletado_em": "2026-11-05T18:32:20Z"
+    },
+    "dl-911": {
+      "url": "https://www.planalto.gov.br/ccivil_03/decreto-lei/1965-1988/del0911compilado.htm",
+      "sha256_bruto": "a9582f59ae45ea78e1a401934c57174528bdc81d270c422e20afef98af5959b0",
+      "bytes": 58033,
+      "coletado_em": "2026-11-05T18:32:28Z"
+    },
+    "lei-14015": {
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/lei/l14015.htm",
+      "sha256_bruto": "55d880f9fd430e711de04fd9029d6ad6d39e7605a9aeb9112ba51305daabebcb",
+      "bytes": 7946,
+      "coletado_em": "2026-11-05T18:32:30Z"
+    },
+    "lei-14181": {
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14181.htm",
+      "sha256_bruto": "addcc38e63f187ee80b0cadd617dd08f66961a976b59e5bdb253ad1bcae79f85",
+      "bytes": 52362,
+      "coletado_em": "2026-11-05T18:32:17Z"
+    },
+    "lei-14690": {
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14690.htm",
+      "sha256_bruto": "f52e349371892a4aa8b679e7bcd692732b1c9f0749e0e63c1e01ecd27e822ec7",
+      "bytes": 130080,
+      "coletado_em": "2026-11-05T18:32:21Z"
+    },
+    "lei-14790": {
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14790.htm",
+      "sha256_bruto": "c4dfe9cbbd54d7aa264ec2b8a2686d20bd32db224677c59cfc50451d46394e8f",
+      "bytes": 302801,
+      "coletado_em": "2026-11-05T18:32:23Z"
+    },
+    "lei-8009": {
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/l8009.htm",
+      "sha256_bruto": "43587f54b47ad4d8f0956fd2c2e62fea75141611a15223260bec04688e716c04",
+      "bytes": 12320,
+      "coletado_em": "2026-11-05T18:32:24Z"
+    },
+    "lei-9514": {
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/l9514.htm",
+      "sha256_bruto": "0f6160107864d086c3032dc8ebee49416d59bda746984791a285232d2e69b5ac",
+      "bytes": 172479,
+      "coletado_em": "2026-11-05T18:32:29Z"
+    },
+    "mpf-adpf-1005": {
+      "url": "https://www.mpf.mp.br/o-mpf/unidades/procuradoria-geral-da-republica-pgr/noticias/valor-do-minimo-existencial-deve-assegurar-dignidade-da-pessoa-humana-decide-stf",
+      "sha256_bruto": "a122f3d099035b0a0f0c0ee664146deed267c97adb4e72a0cf7c9d61546f4fc7",
+      "bytes": 619415,
+      "coletado_em": "2026-11-05T18:32:56Z"
+    },
+    "procon-jf": {
+      "url": "https://www.pjf.mg.gov.br/administracao_indireta/procon/material_grafico/cartilhas/arquivos/superendividamento.pdf",
+      "sha256_bruto": "e3c615e636436f40568ba767062b66a5fa38fba46715d6aaa397d5b97cc4eadb",
+      "bytes": 2288052,
+      "coletado_em": "2026-11-05T18:33:27Z"
+    },
+    "procon-pas": {
+      "url": "https://www.procon.sp.gov.br/wp-content/uploads/files/como_participar_pas.pdf",
+      "sha256_bruto": "1a4c410893c4d60456ccc30bb4c634ff951d2acfce22409c5b4b7b4d875801dd",
+      "bytes": 1945783,
+      "coletado_em": "2026-11-05T18:33:18Z"
+    },
+    "senacon-manual": {
+      "url": "https://www.gov.br/mj/pt-br/assuntos/seus-direitos/consumidor/escola-nacional-endc/biblioteca/manuais/prevencao-e-tratamento-do-superendividamento.pdf",
+      "sha256_bruto": "7dce3379857f34b0dfe59397bfae93c07f93d11e0a14fcf89452c225c1ae27f1",
+      "bytes": 4021869,
+      "coletado_em": "2026-11-05T18:33:22Z"
+    },
+    "stf-adpf-1005": {
+      "url": "https://noticias.stf.jus.br/?p=162192",
+      "sha256_bruto": "3313664a6c797a239766ab23dae75fd4f9a7b196ab3105c726f1090326fd526a",
+      "bytes": 68863,
+      "coletado_em": "2026-11-05T18:32:54Z"
+    },
+    "stj-sumulas": {
+      "url": "https://scon.stj.jus.br/docs_internet/VerbetesSTJ.pdf",
+      "sha256_bruto": "2629d66c53ef7e4defbc3682109185f0a93a8ba7c180c30abb0beedfd61224fc",
+      "bytes": 396908,
+      "coletado_em": "2026-11-05T18:32:48Z"
+    },
+    "tjsp-manual": {
+      "url": "https://www.tjsp.jus.br/Download/Conciliacao/Manual-Superindividamento.pdf",
+      "sha256_bruto": "fb223cf030a52be9d1e1e70724b2b5a577114488ed48a77527d3c59b009f62eb",
+      "bytes": 4335923,
+      "coletado_em": "2026-11-05T18:33:11Z"
+    }
+  }
+}
