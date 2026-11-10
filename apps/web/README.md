@@ -21,24 +21,36 @@ Para testar a instalação como PWA, rode `npm run build && npm start -w @pandor
 
 ```
 app/
-  layout.tsx          tokens.css + bundle.css, tema, provedores e casca
+  layout.tsx          tokens.css + bundle.css, tema e provedores
   manifest.ts         manifesto do PWA (cores lidas de tokens.json)
-  inicio/ dividas/ elpis/ trilha/ guardiao/   uma rota por aba
+  page.tsx            Abertura, a página de entrada (sem navegação)
+  (app)/layout.tsx    casca com navegação para as abas
+  (app)/inicio/ dividas/ elpis/ trilha/ guardiao/   uma rota por aba
+  (app)/inicio/metas/                 Metas e previsão (tela 7), aberta pelo Início
+  (fluxo)/layout.tsx  casca de tela cheia, sem navegação
+  (fluxo)/comecar/    perguntas da Abertura (telas 1b a 1d)
+  (fluxo)/trilha/licao/        lição da trilha (tela 5b)
+  (fluxo)/guardiao/verificacao/  veredito do boleto em leitura ampliada (E2)
 components/
-  CascaApp.tsx        conteúdo + navegação inferior (ou a tela de crise)
+  CascaApp.tsx        conteúdo + navegação (ou a tela de crise)
+  abertura/           página de entrada, perguntas e o portão da abertura
+  telas/              uma tela por rota, montada com os componentes do design system
+  Controlados.tsx     peças do design system que ainda não aceitam handlers, refeitas com as mesmas classes
+  AvisoDemo.tsx       aviso "Demonstração" para ações que ainda não existem
   crise/              fluxo de crise: estado, tela e entrada pelo Guardião
   guardiao/           guia de autoexclusão e sua entrada no Guardião
   BotaoLink.tsx       link com a aparência do Botao (ligar, abrir página)
   NavegacaoInferior.tsx   NavBase ligada ao roteador
   TemaProvider.tsx    preferência de tema (Sistema, Claro, Escuro)
   SeletorTema.tsx     Segmento para trocar o tema
-  TelaProvisoria.tsx  ocupa cada rota até a tela real chegar
 lib/
   api/                tipos do contrato da API (esquema.d.ts é gerado)
   pandora/            carregamento do bundle.js e usePandora()
   tema.ts             regras do tema e script que roda antes da pintura
   tokens.ts           leitura de tokens.json para onde CSS não chega
   navegacao.ts        abas e rotas
+  abertura/portao.ts  a abertura aparece a cada sessão nova
+  demo/dados.ts       dados de demonstração das telas (os da galeria), até a API entregar os reais
   crise/contatos.ts   contatos de apoio, cada um com a fonte oficial conferida
   guardiao/fontes.ts  normas e links do guia de autoexclusão, com data de revisão
 scripts/gerar-icones.mjs  ícones do PWA a partir da marca
@@ -70,7 +82,22 @@ Os tipos vêm de `components/index.d.ts`. Enquanto o bundle carrega, o app mostr
 
 **Tema.** O padrão é seguir o aparelho (`prefers-color-scheme`). A escolha Claro ou Escuro fica no `localStorage`. Um script no `<head>` aplica `data-theme` antes da primeira pintura, para não piscar. O seletor está provisoriamente no Início.
 
-**Casca.** O app usa a classe `.pd-tela` para herdar fonte, cor e foco do design system, mas ocupa a tela inteira em vez da moldura de 390×844 da galeria. A navegação fica presa ao rodapé e respeita a área segura do iPhone. O conteúdo vem antes da navegação no DOM.
+**Casca e layout responsivo.** O app usa a moldura fluida do design system (`docs/atlas/design-responsivo/design-brief.md`): `CascaApp` monta `.pd-fluido > .pd-tela > .pd-tela-interior > (main, NavBase)`. A `.pd-tela` mede a própria largura (container `pd-tela`), e o `bundle.css` decide as faixas. O app não redefine nenhuma:
+
+- **até 599px:** uma coluna, navegação presa embaixo, com a área segura do aparelho;
+- **600 a 1023px:** conteúdo numa coluna de até 720px, navegação embaixo com os itens em até 640px;
+- **a partir de 1024px:** a navegação vira trilho lateral, com meandro de pé na borda, e os cartões vão para duas colunas até 1200px. A conversa da Elpis fica numa coluna de até 760px;
+- **celular deitado (altura até 520px):** trilho lateral, para devolver a altura ao conteúdo.
+
+O conteúdo vem antes da navegação no DOM: o trilho só muda a posição visual. A navegação é retrátil, e a escolha fica no `localStorage` (`pandora-nav-recolhida`) para não reabrir a cada tela. No tema escuro o cabeçalho do mito fica preto (figura vermelha), e `aplicarTema` troca o `theme-color` para a mesma cor.
+
+**Abertura (página de entrada).** Fica em `/`, fora do grupo `(app)`, então não tem navegação. O topo é a `.pd-abertura` do design system, do tamanho da janela: a cena nítida se dissolve num esfumado da própria cena, com lancetas, nome, "Ainda há esperança…" e "Começar". No celular a cena fica em cima; a partir de 800px, à esquerda. Abaixo vêm "O que tem dentro" (uma linha por aba, com textos da galeria) e "O combinado" (da tela 1d). O fluxo de crise também cobre a abertura. "Começar" leva às perguntas (`/comecar`, telas 1b a 1d), e "Abrir minha caixa" leva ao Início.
+
+**A abertura aparece toda vez que o site é aberto.** `/` sempre mostra a abertura, mesmo para quem já começou. Quem abre uma tela do app direto numa sessão nova (aba nova, PWA iniciado, link colado) volta para `/` (`PortaoAbertura`, nos layouts `(app)` e `(fluxo)`). Ver a abertura libera as telas para aquela sessão (`sessionStorage`), então recarregar a página na mesma aba não volta para a abertura. Sem `sessionStorage` disponível, o portão deixa passar.
+
+**Telas com dados de demonstração.** Todas as abas reproduzem a galeria com os componentes do design system, não com as `Tela*` estáticas. Os números e textos de exemplo (Carla, Diego, Júlia, Sr. Antônio) ficam em `lib/demo/dados.ts`: troque cada bloco pela chamada da API quando ela existir. O que funciona de verdade: navegação entre as telas, as perguntas da Abertura, os segmentos (Avalanche/Bola de Neve, Golpes/Apostas), a lição, o modo voz da Elpis (sem gravar), "Ouvir de novo" (síntese de voz do navegador), o guia de autoexclusão e o fluxo de crise. Perguntas novas à Elpis recebem uma resposta de demonstração até o chat (#80). Botões de ações que ainda não existem (gerar dossiê, copiar dados do Pix, avisar alguém) mostram o aviso "Demonstração".
+
+**Aceite começa desmarcado.** A galeria mostra o `Consentimento` marcado, mas a LGPD exige que a pessoa marque por conta própria. "Abrir minha caixa" fica desativado até o aceite.
 
 **Fluxo de crise (#81, RF05).** Fica num contexto acima de todas as rotas (`useCrise()`). Quando está ativo, a casca troca qualquer tela pela de apoio e tira a navegação. Nada de metas, avisos ou cobranças até a pessoa tocar em "Voltar quando eu quiser". O estado fica no `sessionStorage`, então recarregar a página não tira a pessoa da tela de apoio. O foco vai para o título ao abrir.
 
@@ -90,14 +117,16 @@ Toda afirmação sobre lei leva `CitacaoCartao`, e as fontes ficam em `lib/guard
 
 ## Pendências conhecidas
 
+- **Respostas da Abertura (#71):** as perguntas existem, mas as respostas não vão para lugar nenhum. O nível da `EscalaSentimento` nem pode ser lido, porque ela não tem `onChange`.
+- **Resolução da cena:** `pandora-cena.png` tem 400×413px, e a nova abertura a amplia para a largura da tela (60% dela no computador), então ela sai borrada. O design system pede uma versão de pelo menos 1600px.
+
 - **Contatos do fluxo de crise, para o grupo decidir:**
   - **Jogadores Anônimos** está fora da tela. Nenhuma fonte oficial confirmou o site: `jogadoresanonimos.com.br` responde, mas não deu para confirmar que é o JA Brasil. Quando alguém confirmar, basta preencher `href` e `fonte` em `contatos.ts`.
   - **"Encontrar um CAPS AD"** abre a página de CAPS do Ministério da Saúde, porque não há buscador nacional oficial confirmado. A página explica que o CAPS atende sem consulta marcada e como achar o mais próximo (UBS ou Secretaria de Saúde).
   - **SAMU 192** foi acrescentado para perigo imediato. Não está na galeria; o grupo deve validar.
 - **Proibição das apostas (MP nº 1.394, de 25/9/2026):** proíbe as apostas de quota fixa no Brasil. Por causa dela, a Plataforma Centralizada de Autoexclusão está indisponível. O guia de autoexclusão foi adaptado (veja acima), e o texto da galeria ("Guia passo a passo para sites .bet.br") foi trocado. O grupo ainda precisa decidir como ficam a aba Apostas do Guardião, o RF04 e a lista de operadoras da SPA/MF (#59), que deixou de existir.
 
-- **Componentes que ainda não podem ser controlados:** `CampoPergunta`, `Consentimento`, `Alternador` e `EscalaSentimento` não têm `onChange` nem `value`, e o `Alternador` guarda o próprio estado. A Abertura (#71), o chat (#80) e as travas (#81) precisam disso no design system.
-- **As `Tela*` não recebem dados:** são as telas estáticas da galeria. As telas reais devem ser montadas com os componentes menores.
+- **Componentes que ainda não podem ser controlados:** `CampoPergunta`, `Consentimento`, `Alternador` e `EscalaSentimento` não têm `onChange` nem `value`, e o `Alternador` guarda o próprio estado. `Progresso` (voltar e pular), `CabecalhoMito` (voltar), `Insight` (ação), `TrilhaCaminho` (etapas) e `CitacaoCartao` também não recebem handlers. Por isso `components/Controlados.tsx` refaz `Progresso`, `CabecalhoMito` com voltar, `Insight`, `CampoPergunta` e `Consentimento` com as mesmas classes. Quando o design system aceitar esses props, troque pelas originais. As travas do Guardião ainda não são salvas (#81).
 - **Ordem dos títulos:** o `Cartao` sempre usa `<h3>`, então a página vai de `<h1>` direto para `<h3>`. É o único item que o Lighthouse aponta (acessibilidade 98). Resolver no design system, com um nível de título configurável.
 - **Fontes vêm do Google Fonts** (`@import` no `bundle.css`), então não carregam sem internet. A demo sem internet (#94) vai precisar de fontes locais e de um service worker.
 - **Bundle em ES module:** se o `src/build.js` gerar também uma versão ESM, o carregamento fica mais simples e o conteúdo pode vir já no HTML do servidor.

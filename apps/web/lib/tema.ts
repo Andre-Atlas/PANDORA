@@ -1,4 +1,4 @@
-import type { Tema } from "./tokens";
+import { corDoToken, type Tema } from "./tokens";
 
 export type { Tema };
 export type PreferenciaTema = "sistema" | "claro" | "escuro";
@@ -40,8 +40,15 @@ export function salvarPreferencia(preferencia: PreferenciaTema) {
   }
 }
 
+/** Cor da barra do sistema: a do cabeçalho do mito, que no escuro deixa de ser laranja. */
+export const COR_DA_BARRA: Record<Tema, string> = {
+  light: corDoToken("mito-fundo", "light"),
+  dark: corDoToken("mito-fundo", "dark"),
+};
+
 export function aplicarTema(tema: Tema) {
   document.documentElement.dataset.theme = tema;
+  document.querySelector('meta[name="theme-color"]')?.setAttribute("content", COR_DA_BARRA[tema]);
 }
 
 /**

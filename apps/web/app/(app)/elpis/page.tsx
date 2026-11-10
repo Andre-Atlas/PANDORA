@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { TelaProvisoria } from "@/components/TelaProvisoria";
+import { Elpis } from "@/components/telas/Elpis";
 
 export const metadata: Metadata = { title: "Elpis" };
 
 export default function PaginaElpis() {
-  return <TelaProvisoria titulo="Elpis" issue={80} />;
+  return <Elpis />;
 }

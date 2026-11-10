@@ -2,7 +2,7 @@ import type { Metadata, Viewport } from "next";
 import "@pandora/design-system/tokens.css";
 import "@pandora/design-system/components/bundle.css";
 import "./globals.css";
-import { CascaApp } from "@/components/CascaApp";
+import { AvisoDemoProvider } from "@/components/AvisoDemo";
 import { CriseProvider } from "@/components/crise/CriseProvider";
 import { TemaProvider } from "@/components/TemaProvider";
 import { PandoraProvider } from "@/lib/pandora/PandoraProvider";
@@ -25,8 +25,8 @@ export const viewport: Viewport = {
   initialScale: 1,
   // Sem maximumScale: a pessoa precisa poder ampliar a tela (WCAG 1.4.4).
   viewportFit: "cover",
-  // O topo das telas é o cabeçalho do mito, que tem a mesma cor nos dois temas.
-  themeColor: corDoToken("laranja-vaso"),
+  // O topo das telas é o cabeçalho do mito. No escuro ele é preto: `aplicarTema` troca a cor.
+  themeColor: corDoToken("mito-fundo"),
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -39,8 +39,9 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <body>
         <TemaProvider>
           <PandoraProvider>
+            {/* A casca (com ou sem navegação) fica no layout de cada grupo de rotas. */}
             <CriseProvider>
-              <CascaApp>{children}</CascaApp>
+              <AvisoDemoProvider>{children}</AvisoDemoProvider>
             </CriseProvider>
           </PandoraProvider>
         </TemaProvider>
