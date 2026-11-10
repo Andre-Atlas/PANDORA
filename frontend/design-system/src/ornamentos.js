@@ -27,6 +27,12 @@ function rosacea() {
   for (let i = 0; i < 8; i++) d += petala(12, 12, i * 45, 10, 2.8);
   return svg(24, 24, `<path d='${d}'/><circle cx='12' cy='12' r='2.2' fill='#000'/>`);
 }
+// Fileira de rosetas pequenas e espaçadas, sob as lancetas da abertura
+function rosetas() {
+  let d = '';
+  for (let i = 0; i < 8; i++) d += petala(18, 6, i * 45, 5, 1.4);
+  return svg(36, 12, `<path d='${d}'/><circle cx='18' cy='6' r='1.1' fill='#000'/>`);
+}
 function fuste() { return svg(14, 6, `<path d='M1 0H3V6H1ZM4.5 0H6V6H4.5ZM8 0H9.5V6H8ZM11 0H13V6H11Z'/>`); }
 function capitel() {
   return svg(20, 12, `<path d='M0 0H20V2.2H0Z'/>` + traco('M3.6 9.6C1.6 9.6 1.4 6.8 3.2 6.8 4.6 6.8 4.6 8.4 3.6 8.4M3.2 4.4H16.8M16.4 9.6C18.4 9.6 18.6 6.8 16.8 6.8 15.4 6.8 15.4 8.4 16.4 8.4', 1.2) + `<path d='M5 5.4H15V12H5Z' fill='#000' opacity='0'/>`);
@@ -38,6 +44,12 @@ const motivos = {
   'gancho': svg(14, 14, traco('M1.5 12.5V1.5H12.5V9.5H5.5V5.5H9', 1.7)),
   'gancho-espelho': svg(14, 14, traco('M12.5 12.5V1.5H1.5V9.5H8.5V5.5H5', 1.7)),
   'meandro-fino': svg(14, 8, traco('M.7 8V.7H11V6H4.6V3.2H7.8', 1.3)),
+  // Friso de borda do mito: meandro entre duas linhas, o mesmo do alto do cabeçalho
+  'meandro-duplo': svg(26, 22, `<path d='M0 1.5H26M0 20.5H26' stroke='#000' stroke-width='3'/>` + traco('M4 17V5.5H21V14.5H10V10H15.5', 2.6)),
+  // Meandro fino de pé, para a borda do trilho lateral
+  'meandro-vertical': svg(8, 14, traco('M8 .7H.7V11H6V4.6H3.2V7.8', 1.3)),
+  // Língua em lanceta, pendurada da borda de cima (abertura)
+  'lanceta': svg(18, 26, `<path d='M1.6 0C1.6 11 6 19 9 26C12 19 16.4 11 16.4 0Z'/>`),
   'onda': svg(24, 12, redondo('M0 11H6.5C3.4 7.4 5.8 2 11.5 2 17 2 19 8.6 13.6 9 10.2 9.2 10.2 5.4 13 5.4M6.5 11H24', 1.5)),
   'palmeta': palmeta(),
   'serra-fina': svg(10, 7, `<path d='M0 0H10L5 7Z'/>`),
@@ -45,6 +57,7 @@ const motivos = {
   'ramo': ramo(),
   'voluta': svg(28, 23, redondo('M1.5 1.5C1.5 13 8.5 21.5 17.5 21.5 25.5 21.5 28 12.5 21.5 10 16.5 8.2 13 14.5 18.5 16', 2.4)),
   'rosacea': rosacea(),
+  'rosetas': rosetas(),
   'capitel': capitel(),
   'fuste': fuste(),
   'base-coluna': base(),

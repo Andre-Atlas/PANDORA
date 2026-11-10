@@ -1,0 +1,7 @@
+{
+ "modelo": "llama31-8b",
+ "recuperacao": "bge-m3 estrutural + bge-reranker-v2-m3",
+ "k": 5,
+ "conjunto": "dev.v1",
+ "git": "5be9fd2"
+}

@@ -1,0 +1,2 @@
+{"sinal": "nota do reranker do melhor chunk", "limiar": 0.02, "escolhido_em": "dev.v1",
+ "motivo": "maior limiar sem recusa indevida no dev (0 de 46); pega 2 de 5 fora de domínio, o resto fica para o LLM"}

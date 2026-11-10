@@ -1,0 +1,103 @@
+# PANDORA · app web (PWA)
+
+App em Next.js 16 e TypeScript, montado sobre o [design system](../../frontend/design-system/README.md). Issue de origem: #61.
+
+## Como rodar
+
+Na raiz do repositório:
+
+```bash
+npm install
+npm run dev        # http://localhost:3000
+npm test           # Vitest
+npm run lint       # ESLint com as regras de acessibilidade (jsx-a11y)
+npm run typecheck
+npm run build
+```
+
+Para testar a instalação como PWA, rode `npm run build && npm start -w @pandora/web` e abra no Chrome ou Edge. Em DevTools → Application → Manifest, o app deve aparecer como instalável.
+
+## Como está organizado
+
+```
+app/
+  layout.tsx          tokens.css + bundle.css, tema, provedores e casca
+  manifest.ts         manifesto do PWA (cores lidas de tokens.json)
+  inicio/ dividas/ elpis/ trilha/ guardiao/   uma rota por aba
+components/
+  CascaApp.tsx        conteúdo + navegação inferior (ou a tela de crise)
+  crise/              fluxo de crise: estado, tela e entrada pelo Guardião
+  guardiao/           guia de autoexclusão e sua entrada no Guardião
+  BotaoLink.tsx       link com a aparência do Botao (ligar, abrir página)
+  NavegacaoInferior.tsx   NavBase ligada ao roteador
+  TemaProvider.tsx    preferência de tema (Sistema, Claro, Escuro)
+  SeletorTema.tsx     Segmento para trocar o tema
+  TelaProvisoria.tsx  ocupa cada rota até a tela real chegar
+lib/
+  api/                tipos do contrato da API (esquema.d.ts é gerado)
+  pandora/            carregamento do bundle.js e usePandora()
+  tema.ts             regras do tema e script que roda antes da pintura
+  tokens.ts           leitura de tokens.json para onde CSS não chega
+  navegacao.ts        abas e rotas
+  crise/contatos.ts   contatos de apoio, cada um com a fonte oficial conferida
+  guardiao/fontes.ts  normas e links do guia de autoexclusão, com data de revisão
+scripts/gerar-icones.mjs  ícones do PWA a partir da marca
+```
+
+## Tipos da API
+
+`lib/api/esquema.d.ts` é gerado de `apps/api/openapi.json` com `npm run api:tipos -w @pandora/web`. Não edite à mão. Use os nomes curtos de `lib/api/tipos.ts`:
+
+```ts
+import type { Transacao, RespostaChat } from "@/lib/api/tipos";
+```
+
+Se a API mudar e os tipos ficarem para trás, o teste `lib/api/esquema.test.ts` falha.
+
+## Decisões
+
+**O design system é um pacote do workspace.** `frontend/design-system` virou `@pandora/design-system`. O app importa tokens, CSS e componentes de lá, sem copiar nada. Quando o design system mudar, o app muda junto.
+
+**O `bundle.js` é carregado só no navegador.** Ele foi feito para `<script>`: lê `window.React` ao rodar e publica os componentes em `window.Pandora`. Por isso `lib/pandora/carregar.ts` define `window.React` e só depois faz `import()` do bundle. Um `import` estático seria içado e rodaria antes. Em qualquer componente cliente:
+
+```tsx
+const { Cartao, Botao } = usePandora();
+```
+
+Os tipos vêm de `components/index.d.ts`. Enquanto o bundle carrega, o app mostra "Carregando o PANDORA". Por isso o HTML do servidor ainda não traz o conteúdo das telas.
+
+**Cores nunca são redefinidas.** A interface usa só as variáveis de `tokens.css`. O manifesto e o `theme-color`, que não leem CSS, usam `corDoToken()`, que lê `tokens.json`. Os ícones também saem do token `laranja-vaso` (`npm run icones -w @pandora/web`).
+
+**Tema.** O padrão é seguir o aparelho (`prefers-color-scheme`). A escolha Claro ou Escuro fica no `localStorage`. Um script no `<head>` aplica `data-theme` antes da primeira pintura, para não piscar. O seletor está provisoriamente no Início.
+
+**Casca.** O app usa a classe `.pd-tela` para herdar fonte, cor e foco do design system, mas ocupa a tela inteira em vez da moldura de 390×844 da galeria. A navegação fica presa ao rodapé e respeita a área segura do iPhone. O conteúdo vem antes da navegação no DOM.
+
+**Fluxo de crise (#81, RF05).** Fica num contexto acima de todas as rotas (`useCrise()`). Quando está ativo, a casca troca qualquer tela pela de apoio e tira a navegação. Nada de metas, avisos ou cobranças até a pessoa tocar em "Voltar quando eu quiser". O estado fica no `sessionStorage`, então recarregar a página não tira a pessoa da tela de apoio. O foco vai para o título ao abrir.
+
+- Hoje a tela abre pelo Guardião ("Precisa de apoio agora?"). O chat (#80) deve chamar `abrirCrise()` quando o classificador de crise (#64) disparar.
+- Toda meta ou aviso que for criado (#87, notificações) precisa checar `useCrise().ativa` antes de aparecer, porque a tela promete "Pausei metas e avisos".
+- Os contatos ficam em `lib/crise/contatos.ts`, cada um com a fonte oficial e a data em que foi conferido (5/11/2026). Os botões de contato são `<a>` com a aparência de `Botao`, porque o `Botao` do design system é sempre `<button>` e não aceita `href`.
+
+**Guia de autoexclusão (#81, RF11).** Fica em `/guardiao/autoexclusao`. Com a MP nº 1.394/2026 as bets estão proibidas e a plataforma oficial de autoexclusão saiu do ar, mas sites ilegais continuam aparecendo. Por isso o guia mostra o que a pessoa ainda controla:
+
+1. bloquear os sites no aparelho (BetBlocker, gratuito e sem fins lucrativos);
+2. baixar o limite noturno do Pix (Resolução BCB nº 142/2021);
+3. não pagar site de apostas, porque Pix, TED e boleto para apostas são proibidos (MP, art. 14, e Resoluções BCB nº 595, 596 e 597/2026);
+4. denunciar o site no Fala.BR;
+5. pedir apoio pelo fluxo de crise.
+
+Toda afirmação sobre lei leva `CitacaoCartao`, e as fontes ficam em `lib/guardiao/fontes.ts`. A MP precisa ser votada até 23/11/2026 (`REVISAR_ATE`). Depois disso, um teste falha de propósito, pedindo para conferir de novo as fontes e o texto. Ficaram de fora os controles do iPhone: a página da Apple é para pais e não confirma o uso no aparelho do próprio adulto.
+
+## Pendências conhecidas
+
+- **Contatos do fluxo de crise, para o grupo decidir:**
+  - **Jogadores Anônimos** está fora da tela. Nenhuma fonte oficial confirmou o site: `jogadoresanonimos.com.br` responde, mas não deu para confirmar que é o JA Brasil. Quando alguém confirmar, basta preencher `href` e `fonte` em `contatos.ts`.
+  - **"Encontrar um CAPS AD"** abre a página de CAPS do Ministério da Saúde, porque não há buscador nacional oficial confirmado. A página explica que o CAPS atende sem consulta marcada e como achar o mais próximo (UBS ou Secretaria de Saúde).
+  - **SAMU 192** foi acrescentado para perigo imediato. Não está na galeria; o grupo deve validar.
+- **Proibição das apostas (MP nº 1.394, de 25/9/2026):** proíbe as apostas de quota fixa no Brasil. Por causa dela, a Plataforma Centralizada de Autoexclusão está indisponível. O guia de autoexclusão foi adaptado (veja acima), e o texto da galeria ("Guia passo a passo para sites .bet.br") foi trocado. O grupo ainda precisa decidir como ficam a aba Apostas do Guardião, o RF04 e a lista de operadoras da SPA/MF (#59), que deixou de existir.
+
+- **Componentes que ainda não podem ser controlados:** `CampoPergunta`, `Consentimento`, `Alternador` e `EscalaSentimento` não têm `onChange` nem `value`, e o `Alternador` guarda o próprio estado. A Abertura (#71), o chat (#80) e as travas (#81) precisam disso no design system.
+- **As `Tela*` não recebem dados:** são as telas estáticas da galeria. As telas reais devem ser montadas com os componentes menores.
+- **Ordem dos títulos:** o `Cartao` sempre usa `<h3>`, então a página vai de `<h1>` direto para `<h3>`. É o único item que o Lighthouse aponta (acessibilidade 98). Resolver no design system, com um nível de título configurável.
+- **Fontes vêm do Google Fonts** (`@import` no `bundle.css`), então não carregam sem internet. A demo sem internet (#94) vai precisar de fontes locais e de um service worker.
+- **Bundle em ES module:** se o `src/build.js` gerar também uma versão ESM, o carregamento fica mais simples e o conteúdo pode vir já no HTML do servidor.

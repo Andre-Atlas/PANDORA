@@ -12,11 +12,11 @@ export function Friso(props: FrisoProps): React.ReactElement;
 export interface DiscoProps { tom: "alerta" | "ok"; icone: string; tamanho?: "pequeno" | "grande" }
 export function Disco(props: DiscoProps): React.ReactElement;
 
-/** Friso grego que abre todo cabeçalho do mito. */
-export interface MeandroProps {  }
+/** Friso grego que abre e fecha todo cabeçalho do mito. */
+export interface MeandroProps { posicao?: "cima" | "baixo" }
 export function Meandro(props: MeandroProps): React.ReactElement;
 
-/** Dentes de serra da base do vaso, que encerram o cabeçalho do mito. */
+/** @deprecated Use `Meandro` com `posicao="baixo"`. */
 export interface SerraProps {  }
 export function Serra(props: SerraProps): React.ReactElement;
 
@@ -144,13 +144,17 @@ export function Aparelho(props: AparelhoProps): React.ReactElement;
 export interface CabecalhoMitoProps { titulo?: string; subtitulo?: string; voltar?: boolean; acao?: React.ReactNode; children?: React.ReactNode }
 export function CabecalhoMito(props: CabecalhoMitoProps): React.ReactElement;
 
-/** Navegação inferior na base preta do vaso, com Elpis ao centro. */
-export interface NavBaseProps { ativo?: "inicio" | "dividas" | "elpis" | "trilha" | "guardiao"; onNavegar?: (id: string) => void }
+/** Navegação na base preta do vaso, com Elpis ao centro. Retrátil. */
+export interface NavBaseProps { ativo?: "inicio" | "dividas" | "elpis" | "trilha" | "guardiao"; onNavegar?: (id: string) => void; recolhida?: boolean; onAlternar?: (recolhida: boolean) => void }
 export function NavBase(props: NavBaseProps): React.ReactElement;
 
 /** Mapa completo do app: 7 telas e 2 estados. */
 export interface GaleriaProps { ids?: string[] }
 export function Galeria(props: GaleriaProps): React.ReactElement;
+
+/** Uma tela do mapa pelo id, para ocupar a janela inteira. */
+export interface TelaProps { id: string }
+export function Tela(props: TelaProps): React.ReactElement;
 
 /** Tela 1: abertura, sentimento, o que pesa e como começar. */
 export interface TelaAberturaProps { passo?: 0 | 1 | 2 | 3; cena?: string }

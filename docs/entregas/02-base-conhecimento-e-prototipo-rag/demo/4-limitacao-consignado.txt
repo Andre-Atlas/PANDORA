@@ -1,0 +1,24 @@
+PERGUNTA: Sou aposentada e tenho vários empréstimos consignados. Descontam tanto no meu benefício que mal sobra para comer. Existe algum limite para esse desconto?
+
+CHUNKS RECUPERADOS:
+  [1] Prevenção e Tratamento do Superendividamento   score=0.307
+      "A política do estímulo ao crédito popular do governo Lula foi responsável por ampliar o consumo entre a população de baixa renda que absorveu cerca de 17 bilhões de reais ofertados no mercado. Entre 2005 e 2006, 2,15 mil..."
+  [2] Prevenção e Tratamento do Superendividamento   score=0.201
+      "Caracterização do Caso: Tadeu recorreu ao Projeto de Tratamento do Superendividamento na expectativa de celebrar com os credores acordo que viabilizasse o pagamento de suas dívidas sem comprometer o sustento da família. ..."
+  [3] Prevenção e Tratamento do Superendividamento   score=0.043
+      "Agravo de Instrumento conhecido e parcialmente provido.” (Terceira Turma Cível do TJDF,Agravo de Instrumento Nº 2006 00 2 012026-6 , Agravante Bradesco ,Agravado Assistência Judiciária do Distrito Federal e Ministério Pú..."
+  [4] Prevenção e Tratamento do Superendividamento   score=0.022
+      "Perfil do Superendividado: MARTA, 64 anos Divorciada Sem dependentes Aposentada Renda individual mensal: R$ 760,00 Renda familiar mensal: a mesma Despesas mensais correntes: luz R$ 35,00; telefone R$ 55,00; alimentação R..."
+  [5] Série CVM Comportamental, vol. 2: Vieses do Poupador   score=0.022
+      "Em Economia, esse desconto no valor é tratado em termos puramente matemáticos (sem considerar a percepção individual de valor), simplesmente como uma porcentagem fixa e proporcional ao tempo de espera, representado por u..."
+
+RESPOSTA (qwen2.5:14b, 9.1s, US$ 0.0000):
+Sim, existe um limite legal para os descontos em folha de pagamento, incluindo benefícios previdenciários. De acordo com a jurisprudência, o percentual máximo de desconto deve ser de 30% sobre os vencimentos brutos do servidor ou beneficiário, para evitar que o superendividamento comprometa a subsistência e a dignidade da pessoa humana [2][3]. Se os descontos estão acima desse limite, você pode buscar a proteção do Judiciário para que os valores sejam ajustados.
+
+FONTES:
+  [2] Prevenção e Tratamento do Superendividamento 
+      https://www.gov.br/mj/pt-br/assuntos/seus-direitos/consumidor/escola-nacional-endc/biblioteca/manuais/prevencao-e-tratamento-do-superendividamento.pdf
+      trecho: "Caracterização do Caso: Tadeu recorreu ao Projeto de Tratamento do Superendividamento na expectativa de celebrar com os credores acordo que viabilizasse o pagamento de suas dívidas sem comprometer o sustento da família. ..."
+  [3] Prevenção e Tratamento do Superendividamento 
+      https://www.gov.br/mj/pt-br/assuntos/seus-direitos/consumidor/escola-nacional-endc/biblioteca/manuais/prevencao-e-tratamento-do-superendividamento.pdf
+      trecho: "Agravo de Instrumento conhecido e parcialmente provido.” (Terceira Turma Cível do TJDF,Agravo de Instrumento Nº 2006 00 2 012026-6 , Agravante Bradesco ,Agravado Assistência Judiciária do Distrito Federal e Ministério Pú..."

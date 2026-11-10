@@ -4,7 +4,7 @@ PANDORA é um copiloto financeiro com IA para pessoas endividadas ou com comport
 
 Toda tela combina dois registros. Nunca misture os dois no mesmo bloco.
 
-**Registro do mito.** Laranja e preto de vaso grego em figura negra. Use em `CabecalhoMito`, na abertura, nos marcos da trilha e no medalhão de Elpis. Fundo `laranja-vaso`, texto e figuras em `tinta`, com `Meandro` em cima e `Serra` embaixo. Comporta um título curto e um único número-herói. Mantém as mesmas cores nos dois temas, porque é a pintura do vaso.
+**Registro do mito.** Laranja e preto de vaso grego. Use em `CabecalhoMito`, na abertura, nos marcos da trilha e no medalhão de Elpis. Fundo `mito-fundo`, texto e figuras em `mito-figura`, número-herói em `mito-destaque`, com `Meandro` em cima e embaixo. Comporta um título curto e um único número-herói. No tema claro é figura negra: tinta sobre laranja. No tema escuro é figura vermelha: laranja sobre o preto do vaso. O medalhão de Elpis, os brasões e a cena da abertura não mudam com o tema, porque são a pintura.
 
 **Registro de leitura.** Tudo o que a pessoa precisa decidir: valores, listas, perguntas, respostas. Fundo `superficie`, cartões em `cartao`, texto em `texto` e `texto-2`, ações em `acao`.
 
@@ -26,7 +26,8 @@ Toda tela combina dois registros. Nunca misture os dois no mesmo bloco.
 - `ok`, `alerta` e `fonte` são estados. Nunca use como decoração nem como cor de série. Vêm sempre com ícone e palavra, porque verde e vermelho não se distinguem só pela cor.
 - `fonte` também marca o que veio de fonte oficial ou de cálculo determinístico, para separar isso de texto gerado.
 - A navegação e outros blocos sobre `base` usam `papiro`, e o item ativo usa `laranja-claro`.
-- Anel de foco: 3px sólido em `foco`, com 2px de afastamento. Dentro de `.pd-mito`, tinta nos dois temas.
+- Anel de foco: 3px sólido em `foco`, com 2px de afastamento. Dentro de `.pd-mito`, `mito-figura`.
+- No tema escuro, o mito e a leitura ficam quase do mesmo preto. O meandro de baixo, com o filete em `mito-figura`, é a divisa entre os dois: nunca o retire.
 
 ## Tipografia
 
@@ -40,7 +41,7 @@ Toda tela combina dois registros. Nunca misture os dois no mesmo bloco.
 
 ## Ornamentos
 
-Os motivos gregos saem do vaso e entram no dia a dia da interface: meandro, onda, palmeta, ramo, serra, rosácea, coluna e voluta. Todos são vetores próprios. Use `Friso` para faixas soltas. Nas caixas e nos botões, eles já vêm no componente.
+Os motivos gregos saem do vaso e entram no dia a dia da interface: meandro, lanceta, onda, palmeta, ramo, rosácea, coluna e voluta. A serra saiu das bordas: `Serra` continua exportado só por compatibilidade e desenha o meandro de baixo. Todos são vetores próprios. Use `Friso` para faixas soltas. Nas caixas e nos botões, eles já vêm no componente.
 
 - **Caixas de texto:** `Cartao`, `LinhaDivida`, `LinkCartao` e `OpcaoCartao` têm corte de folha, com chave grega nos dois cantos retos.
 - **Avisos:** cada estado tem sua forma. Alerta usa serra, ok usa ramo, insight usa palmeta, apoio usa meandro, e fonte oficial usa coluna jônica. A forma reforça o ícone e a palavra.
@@ -63,7 +64,21 @@ Limites que mantêm o refino:
 - Cartões usam corte de folha: `raio-md` em dois cantos e 2px nos dois com chave. Botões usam `raio-pilula`. A única sombra é `sombra-cartao`.
 - Alvo de toque mínimo: `alvo-minimo` (44px). Botões têm `altura-botao`, ou `altura-botao-ampliado` em leitura ampliada.
 - Uma decisão por tela nos fluxos de pergunta: título centrado, opções em cartão, CTA em pílula embaixo.
-- A base preta do vaso vira a navegação: `NavBase` sobe no centro para acolher Elpis, com 5 itens sempre rotulados.
+- A base preta do vaso vira a navegação: `NavBase` sobe no centro para acolher Elpis, com 5 itens sempre rotulados. A borda de cima leva uma faixa fina de meandro laranja, interrompida no arco de Elpis. O item ativo leva uma barra sob o rótulo.
+- A navegação é retrátil. O botão de chave grega, num disco de anel duplo, recolhe e expande. Embaixo, recolhida fica só a faixa com Elpis. No trilho lateral, expandida mostra ícone e rótulo, e recolhida mostra só os ícones, com o nome lido pelo leitor de tela.
+
+## Layout responsivo
+
+As telas medem a própria largura (container `pd-tela`), então a mesma tela funciona numa moldura de celular ou na janela inteira. Para ocupar a janela, envolva a página em `.pd-fluido` e use `Tela` ou as telas direto.
+
+- **Até 599px:** uma coluna, navegação fixa embaixo, com a área segura do aparelho.
+- **De 600 a 1023px:** conteúdo centrado em coluna de até 720px. A navegação continua embaixo, com os itens em até 640px.
+- **A partir de 1024px:** a navegação vira um trilho lateral preto, com o meandro de pé na borda. Os cartões vão para duas colunas, até 1200px. A conversa com Elpis fica em uma coluna de até 760px.
+- **Celular deitado** (altura até 520px): o trilho lateral devolve a altura ao conteúdo.
+- A abertura usa a cena inteira em primeiro plano, nítida, e a dissolve num esfumado da própria cena escurecido pela `base`. No celular a cena fica em cima e o texto embaixo. A partir de 800px a cena preenche a esquerda e o texto se centra à direita. O texto sobre o esfumado fica acima de 12:1.
+- A cena tem só 400×413px e aparece ampliada em telas largas. Troque por uma versão de pelo menos 1600px quando houver.
+- Títulos da marca e `valor-xl` crescem com a largura (`clamp`). O corpo fica em 17px em qualquer tela.
+- O trilho muda só a posição visual. Na ordem de leitura e de foco, a navegação continua depois do conteúdo.
 
 ## Movimento
 
