@@ -1,4 +1,4 @@
-/* @ds-bundle: {"format":4,"namespace":"Pandora","components":[{"name":"Icone"},{"name":"Friso"},{"name":"Disco"},{"name":"Meandro"},{"name":"Serra"},{"name":"CaixaMarca"},{"name":"Elpis"},{"name":"Brasao"},{"name":"Anfora"},{"name":"Botao"},{"name":"BotaoIcone"},{"name":"BotaoVoz"},{"name":"Segmento"},{"name":"Alternador"},{"name":"Progresso"},{"name":"OpcaoCartao"},{"name":"EscalaSentimento"},{"name":"Consentimento"},{"name":"Cartao"},{"name":"Selo"},{"name":"SeloCalculado"},{"name":"Trilho"},{"name":"Insight"},{"name":"LinkCartao"},{"name":"LinhaDivida"},{"name":"DegrausProgresso"},{"name":"Balao"},{"name":"CitacaoCartao"},{"name":"BlocoCalculado"},{"name":"CampoPergunta"},{"name":"CabecalhoElpis"},{"name":"TrilhaCaminho"},{"name":"QuizOpcao"},{"name":"Rolagem"},{"name":"Aparelho"},{"name":"CabecalhoMito"},{"name":"NavBase"},{"name":"Galeria"},{"name":"TelaAbertura"},{"name":"TelaInicio"},{"name":"TelaDividas"},{"name":"TelaElpis"},{"name":"TelaTrilha"},{"name":"TelaGuardiao"},{"name":"TelaMetas"},{"name":"TelaCrise"},{"name":"TelaGuardiaoAmpliada"}]} */
+/* @ds-bundle: {"format":4,"namespace":"Pandora","components":[{"name":"Icone"},{"name":"Friso"},{"name":"Disco"},{"name":"Meandro"},{"name":"Serra"},{"name":"CaixaMarca"},{"name":"Elpis"},{"name":"Brasao"},{"name":"Anfora"},{"name":"Botao"},{"name":"BotaoIcone"},{"name":"BotaoVoz"},{"name":"Segmento"},{"name":"Alternador"},{"name":"Progresso"},{"name":"OpcaoCartao"},{"name":"EscalaSentimento"},{"name":"Consentimento"},{"name":"Cartao"},{"name":"Selo"},{"name":"SeloCalculado"},{"name":"Trilho"},{"name":"Insight"},{"name":"LinkCartao"},{"name":"LinhaDivida"},{"name":"DegrausProgresso"},{"name":"Balao"},{"name":"CitacaoCartao"},{"name":"BlocoCalculado"},{"name":"CampoPergunta"},{"name":"CabecalhoElpis"},{"name":"TrilhaCaminho"},{"name":"QuizOpcao"},{"name":"Rolagem"},{"name":"Aparelho"},{"name":"CabecalhoMito"},{"name":"NavBase"},{"name":"Galeria"},{"name":"Tela"},{"name":"TelaAbertura"},{"name":"TelaInicio"},{"name":"TelaDividas"},{"name":"TelaElpis"},{"name":"TelaTrilha"},{"name":"TelaGuardiao"},{"name":"TelaMetas"},{"name":"TelaCrise"},{"name":"TelaGuardiaoAmpliada"}]} */
 (function () {
   var React = window.React, h = React.createElement, useState = React.useState, useId = React.useId, useRef = React.useRef, useEffect = React.useEffect, Fragment = React.Fragment;
   var CENA_PADRAO = './assets/Cena/pandora-cena.png';
@@ -51,8 +51,9 @@
     if (p.grande) return h('div', { className: 'pd-' + tipo, 'aria-hidden': true });
     return h('div', { className: cx('pd-friso', 'pd-friso-' + tipo, p.tom && 'pd-friso-' + p.tom, p.curto && 'pd-friso-curto'), 'aria-hidden': true });
   }
-  function Meandro() { return h(Friso, { tipo: 'meandro', grande: true }); }
-  function Serra() { return h(Friso, { tipo: 'serra', grande: true }); }
+  function Meandro(p) { return h('div', { className: cx('pd-meandro', p && p.posicao === 'baixo' && 'pd-meandro-baixo'), 'aria-hidden': true }); }
+  /* Depreciado: a serra saiu do sistema. Mantido para quem já consome o bundle; desenha o meandro de baixo. */
+  function Serra() { return h(Meandro, { posicao: 'baixo' }); }
 
   var ESPIRITOS = ['M48 46C40 34 58 28 50 16 46 10 38 12 40 18', 'M38 48C24 42 30 28 18 24 12 22 8 28 13 32', 'M60 46C74 40 66 26 78 20 84 18 88 24 83 28'];
   function CaixaMarca(p) {
@@ -287,13 +288,19 @@
   }
 
   /* Moldura */
+  /* A navegação sai do fluxo do conteúdo: embaixo no celular, trilho lateral em telas largas ou deitadas. */
   function Aparelho(p) {
-    return h('div', { className: 'pd-aparelho' }, h('div', { className: 'pd-tela', 'data-topo': p.topo || 'leitura', style: p.altura ? { height: p.altura, minHeight: 0 } : null },
+    var filhos = React.Children.toArray(p.children);
+    var nav = filhos.filter(function (c) { return c && c.type === NavBase; });
+    var resto = filhos.filter(function (c) { return !(c && c.type === NavBase); });
+    return h('div', { className: 'pd-aparelho' }, h('div', { className: 'pd-tela', 'data-topo': p.topo || 'leitura', 'data-nav': nav.length ? 'sim' : undefined, style: p.altura ? { height: p.altura, minHeight: 0 } : null },
+      h('div', { className: 'pd-tela-interior' },
+      h('div', { className: 'pd-tela-conteudo' },
       h('div', { className: 'pd-status' }, h('span', null, '9:41'), h('span', { className: 'pd-status-ilha', 'aria-hidden': true }),
         h('span', { className: 'pd-status-icones', 'aria-hidden': true },
           h('svg', { width: 18, height: 12, viewBox: '0 0 18 12', fill: 'currentColor' }, h('rect', { x: 0, y: 8, width: 3, height: 4, rx: 1 }), h('rect', { x: 5, y: 5, width: 3, height: 7, rx: 1 }), h('rect', { x: 10, y: 3, width: 3, height: 9, rx: 1 }), h('rect', { x: 15, y: 0, width: 3, height: 12, rx: 1 })),
           h('svg', { width: 26, height: 12, viewBox: '0 0 26 12' }, h('rect', { x: 0.5, y: 0.5, width: 22, height: 11, rx: 3, fill: 'none', stroke: 'currentColor' }), h('rect', { x: 2, y: 2, width: 17, height: 8, rx: 2, fill: 'currentColor' })))),
-      p.children));
+      resto), nav)));
   }
   function Rolagem(p) {
     var area = useRef(null), st = useState({ topo: 0, altura: 100, visivel: false });
@@ -313,15 +320,23 @@
           p.voltar ? h(BotaoIcone, { icone: 'voltar', tom: 'mito', rotulo: 'Voltar' }) : null,
           h('h1', { className: 'pd-mito-titulo', style: { flex: 1 } }, p.titulo), p.acao) : null,
         p.subtitulo ? h('p', { className: 'pd-mito-sub' }, p.subtitulo) : null, p.children),
-      h(Serra));
+      h(Meandro, { posicao: 'baixo' }));
   }
   var ITENS_NAV = [['inicio', 'Início', 'casa'], ['dividas', 'Dívidas', 'balanca'], ['elpis', 'Elpis', null], ['trilha', 'Trilha', 'trilha'], ['guardiao', 'Guardião', 'escudo']];
+  /* Base do vaso. Retrátil: embaixo recolhe para a faixa com Elpis; no trilho lateral alterna entre só ícones e ícones com rótulo. */
   function NavBase(p) {
-    return h('nav', { className: 'pd-nav', 'aria-label': 'Navegação principal' }, ITENS_NAV.map(function (it) {
-      var ativo = p.ativo === it[0], elpis = it[0] === 'elpis';
-      return h('button', { key: it[0], type: 'button', className: cx('pd-nav-item', elpis && 'pd-nav-item-elpis'), 'aria-current': ativo ? 'page' : undefined, onClick: function () { if (p.onNavegar) p.onNavegar(it[0]); } },
-        elpis ? h('span', { className: 'pd-nav-elpis-disco' }, h(Elpis, { tamanho: 60 })) : h(Icone, { nome: it[2], tamanho: 26 }), it[1]);
-    }));
+    var st = useState(!!p.recolhida), recolhida = p.recolhida !== undefined && p.onAlternar ? p.recolhida : st[0];
+    var id = useId();
+    function alterna() { st[1](!recolhida); if (p.onAlternar) p.onAlternar(!recolhida); }
+    return h('nav', { className: 'pd-nav', 'data-recolhida': recolhida ? 'sim' : undefined, 'aria-label': 'Navegação principal' },
+      h('button', { type: 'button', className: 'pd-nav-alternar', 'aria-expanded': !recolhida, 'aria-controls': id, onClick: alterna },
+        h('span', { className: 'pd-nav-alternar-chave', 'aria-hidden': true }),
+        h('span', { className: 'pd-oculto' }, recolhida ? 'Expandir navegação' : 'Recolher navegação')),
+      h('div', { className: 'pd-nav-itens', id: id }, ITENS_NAV.map(function (it) {
+        var ativo = p.ativo === it[0], elpis = it[0] === 'elpis';
+        return h('button', { key: it[0], type: 'button', className: cx('pd-nav-item', elpis && 'pd-nav-item-elpis'), 'aria-current': ativo ? 'page' : undefined, onClick: function () { if (p.onNavegar) p.onNavegar(it[0]); } },
+          elpis ? h('span', { className: 'pd-nav-elpis-disco' }, h(Elpis, { tamanho: 60 })) : h(Icone, { nome: it[2], tamanho: 26 }), h('span', { className: 'pd-nav-rotulo' }, it[1]));
+      })));
   }
 
   /* Telas */
@@ -330,14 +345,16 @@
     var pesa = useState('Dívidas que não fecham');
     var inicio = useState('Enviar fatura ou extrato');
     if (passo === 0) return h(Aparelho, { topo: 'mito' },
-      h('img', { className: 'pd-abertura-cena', src: p.cena || CENA_PADRAO, alt: 'Pandora, em figura negra sobre fundo laranja, abre a caixa entre duas colunas. Espíritos brancos saem dela.' }),
-      h('div', { className: 'pd-abertura-painel pd-base' },
-        h(Friso, { tipo: 'palmeta', tom: 'base' }),
-        h('h1', { className: 'pd-abertura-nome' }, 'PANDORA'),
-        h('p', { className: 'pd-abertura-frase' }, 'Abra a caixa das suas finanças. O que fica é a esperança.'),
-        h('div', { className: 'pd-abertura-empurra' }),
-        h(Friso, { tipo: 'ramo', tom: 'base' }),
-        h(Botao, { variante: 'claro', bloco: true, seta: true }, 'Começar')));
+      h('div', { className: 'pd-abertura pd-base' },
+        h('img', { className: 'pd-abertura-fundo', src: p.cena || CENA_PADRAO, alt: '', 'aria-hidden': true }),
+        h('img', { className: 'pd-abertura-cena', src: p.cena || CENA_PADRAO, alt: 'Pandora, em figura negra sobre fundo laranja, abre a caixa entre duas colunas. Espíritos brancos saem dela.' }),
+        h('div', { className: 'pd-abertura-painel' },
+          h('div', { className: 'pd-abertura-texto' },
+            h('div', { className: 'pd-lancetas', 'aria-hidden': true }),
+            h('h1', { className: 'pd-abertura-nome' }, 'PANDORA'),
+            h('p', { className: 'pd-abertura-frase' }, 'Ainda há esperança…'),
+            h(Friso, { tipo: 'ramo', tom: 'base', curto: true }),
+            h(Botao, { variante: 'claro', bloco: true, seta: true }, 'Começar')))));
     if (passo === 1) return h(Aparelho, null, h('div', { className: 'pd-pergunta-tela' }, h(Progresso, { passo: 1, total: 3 }),
       h('h1', { className: 'pd-pergunta-titulo' }, 'Como você se sente sobre seu dinheiro hoje?'),
       h('p', { className: 'pd-pergunta-sub' }, 'Nenhuma resposta é errada. Isso só mostra de onde partimos.'),
@@ -576,6 +593,11 @@
     ['E1', 'Estado: fluxo de crise', function () { return h(TelaCrise); }],
     ['E2', 'Estado: leitura ampliada', function () { return h(TelaGuardiaoAmpliada); }]
   ];
+  /* Uma tela do mapa pelo id, para páginas que ocupam a janela inteira (envolva em .pd-fluido). */
+  function Tela(p) {
+    var t = TELAS.filter(function (x) { return x[0] === p.id; })[0];
+    return t ? t[2]() : null;
+  }
   function Galeria(p) {
     var lista = p.ids ? TELAS.filter(function (t) { return p.ids.indexOf(t[0]) >= 0; }) : TELAS;
     return h('div', { className: 'pd-galeria' }, lista.map(function (t) {
@@ -592,7 +614,7 @@
     LinhaDivida: LinhaDivida, DegrausProgresso: DegrausProgresso,
     Balao: Balao, CitacaoCartao: CitacaoCartao, BlocoCalculado: BlocoCalculado, CabecalhoElpis: CabecalhoElpis,
     TrilhaCaminho: TrilhaCaminho, QuizOpcao: QuizOpcao,
-    Aparelho: Aparelho, Rolagem: Rolagem, CabecalhoMito: CabecalhoMito, NavBase: NavBase,
+    Aparelho: Aparelho, Tela: Tela, Rolagem: Rolagem, CabecalhoMito: CabecalhoMito, NavBase: NavBase,
     TelaAbertura: TelaAbertura, TelaInicio: TelaInicio, TelaDividas: TelaDividas, TelaElpis: TelaElpis, TelaTrilha: TelaTrilha, TelaGuardiao: TelaGuardiao, TelaGuardiaoAmpliada: TelaGuardiaoAmpliada, TelaMetas: TelaMetas, TelaCrise: TelaCrise, Galeria: Galeria
   };
 })();
