@@ -1,2 +1,10 @@
 node_modules/
 .DS_Store
+
+# Python (apps/api)
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+.env

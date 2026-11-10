@@ -3,11 +3,15 @@ import { cleanup } from "@testing-library/react";
 import { afterEach, beforeEach } from "vitest";
 import { simularMatchMedia } from "./test/matchMedia";
 
+// Testes com `@vitest-environment node` não têm DOM.
+const temDom = typeof window !== "undefined";
+
 beforeEach(() => {
-  simularMatchMedia(false);
+  if (temDom) simularMatchMedia(false);
 });
 
 afterEach(() => {
+  if (!temDom) return;
   cleanup();
   localStorage.clear();
   sessionStorage.clear();

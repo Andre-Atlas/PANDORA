@@ -10,7 +10,8 @@
     "typecheck": "next typegen && tsc --noEmit",
     "test": "vitest run",
     "test:watch": "vitest",
-    "icones": "node scripts/gerar-icones.mjs"
+    "icones": "node scripts/gerar-icones.mjs",
+    "api:tipos": "openapi-typescript ../api/openapi.json -o lib/api/esquema.d.ts"
   },
   "dependencies": {
     "@pandora/design-system": "*",
@@ -31,6 +32,7 @@
     "eslint-config-next": "^16.4.5",
     "eslint-plugin-jsx-a11y": "^6.10.2",
     "jsdom": "^31.0.0",
+    "openapi-typescript": "^7.13.0",
     "typescript": "^5.9.3",
     "vitest": "^5.1.0"
   }

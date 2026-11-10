@@ -34,6 +34,7 @@ components/
   SeletorTema.tsx     Segmento para trocar o tema
   TelaProvisoria.tsx  ocupa cada rota até a tela real chegar
 lib/
+  api/                tipos do contrato da API (esquema.d.ts é gerado)
   pandora/            carregamento do bundle.js e usePandora()
   tema.ts             regras do tema e script que roda antes da pintura
   tokens.ts           leitura de tokens.json para onde CSS não chega
@@ -42,6 +43,16 @@ lib/
   guardiao/fontes.ts  normas e links do guia de autoexclusão, com data de revisão
 scripts/gerar-icones.mjs  ícones do PWA a partir da marca
 ```
+
+## Tipos da API
+
+`lib/api/esquema.d.ts` é gerado de `apps/api/openapi.json` com `npm run api:tipos -w @pandora/web`. Não edite à mão. Use os nomes curtos de `lib/api/tipos.ts`:
+
+```ts
+import type { Transacao, RespostaChat } from "@/lib/api/tipos";
+```
+
+Se a API mudar e os tipos ficarem para trás, o teste `lib/api/esquema.test.ts` falha.
 
 ## Decisões
 

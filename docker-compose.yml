@@ -1,0 +1,33 @@
+# Sobe a API e o banco com um comando: docker compose up
+# A API fica em http://localhost:8000 e a documentação em http://localhost:8000/docs
+name: pandora
+
+services:
+  db:
+    image: pgvector/pgvector:0.8.1-pg17
+    environment:
+      POSTGRES_DB: pandora
+      POSTGRES_USER: pandora
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-pandora_local}
+    ports:
+      - "5434:5432" # 5433 é do banco do RAG (services/rag)
+    volumes:
+      - pandora_db:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pandora -d pandora"]
+      interval: 5s
+      retries: 10
+
+  api:
+    build: ./apps/api
+    environment:
+      PANDORA_DB_URL: postgresql://pandora:${POSTGRES_PASSWORD:-pandora_local}@db:5432/pandora
+      PANDORA_ORIGENS_CORS: http://localhost:3000
+    ports:
+      - "8000:8000"
+    depends_on:
+      db:
+        condition: service_healthy
+
+volumes:
+  pandora_db:
