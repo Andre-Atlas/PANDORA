@@ -7,10 +7,14 @@ from datetime import timedelta
 from pathlib import Path
 
 from pandora_api.adaptadores.http.app import criar_app
-from pandora_api.adaptadores.http.conteiner import montar
+from pandora_api.adaptadores.http.conteiner import Financeiro, montar
+from pandora_api.adaptadores.ingestao.classificador_provisorio import ClassificadorProvisorio
+from pandora_api.adaptadores.ingestao.csv_provisorio import LeitorCsvProvisorio
 from pandora_api.adaptadores.persistencia.memoria import (
     ConsentimentosEmMemoria,
+    ExtratosEmMemoria,
     SessoesEmMemoria,
+    TransacoesEmMemoria,
     UsuariosEmMemoria,
 )
 from pandora_api.adaptadores.seguranca.scrypt import HasherScrypt, RelogioDoSistema
@@ -39,6 +43,7 @@ def gerar() -> str:
         timedelta(hours=1),
         _SemAssistente(),
         _SemTrilha(),
+        Financeiro(ExtratosEmMemoria(), TransacoesEmMemoria(), LeitorCsvProvisorio(), ClassificadorProvisorio()),
     )
     return json.dumps(criar_app(conteiner).openapi(), ensure_ascii=False, indent=2) + "\n"
 

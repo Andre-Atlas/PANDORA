@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pandora_api import __version__
 from pandora_api.adaptadores.http.conteiner import Conteiner
 from pandora_api.adaptadores.http.problemas import registrar_tratadores
-from pandora_api.adaptadores.http.rotas import chat, conta, contrato, privacidade, sistema, trilha
+from pandora_api.adaptadores.http.rotas import chat, conta, contrato, privacidade, raio_x, sistema, trilha
 
 DESCRICAO = """
 API do PANDORA. Front, ingestão, modelos e agentes conversam por aqui.
@@ -17,6 +17,7 @@ API do PANDORA. Front, ingestão, modelos e agentes conversam por aqui.
 - **Sem token** (o app ainda não tem login): `/chat` e `/trilha*`. Não guardam dado pessoal.
 - **Autenticação**: `POST /auth/sessoes` devolve um token; envie `Authorization: Bearer <token>`.
 - **Transação**: esquema em **rascunho** (dataset da #51), a fechar com a ingestão (#57).
+- **Extrato**: por enquanto só CSV, com leitor e classificador provisórios (#57 e #68 trazem os de verdade).
 """
 
 TAGS = [
@@ -53,6 +54,6 @@ def criar_app(conteiner: Conteiner, origens_cors: tuple[str, ...] = (), lifespan
     app.include_router(sistema.router)
     app.include_router(conta.router)
     app.include_router(privacidade.router)
-    for router in (contrato.raio_x, contrato.dividas, contrato.previsao, chat.router, trilha.router):
+    for router in (raio_x.router, contrato.dividas, contrato.previsao, chat.router, trilha.router):
         app.include_router(router)
     return app

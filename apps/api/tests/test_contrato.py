@@ -66,9 +66,6 @@ def test_rotas_protegidas_pedem_bearer():
 @pytest.mark.parametrize(
     ("metodo", "caminho", "corpo", "issue"),
     [
-        ("get", "/transacoes", None, 72),
-        ("patch", "/transacoes/00000000-0000-0000-0000-000000000001/categoria", {"categoria": "LAZER"}, 72),
-        ("get", "/raio-x?mes=2026-10", None, 72),
         ("get", "/dividas", None, 72),
         ("get", "/score", None, 72),
         ("post", "/plano", {"metodo": "avalanche"}, 71),

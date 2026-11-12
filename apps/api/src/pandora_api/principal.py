@@ -6,11 +6,15 @@ from contextlib import asynccontextmanager
 
 from pandora_api.adaptadores.dados.trilha_json import CAMINHO_PADRAO, TrilhaEmArquivo
 from pandora_api.adaptadores.http.app import criar_app
-from pandora_api.adaptadores.http.conteiner import montar
+from pandora_api.adaptadores.http.conteiner import Financeiro, montar
+from pandora_api.adaptadores.ingestao.classificador_provisorio import ClassificadorProvisorio
+from pandora_api.adaptadores.ingestao.csv_provisorio import LeitorCsvProvisorio
 from pandora_api.adaptadores.persistencia.postgres import (
     BancoPostgres,
     ConsentimentosPostgres,
+    ExtratosPostgres,
     SessoesPostgres,
+    TransacoesPostgres,
     UsuariosPostgres,
 )
 from pandora_api.adaptadores.rag.http import AssistenteHttp
@@ -37,6 +41,10 @@ def criar_app_padrao():
         config.duracao_sessao,
         AssistenteHttp(config.url_rag),
         TrilhaEmArquivo(config.caminho_trilha or CAMINHO_PADRAO),
+        # Leitor e classificador provisórios: trocar pelos da #57 e da #68 quando chegarem.
+        Financeiro(
+            ExtratosPostgres(banco), TransacoesPostgres(banco), LeitorCsvProvisorio(), ClassificadorProvisorio()
+        ),
     )
     return criar_app(conteiner, config.origens_cors, lifespan=ciclo)
 

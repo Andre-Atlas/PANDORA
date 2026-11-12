@@ -68,7 +68,7 @@ def test_upload_exige_consentimento_ativo(autenticado):
         "/consentimentos", json={"finalidade": "diagnostico_financeiro", "versao_termo": "2026-11"}
     ).json()["id"]
     com = autenticado.post("/extratos", files=arquivo)
-    assert com.status_code == 501 and com.json()["issue"] == 72
+    assert com.status_code == 202
 
     autenticado.post(f"/consentimentos/{cid}/revogacao")
     assert autenticado.post("/extratos", files=arquivo).status_code == 403

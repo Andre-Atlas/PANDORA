@@ -11,6 +11,7 @@ from uuid import UUID
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
 from pandora_api.dominio.consentimento import Finalidade
+from pandora_api.dominio.extrato import StatusExtrato
 from pandora_api.dominio.transacao import Categoria, FormaPagamento, OrigemCategoria
 from pandora_api.dominio.usuario import TAMANHO_MINIMO_SENHA
 
@@ -96,7 +97,10 @@ class ParcelaSaida(Esquema):
 
 
 class TransacaoSaida(Esquema):
-    """RASCUNHO: segue o dataset sintético da #51; falta fechar com a ingestão (#57)."""
+    """RASCUNHO: segue o dataset sintético da #51; falta fechar com a ingestão (#57).
+
+    Enquanto o classificador da #68 não é servido, `versao_modelo` começa com `provisorio-`.
+    """
 
     id: UUID
     conta_id: str
@@ -129,27 +133,24 @@ class CorrecaoCategoria(Esquema):
 
 class GastoPorCategoria(Esquema):
     categoria: Categoria
-    total_centavos: int
-    essencial_centavos: int
+    total_centavos: int = Field(description="Saídas do mês nesta categoria, em valor positivo.")
+    essencial_centavos: int = Field(description="Parte do total que é Mínimo Existencial.")
 
 
 class RaioX(Esquema):
     mes: str = Field(pattern=r"^\d{4}-\d{2}$", examples=["2026-10"])
     renda_centavos: int
-    minimo_existencial_centavos: int = Field(description="Protegido: nenhum plano mexe nesse valor.")
-    folga_centavos: int
-    gastos: list[GastoPorCategoria]
+    minimo_existencial_centavos: int = Field(
+        description="Soma dos gastos essenciais do mês. Protegido: nenhum plano mexe nesse valor."
+    )
+    folga_centavos: int = Field(description="Renda menos Mínimo Existencial. Negativa quando o essencial não cabe.")
+    gastos: list[GastoPorCategoria] = Field(
+        description="Da maior para a menor. Sem RENDA, TRANSFERENCIA (inclui pagar a fatura inteira) e INVESTIMENTO."
+    )
     calculo: Calculo
 
 
 # --- Upload de extrato -----------------------------------------------------
-
-
-class StatusExtrato(StrEnum):
-    RECEBIDO = "recebido"
-    PROCESSANDO = "processando"
-    CONCLUIDO = "concluido"
-    FALHOU = "falhou"
 
 
 class ExtratoSaida(Esquema):
