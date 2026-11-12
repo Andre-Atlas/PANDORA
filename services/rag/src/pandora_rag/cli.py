@@ -89,6 +89,40 @@ def ask(pergunta: str, llm: str = LLM_PADRAO, k: int = 5, tabela: str = "chunks"
         typer.echo("  (abstenção: sem trecho que sustente a resposta)")
 
 
+@app.command("gerar-trilha")
+def gerar_trilha(saida: str = "", llm: str = LLM_PADRAO, k: int = 4, tentativas: int = 3, etapa: Optional[str] = None) -> None:
+    """Gera e valida o conteúdo da trilha (explicação e perguntas com fontes) e salva em JSON."""
+    from pathlib import Path
+
+    from pandora_rag.config import LIMIAR_ABSTENCAO, REPO_ROOT
+    from pandora_rag.montagem import montar_gateway
+    from pandora_rag.trilha import ROTEIRO, montar_documento
+
+    destino = Path(saida) if saida else REPO_ROOT / "apps" / "api" / "src" / "pandora_api" / "dados" / "trilha.v1.json"
+    retr, gw = montar_retriever(), montar_gateway()
+    from pandora_rag.trilha import gerar_etapa
+
+    etapas, falhas = [], 0
+    for e in ROTEIRO:
+        if etapa and e["id"] != etapa:
+            continue
+        r = gerar_etapa(retr, gw, llm, e, LIMIAR_ABSTENCAO, k, tentativas)
+        etapas.append(r)
+        ctl = r["_controle"]
+        typer.echo(f"{e['n']}. {e['t']:24} perguntas={len(r['licao']['perguntas'])} descartadas={len(ctl['perguntas_descartadas'])} "
+                   f"problemas={ctl['problemas'] or '-'}")
+        for d in ctl["perguntas_descartadas"]:
+            typer.echo(f"     descartada: {' | '.join(d['erros'])}  ({(d['pergunta'] or '')[:70]})")
+        falhas += bool(ctl["problemas"])
+    versao = retr.registros[0].versao_corpus if retr.registros else "?"
+    doc = montar_documento(etapas, versao, gw.config["modelos"][llm]["id"])
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    typer.echo(f"salvo em {destino} (corpus {versao}, hash {doc['hash'][:12]})")
+    if falhas:
+        raise typer.Exit(1)
+
+
 @app.command()
 def servir(porta: int = 8010, host: str = "127.0.0.1") -> None:
     """Sobe o serviço HTTP (POST /responder), carregando os modelos uma vez."""
