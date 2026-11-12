@@ -38,7 +38,7 @@ def test_fluxo_completo_e_exclusao(banco):
     )
 
     usuarios, sessoes, consentimentos = UsuariosPostgres(banco), SessoesPostgres(banco), ConsentimentosPostgres(banco)
-    c = montar(usuarios, sessoes, consentimentos, HasherScrypt(), RelogioDoSistema(), timedelta(hours=1))
+    c = montar(usuarios, sessoes, consentimentos, HasherScrypt(), RelogioDoSistema(), timedelta(hours=1), None, None)
 
     email = f"teste-{uuid4().hex[:8]}@exemplo.com"
     usuario = c.contas.cadastrar(email, "senha-forte-1")
