@@ -1,0 +1,278 @@
+{
+ "d-001": {
+  "A": "t1-llm-sozinho",
+  "B": "t3-rag-llm-14b",
+  "C": "t2-rag-sozinho",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-002": {
+  "A": "t3-rag-llm-14b",
+  "B": "t1-llm-sozinho",
+  "C": "t4-rag-llm-7b",
+  "D": "t2-rag-sozinho"
+ },
+ "d-003": {
+  "A": "t1-llm-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t2-rag-sozinho",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-004": {
+  "A": "t2-rag-sozinho",
+  "B": "t1-llm-sozinho",
+  "C": "t3-rag-llm-14b",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-005": {
+  "A": "t2-rag-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t3-rag-llm-14b",
+  "D": "t1-llm-sozinho"
+ },
+ "d-006": {
+  "A": "t3-rag-llm-14b",
+  "B": "t1-llm-sozinho",
+  "C": "t2-rag-sozinho",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-007": {
+  "A": "t2-rag-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t1-llm-sozinho",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-008": {
+  "A": "t3-rag-llm-14b",
+  "B": "t4-rag-llm-7b",
+  "C": "t1-llm-sozinho",
+  "D": "t2-rag-sozinho"
+ },
+ "d-009": {
+  "A": "t2-rag-sozinho",
+  "B": "t3-rag-llm-14b",
+  "C": "t1-llm-sozinho",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-010": {
+  "A": "t2-rag-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t3-rag-llm-14b",
+  "D": "t1-llm-sozinho"
+ },
+ "d-011": {
+  "A": "t4-rag-llm-7b",
+  "B": "t3-rag-llm-14b",
+  "C": "t2-rag-sozinho",
+  "D": "t1-llm-sozinho"
+ },
+ "d-012": {
+  "A": "t4-rag-llm-7b",
+  "B": "t2-rag-sozinho",
+  "C": "t3-rag-llm-14b",
+  "D": "t1-llm-sozinho"
+ },
+ "d-013": {
+  "A": "t1-llm-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t3-rag-llm-14b",
+  "D": "t2-rag-sozinho"
+ },
+ "d-014": {
+  "A": "t4-rag-llm-7b",
+  "B": "t1-llm-sozinho",
+  "C": "t3-rag-llm-14b",
+  "D": "t2-rag-sozinho"
+ },
+ "d-015": {
+  "A": "t4-rag-llm-7b",
+  "B": "t1-llm-sozinho",
+  "C": "t3-rag-llm-14b",
+  "D": "t2-rag-sozinho"
+ },
+ "d-016": {
+  "A": "t1-llm-sozinho",
+  "B": "t2-rag-sozinho",
+  "C": "t3-rag-llm-14b",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-017": {
+  "A": "t1-llm-sozinho",
+  "B": "t3-rag-llm-14b",
+  "C": "t2-rag-sozinho",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-018": {
+  "A": "t2-rag-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t3-rag-llm-14b",
+  "D": "t1-llm-sozinho"
+ },
+ "d-019": {
+  "A": "t1-llm-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t3-rag-llm-14b",
+  "D": "t2-rag-sozinho"
+ },
+ "d-020": {
+  "A": "t1-llm-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t2-rag-sozinho",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-021": {
+  "A": "t4-rag-llm-7b",
+  "B": "t2-rag-sozinho",
+  "C": "t1-llm-sozinho",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-022": {
+  "A": "t1-llm-sozinho",
+  "B": "t3-rag-llm-14b",
+  "C": "t4-rag-llm-7b",
+  "D": "t2-rag-sozinho"
+ },
+ "d-023": {
+  "A": "t2-rag-sozinho",
+  "B": "t1-llm-sozinho",
+  "C": "t4-rag-llm-7b",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-024": {
+  "A": "t4-rag-llm-7b",
+  "B": "t3-rag-llm-14b",
+  "C": "t2-rag-sozinho",
+  "D": "t1-llm-sozinho"
+ },
+ "d-025": {
+  "A": "t2-rag-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t3-rag-llm-14b",
+  "D": "t1-llm-sozinho"
+ },
+ "d-026": {
+  "A": "t1-llm-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t3-rag-llm-14b",
+  "D": "t2-rag-sozinho"
+ },
+ "d-027": {
+  "A": "t3-rag-llm-14b",
+  "B": "t4-rag-llm-7b",
+  "C": "t2-rag-sozinho",
+  "D": "t1-llm-sozinho"
+ },
+ "d-028": {
+  "A": "t2-rag-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t3-rag-llm-14b",
+  "D": "t1-llm-sozinho"
+ },
+ "d-029": {
+  "A": "t3-rag-llm-14b",
+  "B": "t4-rag-llm-7b",
+  "C": "t1-llm-sozinho",
+  "D": "t2-rag-sozinho"
+ },
+ "d-030": {
+  "A": "t4-rag-llm-7b",
+  "B": "t3-rag-llm-14b",
+  "C": "t2-rag-sozinho",
+  "D": "t1-llm-sozinho"
+ },
+ "d-031": {
+  "A": "t3-rag-llm-14b",
+  "B": "t1-llm-sozinho",
+  "C": "t2-rag-sozinho",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-032": {
+  "A": "t3-rag-llm-14b",
+  "B": "t1-llm-sozinho",
+  "C": "t2-rag-sozinho",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-033": {
+  "A": "t1-llm-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t2-rag-sozinho",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-034": {
+  "A": "t1-llm-sozinho",
+  "B": "t2-rag-sozinho",
+  "C": "t3-rag-llm-14b",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-035": {
+  "A": "t3-rag-llm-14b",
+  "B": "t4-rag-llm-7b",
+  "C": "t1-llm-sozinho",
+  "D": "t2-rag-sozinho"
+ },
+ "d-036": {
+  "A": "t2-rag-sozinho",
+  "B": "t4-rag-llm-7b",
+  "C": "t1-llm-sozinho",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-037": {
+  "A": "t4-rag-llm-7b",
+  "B": "t1-llm-sozinho",
+  "C": "t3-rag-llm-14b",
+  "D": "t2-rag-sozinho"
+ },
+ "d-038": {
+  "A": "t4-rag-llm-7b",
+  "B": "t1-llm-sozinho",
+  "C": "t2-rag-sozinho",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-039": {
+  "A": "t4-rag-llm-7b",
+  "B": "t3-rag-llm-14b",
+  "C": "t1-llm-sozinho",
+  "D": "t2-rag-sozinho"
+ },
+ "d-040": {
+  "A": "t4-rag-llm-7b",
+  "B": "t1-llm-sozinho",
+  "C": "t3-rag-llm-14b",
+  "D": "t2-rag-sozinho"
+ },
+ "d-041": {
+  "A": "t2-rag-sozinho",
+  "B": "t1-llm-sozinho",
+  "C": "t4-rag-llm-7b",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-042": {
+  "A": "t4-rag-llm-7b",
+  "B": "t3-rag-llm-14b",
+  "C": "t2-rag-sozinho",
+  "D": "t1-llm-sozinho"
+ },
+ "d-043": {
+  "A": "t3-rag-llm-14b",
+  "B": "t2-rag-sozinho",
+  "C": "t4-rag-llm-7b",
+  "D": "t1-llm-sozinho"
+ },
+ "d-044": {
+  "A": "t1-llm-sozinho",
+  "B": "t2-rag-sozinho",
+  "C": "t3-rag-llm-14b",
+  "D": "t4-rag-llm-7b"
+ },
+ "d-045": {
+  "A": "t1-llm-sozinho",
+  "B": "t2-rag-sozinho",
+  "C": "t4-rag-llm-7b",
+  "D": "t3-rag-llm-14b"
+ },
+ "d-046": {
+  "A": "t1-llm-sozinho",
+  "B": "t3-rag-llm-14b",
+  "C": "t4-rag-llm-7b",
+  "D": "t2-rag-sozinho"
+ }
+}

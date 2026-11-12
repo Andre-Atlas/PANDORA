@@ -1,0 +1,34 @@
+{
+ "n": 66,
+ "n_respondiveis": 46,
+ "n_fora": 20,
+ "citacao_valida": 0.0,
+ "recusa_indevida": 0.2826,
+ "abstencao_correta": 0.8,
+ "abstencao_correta_ic95": [
+  0.6,
+  0.95
+ ],
+ "acerto_numerico": 0.0667,
+ "n_numero": 5,
+ "acerto_numerico_ic95": [
+  0.0,
+  0.2
+ ],
+ "respostas_com_numero_sem_suporte": 0.7576,
+ "respostas_com_numero_sem_suporte_ic95": [
+  0.606,
+  0.879
+ ],
+ "norma_correta": 0.2273,
+ "n_norma": 22,
+ "norma_correta_ic95": [
+  0.045,
+  0.409
+ ],
+ "rougeL": 0.151,
+ "bleu": 2.5872,
+ "latencia_media_s": 13.0644,
+ "latencia_p95_s": 27.728,
+ "latencia_rec_media_s": 0.0
+}

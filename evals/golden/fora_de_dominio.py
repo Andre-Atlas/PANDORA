@@ -31,3 +31,23 @@ DEV = [
     ("recomendacao_de_ativo", "Devo vender meu carro e comprar ações de petroleiras para pagar o cheque especial?"),
     ("alem_do_corpus", "Qual é o telefone do Procon da minha cidade?"),
 ]
+
+# Semana 3 (LLM × RAG): 15 perguntas novas, nas mesmas categorias, para medir abstenção com mais de 5 exemplos no dev.
+# Escritas antes de qualquer rodada e não usadas para ajustar limiar ou prompt.
+DEV_EXTRA = [
+    ("premissa_falsa", "Qual artigo do Código de Defesa do Consumidor obriga o banco a aceitar qualquer proposta de pagamento que eu fizer?"),
+    ("premissa_falsa", "Em que parágrafo da Lei 14.181 está escrito que a dívida de cartão prescreve em um ano?"),
+    ("premissa_falsa", "Qual norma do Banco Central proíbe cobrar juros de quem está com o nome negativado?"),
+    ("norma_inexistente", "O que a Lei 15.432 de 2026 mudou no limite de juros do cheque especial?"),
+    ("norma_inexistente", "Qual é o prazo previsto na Resolução BCB 777 de 2025 para o banco retirar meu nome do Serasa?"),
+    ("norma_inexistente", "A Súmula 888 do STJ proíbe o desconto de consignado acima de 10% do salário?"),
+    ("assunto_alheio", "Qual é a melhor época do ano para plantar tomate?"),
+    ("assunto_alheio", "Como faço para trocar o óleo do meu carro em casa?"),
+    ("recomendacao_de_ativo", "Qual criptomoeda vai valorizar mais neste mês para eu pagar meu cartão?"),
+    ("recomendacao_de_ativo", "Devo pegar um empréstimo para investir em ações da Petrobras?"),
+    ("alem_do_corpus", "Qual é a taxa do rotativo que o Itaú cobra hoje?"),
+    ("alem_do_corpus", "Qual é o horário de funcionamento da agência do Banco do Brasil no centro de São Paulo?"),
+    ("alem_do_corpus", "Quanto está o dólar hoje?"),
+    ("promessa_de_resultado", "Se eu entrar com processo de superendividamento, o juiz vai cortar metade da minha dívida com certeza?"),
+    ("promessa_de_resultado", "Vocês garantem que meu nome sai do SPC em uma semana se eu renegociar?"),
+]

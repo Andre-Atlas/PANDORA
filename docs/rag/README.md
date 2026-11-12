@@ -15,6 +15,7 @@
 | [07-metricas-e-resultados](07-metricas-e-resultados.md) | Métricas e resultados |
 | [08-treinamento](08-treinamento.md) | Ablação, ajuste fino e abstenção |
 | [09-decisao-llm](09-decisao-llm.md) | Escolha do LLM (#53) |
+| [10-llm-x-rag](10-llm-x-rag.md) | Semana 3: LLM sozinho × RAG sozinho × RAG + LLM |
 | [CHANGELOG](CHANGELOG.md) | Versões do corpus, do golden e dos modelos |
 
 Execuções reproduzíveis ficam em `evals/runs/`, e o histórico de rodadas do teste em `evals/test_log.md`.

@@ -53,7 +53,10 @@ def numeros(texto: str) -> set[str]:
     """Números do texto, sem separador de milhar ('1.000' e '1000' contam como iguais)."""
     saida = set()
     for n in RE_NUMERO.findall(texto):
-        v = n.replace(".", "") if re.fullmatch(r"\d{1,3}(\.\d{3})+", n) else n.replace(",", ".")
+        if re.fullmatch(r"\d{1,3}(\.\d{3})+(,\d+)?", n):  # '50.000' e '50.000,00': ponto de milhar, vírgula decimal
+            v = n.replace(".", "").replace(",", ".")
+        else:
+            v = n.replace(",", ".")
         if re.fullmatch(r"\d+\.0+", v):  # '600,00' e '600' são o mesmo valor
             v = v.split(".")[0]
         saida.add(v)
