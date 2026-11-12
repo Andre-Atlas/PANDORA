@@ -45,7 +45,10 @@ function Conversa({ onVoz }: { onVoz: () => void }) {
   const ocupada = mensagens.some((m) => m.autor === "elpis" && m.estado === "enviando");
 
   useEffect(() => {
-    const controle = cancelar.current;
+    // novo controlador a cada montagem: o StrictMode monta, desmonta e monta de novo,
+    // e um controlador já abortado engoliria os erros como se fossem cancelamento
+    const controle = new AbortController();
+    cancelar.current = controle;
     return () => controle.abort();
   }, []);
 

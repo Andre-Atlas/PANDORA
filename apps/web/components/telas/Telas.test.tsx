@@ -1,6 +1,7 @@
 import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
 import type { ReactNode } from "react";
+import { StrictMode } from "react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { AvisoDemoProvider } from "@/components/AvisoDemo";
 import { CHAVE_CRISE, CriseProvider } from "@/components/crise/CriseProvider";
@@ -28,14 +29,17 @@ Element.prototype.scrollIntoView = vi.fn();
 
 // Bundle real do design system, com os provedores que as telas usam.
 async function renderizar(tela: ReactNode) {
+  // StrictMode como no `next dev`: monta, desmonta e monta de novo, o que expõe efeitos mal limpos
   render(
-    <TemaProvider>
-      <PandoraProvider>
-        <CriseProvider>
-          <AvisoDemoProvider>{tela}</AvisoDemoProvider>
-        </CriseProvider>
-      </PandoraProvider>
-    </TemaProvider>,
+    <StrictMode>
+      <TemaProvider>
+        <PandoraProvider>
+          <CriseProvider>
+            <AvisoDemoProvider>{tela}</AvisoDemoProvider>
+          </CriseProvider>
+        </PandoraProvider>
+      </TemaProvider>
+    </StrictMode>,
   );
   // Espera o bundle: enquanto carrega, "Carregando o PANDORA" também tem role="status".
   await waitFor(() => expect(screen.queryByText("Carregando o PANDORA")).not.toBeInTheDocument());
@@ -124,11 +128,12 @@ describe("Elpis", () => {
   });
 
   it("explica a falha e deixa tentar de novo", async () => {
-    let tentativa = 0;
-    simularApi({ "POST /chat": () => (++tentativa === 1 ? json({ title: "x", status: 503 }, 503) : json(RESPOSTA)) });
+    let falhar = true;
+    simularApi({ "POST /chat": () => (falhar ? json({ title: "x", status: 503 }, 503) : json(RESPOSTA)) });
     await renderizar(<Elpis />);
     await perguntar("Qual o prazo?");
     expect(await screen.findByRole("alert")).toHaveTextContent(/não está disponível/);
+    falhar = false;
     await userEvent.click(screen.getByRole("button", { name: "Tentar de novo" }));
     expect(await screen.findByText(/O plano pode durar/)).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
@@ -249,10 +254,11 @@ describe("Trilha", () => {
   });
 
   it("explica a falha e deixa tentar de novo", async () => {
-    let tentativa = 0;
-    simularApi({ "GET /trilha": () => (++tentativa === 1 ? json({ title: "x", status: 500 }, 500) : json(ETAPAS)) });
+    let falhar = true;
+    simularApi({ "GET /trilha": () => (falhar ? json({ title: "x", status: 500 }, 500) : json(ETAPAS)) });
     await renderizar(<Trilha />);
     expect(await screen.findByRole("alert")).toHaveTextContent(/Algo deu errado/);
+    falhar = false;
     await userEvent.click(screen.getByRole("button", { name: "Tentar de novo" }));
     expect(await screen.findByText(/0 de 3 etapas concluídas/)).toBeInTheDocument();
   });
