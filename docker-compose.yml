@@ -23,6 +23,10 @@ services:
     environment:
       PANDORA_DB_URL: postgresql://pandora:${POSTGRES_PASSWORD:-pandora_local}@db:5432/pandora
       PANDORA_ORIGENS_CORS: http://localhost:3000
+      # o RAG roda no host (MPS e Ollama): `uv run pandora-rag servir` em services/rag
+      PANDORA_RAG_URL: http://host.docker.internal:8010
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     ports:
       - "8000:8000"
     depends_on:

@@ -2,6 +2,13 @@
 
 Formato: versão, data, o que mudou. Versões do corpus, do golden e dos modelos ficam nos respectivos `*.lock` e `config.json` das execuções.
 
+## Não lançado
+
+- Serviço HTTP (`pandora-rag servir`, porta 8010): `GET /saude` e `POST /responder`, com `contexto` opcional que orienta o LLM e nunca vira fonte.
+- Variável do banco do RAG passa a ser `PANDORA_RAG_DB_URL`; `PANDORA_DB_URL` ainda vale, com aviso.
+- `pandora-rag gerar-trilha`: gera as 6 lições com explicação citada e perguntas de múltipla escolha. Valida citações, números (no enunciado, na opção certa e no retorno) e fontes com aviso de vigência. A triagem manual (`scripts/triagem_trilha.py`) removeu 4 perguntas e editou 1, cada uma com motivo; conteúdo atual: validação `automatica+triagem`, 7 perguntas.
+- API: `/chat` e `/trilha*` públicas, com detector de crise por expressões (paliativo até a #64).
+
 ## rag-v0.1.0 (2026-11-09)
 
 - Corpus: 33 fontes oficiais, 1.183 chunks, versão `515669eb8f54`.

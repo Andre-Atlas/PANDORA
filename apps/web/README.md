@@ -17,6 +17,18 @@ npm run build
 
 Para testar a instalação como PWA, rode `npm run build && npm start -w @pandora/web` e abra no Chrome ou Edge. Em DevTools → Application → Manifest, o app deve aparecer como instalável.
 
+### Elpis e Trilha com dados reais
+
+O Elpis e a Trilha usam a API, que chama o RAG. Suba os três, cada um no seu terminal:
+
+```bash
+cd services/rag && uv run pandora-rag servir        # RAG em :8010 (carrega os modelos em ~1 min)
+cd apps/api && uv run uvicorn pandora_api.principal:app --port 8000
+npm run dev                                         # web em :3000
+```
+
+A URL da API vem de `NEXT_PUBLIC_PANDORA_API_URL` (padrão `http://localhost:8000`). O resto do app continua com dados de demonstração.
+
 ## Como está organizado
 
 ```
