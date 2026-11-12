@@ -100,6 +100,8 @@ interface CampoPerguntaAppProps {
   onEnviar: (texto: string) => void;
   onVoz?: () => void;
   onAnexo?: () => void;
+  /** Bloqueia a digitação enquanto uma resposta está a caminho. */
+  desativado?: boolean;
 }
 
 /** `CampoPergunta` que envia o texto (Enter) e liga o microfone e o anexo. */
@@ -109,6 +111,7 @@ export function CampoPerguntaApp({
   onEnviar,
   onVoz,
   onAnexo,
+  desativado = false,
 }: CampoPerguntaAppProps) {
   const { BotaoIcone } = usePandora();
   const [texto, setTexto] = useState("");
@@ -116,7 +119,7 @@ export function CampoPerguntaApp({
   function enviar(evento: FormEvent) {
     evento.preventDefault();
     const limpo = texto.trim();
-    if (!limpo) return;
+    if (!limpo || desativado) return;
     onEnviar(limpo);
     setTexto("");
   }
@@ -130,6 +133,7 @@ export function CampoPerguntaApp({
         placeholder={placeholder}
         aria-label={placeholder}
         enterKeyHint="send"
+        disabled={desativado}
         value={texto}
         onChange={(e) => setTexto(e.target.value)}
         style={anexo ? undefined : { paddingLeft: 2 }}
