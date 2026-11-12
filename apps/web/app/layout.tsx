@@ -14,6 +14,7 @@ export const metadata: Metadata = {
   description: "Copiloto financeiro com IA. Entenda suas dívidas e recupere o controle do seu dinheiro.",
   applicationName: "PANDORA",
   appleWebApp: { capable: true, title: "PANDORA", statusBarStyle: "default" },
+  // Medalhão de Elpis. O favicon.ico (16, 32 e 48px) vem de app/favicon.ico, por convenção do Next.
   icons: {
     icon: [{ url: "/icons/icone-192.png", sizes: "192x192", type: "image/png" }],
     apple: "/icons/apple-touch-icon.png",
