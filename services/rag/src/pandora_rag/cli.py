@@ -7,8 +7,9 @@ from typing import Optional
 
 import typer
 
+from pandora_rag.montagem import LLM_PADRAO, MODELO_EMBEDDING, montar_retriever
+
 app = typer.Typer(help="RAG híbrido do PANDORA", no_args_is_help=True)
-MODELO_EMBEDDING = "BAAI/bge-m3"
 
 
 @app.command()
@@ -52,15 +53,7 @@ def indexar(modelo: str = MODELO_EMBEDDING, estrategia: str = "estrutural", tabe
 
 
 def _retriever(modelo: str, tabela: str, rerank: bool):
-    from pandora_rag.config import DB_URL
-    from pandora_rag.index.embedder import Embedder
-    from pandora_rag.index.store import PgVectorStore
-    from pandora_rag.retrieve.hybrid import IndiceBM25, Reranker, Retriever
-
-    emb = Embedder(modelo)
-    pg = PgVectorStore(DB_URL, tabela, emb.dim)
-    regs = pg.carregar_registros()
-    return Retriever(pg, IndiceBM25(regs), emb, Reranker() if rerank else None)
+    return montar_retriever(modelo, tabela, rerank)
 
 
 @app.command()
@@ -72,7 +65,7 @@ def buscar(pergunta: str, k: int = 5, tabela: str = "chunks", rerank: bool = Fal
 
 
 @app.command()
-def ask(pergunta: str, llm: str = "qwen25-14b", k: int = 5, tabela: str = "chunks", rerank: bool = True,
+def ask(pergunta: str, llm: str = LLM_PADRAO, k: int = 5, tabela: str = "chunks", rerank: bool = True,
         modelo: str = MODELO_EMBEDDING, saida_json: Optional[bool] = False) -> None:
     """Consulta completa: busca, resposta fundamentada e fontes."""
     from pandora_rag.config import LIMIAR_ABSTENCAO
@@ -94,6 +87,14 @@ def ask(pergunta: str, llm: str = "qwen25-14b", k: int = 5, tabela: str = "chunk
         typer.echo(f"  [{c.n}] {c.norma} {c.artigo or ''}\n      {c.link}\n      trecho: \"{' '.join(c.trecho.split())[:220]}...\"")
     if resp.abstencao:
         typer.echo("  (abstenção: sem trecho que sustente a resposta)")
+
+
+@app.command()
+def servir(porta: int = 8010, host: str = "127.0.0.1") -> None:
+    """Sobe o serviço HTTP (POST /responder), carregando os modelos uma vez."""
+    import uvicorn
+
+    uvicorn.run("pandora_rag.servico.app:app_padrao", factory=True, host=host, port=porta)
 
 
 if __name__ == "__main__":

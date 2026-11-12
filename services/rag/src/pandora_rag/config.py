@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import json
 import os
+import warnings
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -16,9 +17,22 @@ TEXT_DIR = DATA_DIR / "text"
 LIMIAR_PATH = REPO_ROOT / "training" / "abstencao" / "limiar.json"
 LIMIAR_ABSTENCAO = json.loads(LIMIAR_PATH.read_text(encoding="utf-8"))["limiar"] if LIMIAR_PATH.exists() else None
 
-DB_URL = os.environ.get(
-    "PANDORA_DB_URL", "postgresql://pandora:pandora_local@localhost:5433/pandora_rag"
-)
+DB_URL_PADRAO = "postgresql://pandora:pandora_local@localhost:5433/pandora_rag"
+
+
+def resolver_db_url(env: dict | None = None) -> str:
+    """PANDORA_RAG_DB_URL é o nome atual; PANDORA_DB_URL (da API, porta 5434) só vale como alternativa antiga."""
+    env = os.environ if env is None else env
+    if env.get("PANDORA_RAG_DB_URL"):
+        return env["PANDORA_RAG_DB_URL"]
+    if env.get("PANDORA_DB_URL"):
+        warnings.warn("PANDORA_DB_URL no RAG está obsoleta; use PANDORA_RAG_DB_URL", DeprecationWarning, stacklevel=2)
+        return env["PANDORA_DB_URL"]
+    return DB_URL_PADRAO
+
+
+DB_URL = resolver_db_url()
+OLLAMA_URL = os.environ.get("OLLAMA_URL", "http://localhost:11434")
 
 
 def carregar_env(caminho: Path = ROOT / ".env") -> None:
