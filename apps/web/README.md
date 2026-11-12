@@ -130,7 +130,6 @@ Toda afirmação sobre lei leva `CitacaoCartao`, e as fontes ficam em `lib/guard
 ## Pendências conhecidas
 
 - **Respostas da Abertura (#71):** as perguntas existem, mas as respostas não vão para lugar nenhum. O nível da `EscalaSentimento` nem pode ser lido, porque ela não tem `onChange`.
-- **Resolução da cena:** `pandora-cena.png` tem 400×413px, e a nova abertura a amplia para a largura da tela (60% dela no computador), então ela sai borrada. O design system pede uma versão de pelo menos 1600px.
 
 - **Contatos do fluxo de crise, para o grupo decidir:**
   - **Jogadores Anônimos** está fora da tela. Nenhuma fonte oficial confirmou o site: `jogadoresanonimos.com.br` responde, mas não deu para confirmar que é o JA Brasil. Quando alguém confirmar, basta preencher `href` e `fonte` em `contatos.ts`.

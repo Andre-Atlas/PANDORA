@@ -8,8 +8,8 @@ const css = `:root,[data-theme="light"]{${bloco('light')}}[data-theme="dark"]{${
 const arg = process.argv.indexOf('--saida'), saida = arg > 0 ? path.resolve(process.argv[arg + 1]) : path.join(__dirname, '..', 'teste'); fs.mkdirSync(saida, { recursive: true });
 fs.writeFileSync(path.join(saida, 'tokens.css'), css);
 fs.copyFileSync(path.join(raiz, 'components/bundle.css'), path.join(saida, 'bundle.css'));
-fs.copyFileSync(path.join(__dirname, '..', noArtifact ? 'assets-up/pandora-cena.png' : 'assets/Cena/pandora-cena.png'), path.join(saida, 'pandora-cena.png'));
-fs.writeFileSync(path.join(saida, 'bundle.js'), fs.readFileSync(path.join(raiz, 'components/bundle.js'), 'utf8').replace(/'[^']*(_blob\/315e6beaff9ab6221886784cbff1e112|assets\/Cena\/pandora-cena\.png)'/, "'pandora-cena.png'"));
+fs.copyFileSync(path.join(__dirname, '..', noArtifact ? 'assets-up/pandora-cena.png' : 'assets/Cena/pandora-cena.svg'), path.join(saida, noArtifact ? 'pandora-cena.png' : 'pandora-cena.svg'));
+fs.writeFileSync(path.join(saida, 'bundle.js'), fs.readFileSync(path.join(raiz, 'components/bundle.js'), 'utf8').replace(/'[^']*(_blob\/315e6beaff9ab6221886784cbff1e112|assets\/Cena\/pandora-cena\.svg)'/, noArtifact ? "'pandora-cena.png'" : "'pandora-cena.svg'"));
 for (const tema of ['light', 'dark']) fs.writeFileSync(path.join(saida, tema + '.html'), `<!doctype html><html data-theme="${tema}"><head><meta charset="utf-8"><link rel="stylesheet" href="tokens.css"><link rel="stylesheet" href="bundle.css"></head><body style="margin:0"><div id="root" class="pd-demo"></div>
 <script src="https://cdn.jsdelivr.net/npm/react@18.3.1/umd/react.production.min.js"></script><script src="https://cdn.jsdelivr.net/npm/react-dom@18.3.1/umd/react-dom.production.min.js"></script><script src="bundle.js"></script>
 <script>ReactDOM.createRoot(document.getElementById('root')).render(React.createElement(Pandora.Galeria));</script></body></html>`);

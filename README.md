@@ -81,7 +81,7 @@ Versão 2, só celular:
 
 <table>
   <tr>
-    <td align="center"><img src="frontend/design-system/assets/Cena/pandora-cena.png" alt="Cena da abertura" width="200"><br><sub>Cena da abertura</sub></td>
+    <td align="center"><img src="frontend/design-system/assets/Cena/pandora-cena-1600.webp" alt="Cena da abertura" width="200"><br><sub>Cena da abertura</sub></td>
     <td align="center"><img src="frontend/design-system/assets/Marca/caixa-esperanca.svg" alt="Marca: caixa da esperança" width="120"><br><sub>Marca: caixa da esperança</sub></td>
     <td align="center"><img src="frontend/design-system/assets/Marca/elpis-medalhao.svg" alt="Medalhão de Elpis" width="120"><br><sub>Medalhão de Elpis</sub></td>
   </tr>

@@ -67,7 +67,7 @@ const C = [
 ];
 
 let corpo = fs.readFileSync(path.join(__dirname, 'bundle.body.js'), 'utf8').replace('__FIGURA_ELPIS__', fs.readFileSync(path.join(__dirname, 'elpis.d'), 'utf8').trim()).replace('__EMBLEMAS__', JSON.stringify(emblemas));
-if (!noArtifact) corpo = corpo.replace("'/_blob/315e6beaff9ab6221886784cbff1e112'", "'./assets/Cena/pandora-cena.png'");
+if (!noArtifact) corpo = corpo.replace("'/_blob/315e6beaff9ab6221886784cbff1e112'", "'./assets/Cena/pandora-cena.svg'");
 fs.writeFileSync(path.join(raiz, 'components/bundle.css'), fs.readFileSync(path.join(__dirname, 'bundle.src.css'), 'utf8').replace('/*__ORNAMENTOS__*/', ornamentos.css));
 const cab = '/* @ds-bundle: ' + JSON.stringify({ format: 4, namespace: 'Pandora', components: C.map(c => ({ name: c[0] })) }) + ' */\n';
 if (/<\/script|<!--/i.test(corpo)) throw new Error('termo proibido no bundle');

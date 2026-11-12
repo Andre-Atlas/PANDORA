@@ -76,7 +76,7 @@ As telas medem a própria largura (container `pd-tela`), então a mesma tela fun
 - **A partir de 1024px:** a navegação vira um trilho lateral preto, com o meandro de pé na borda. Os cartões vão para duas colunas, até 1200px. A conversa com Elpis fica em uma coluna de até 760px.
 - **Celular deitado** (altura até 520px): o trilho lateral devolve a altura ao conteúdo.
 - A abertura usa a cena inteira em primeiro plano, nítida, e a dissolve num esfumado da própria cena escurecido pela `base`. No celular a cena fica em cima e o texto embaixo. A partir de 800px a cena preenche a esquerda e o texto se centra à direita. O texto sobre o esfumado fica acima de 12:1.
-- A cena tem só 400×413px e aparece ampliada em telas largas. Troque por uma versão de pelo menos 1600px quando houver.
+- A cena é um SVG em camadas (`assets/Cena/pandora-cena.svg`, 1:1) e nítido em qualquer tela. Há também WebP de 1600 e 2400px e PNG de 2000px. O PNG antigo de 400px ficou como `pandora-cena-400.png`. As cores vêm de `--cena-fundo`, `--cena-textura`, `--cena-tinta` e `--cena-fumaca`, com o valor original como reserva.
 - Títulos da marca e `valor-xl` crescem com a largura (`clamp`). O corpo fica em 17px em qualquer tela.
 - O trilho muda só a posição visual. Na ordem de leitura e de foco, a navegação continua depois do conteúdo.
 
