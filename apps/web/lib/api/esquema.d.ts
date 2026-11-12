@@ -309,8 +309,65 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Perguntar à Elpis (RF09) */
+        /**
+         * Perguntar à Elpis (RF09)
+         * @description Responde só com base nas fontes oficiais, sempre com citação. Sem fonte suficiente, devolve `abstencao`. Sinais de crise devolvem `crise` e os contatos de apoio, sem consultar o modelo. Pública, sem token: o app ainda não tem login. Leva de 8 a 15 s.
+         */
         post: operations["perguntar"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trilha": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Etapas da trilha */
+        get: operations["listar_etapas"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trilha/licoes/{licao_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Lição com explicação, fontes e perguntas */
+        get: operations["obter_licao"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/trilha/licoes/{licao_id}/porque": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Por quê? A Elpis explica a resposta de uma questão, com fontes
+         * @description Leva de 8 a 15 s, como o chat.
+         */
+        post: operations["explicar_resposta"];
         delete?: never;
         options?: never;
         head?: never;
@@ -501,6 +558,35 @@ export interface components {
              */
             valor: string;
         };
+        /**
+         * EtapaTrilha
+         * @description Um degrau do `TrilhaCaminho`. O estado (feito, atual, próximo) é do navegador de quem usa.
+         */
+        EtapaTrilha: {
+            /** N */
+            n: number;
+            /**
+             * T
+             * @description Título da etapa.
+             */
+            t: string;
+            /**
+             * X
+             * @description Posição horizontal no desenho do caminho.
+             */
+            x: number;
+            /**
+             * Lado
+             * @enum {string}
+             */
+            lado: "d" | "e";
+            /** Marco */
+            marco: string | null;
+            /** Emblema */
+            emblema: string;
+            /** Licao Id */
+            licao_id: string;
+        };
         /** ExtratoSaida */
         ExtratoSaida: {
             /**
@@ -568,6 +654,21 @@ export interface components {
              */
             motivo: string;
         };
+        /** LicaoSaida */
+        LicaoSaida: {
+            /** Id */
+            id: string;
+            /** Titulo */
+            titulo: string;
+            /** Explicacao */
+            explicacao: string;
+            /** Citacoes Explicacao */
+            citacoes_explicacao: number[];
+            /** Fontes */
+            fontes: components["schemas"]["CitacaoSaida"][];
+            /** Perguntas */
+            perguntas: components["schemas"]["PerguntaTrilha"][];
+        };
         /**
          * MetodoPlano
          * @enum {string}
@@ -603,6 +704,25 @@ export interface components {
             /** Conversa Id */
             conversa_id?: string | null;
         };
+        /** PerguntaTrilha */
+        PerguntaTrilha: {
+            /** Enunciado */
+            enunciado: string;
+            /** Opcoes */
+            opcoes: string[];
+            /**
+             * Certa
+             * @description Índice da opção correta em `opcoes`.
+             */
+            certa: number;
+            /**
+             * Feedback
+             * @description Explicação com citação `[n]`, que aponta para `fontes` da lição.
+             */
+            feedback: string;
+            /** Citacoes */
+            citacoes: number[];
+        };
         /** Plano */
         Plano: {
             metodo: components["schemas"]["MetodoPlano"];
@@ -631,6 +751,19 @@ export interface components {
             faixa_inferior_centavos: number;
             /** Faixa Superior Centavos */
             faixa_superior_centavos: number;
+        };
+        /** PorqueEntrada */
+        PorqueEntrada: {
+            /**
+             * Pergunta Idx
+             * @description Posição da pergunta em `perguntas` da lição.
+             */
+            pergunta_idx: number;
+            /**
+             * Opcao
+             * @description Índice da opção que a pessoa escolheu.
+             */
+            opcao: number;
         };
         /** Previsao */
         Previsao: {
@@ -1629,8 +1762,79 @@ export interface operations {
                     "application/json": components["schemas"]["RespostaChat"];
                 };
             };
-            /** @description Unauthorized */
-            401: {
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": unknown;
+                    "application/json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    listar_etapas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["EtapaTrilha"][];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": unknown;
+                    "application/json": components["schemas"]["Problema"];
+                };
+            };
+        };
+    };
+    obter_licao: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                licao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LicaoSaida"];
+                };
+            };
+            /** @description Not Found */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -1648,8 +1852,54 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
-            /** @description Not Implemented */
-            501: {
+        };
+    };
+    explicar_resposta: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                licao_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PorqueEntrada"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RespostaChat"];
+                };
+            };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": unknown;
+                    "application/json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Unprocessable Entity */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": unknown;
+                    "application/json": components["schemas"]["Problema"];
+                };
+            };
+            /** @description Service Unavailable */
+            503: {
                 headers: {
                     [name: string]: unknown;
                 };

@@ -14,10 +14,8 @@ from pathlib import Path
 import httpx
 import yaml
 
-from pandora_rag.config import ROOT
+from pandora_rag.config import OLLAMA_URL, ROOT
 from pandora_rag.generate.pii import mascarar
-
-OLLAMA_URL = "http://localhost:11434"
 
 
 class OrcamentoExcedido(RuntimeError):

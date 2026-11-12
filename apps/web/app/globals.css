@@ -200,3 +200,53 @@ body {
     bottom: var(--espaco-6);
   }
 }
+
+/* Respostas com fonte (Elpis e trilha) */
+.app-ref {
+  font-size: 0.78em;
+  font-weight: 700;
+  vertical-align: super;
+  line-height: 0;
+  margin-inline: 1px;
+}
+.app-texto-resposta {
+  white-space: pre-line;
+}
+.app-fonte {
+  scroll-margin-block: 16px;
+}
+.app-trecho {
+  display: block;
+  font-style: italic;
+}
+.app-ressalva {
+  display: block;
+  margin-top: 6px;
+}
+.app-consultando {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.app-consultando::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: currentColor;
+  animation: app-pulsa 1.2s ease-in-out infinite;
+}
+@keyframes app-pulsa {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app-consultando::before {
+    animation: none;
+  }
+}

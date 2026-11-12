@@ -17,6 +17,18 @@ npm run build
 
 Para testar a instalação como PWA, rode `npm run build && npm start -w @pandora/web` e abra no Chrome ou Edge. Em DevTools → Application → Manifest, o app deve aparecer como instalável.
 
+### Elpis e Trilha com dados reais
+
+O Elpis e a Trilha usam a API, que chama o RAG. Suba os três, cada um no seu terminal:
+
+```bash
+cd services/rag && uv run pandora-rag servir        # RAG em :8010 (carrega os modelos em ~1 min)
+cd apps/api && uv run uvicorn pandora_api.principal:app --port 8000
+npm run dev                                         # web em :3000
+```
+
+A URL da API vem de `NEXT_PUBLIC_PANDORA_API_URL` (padrão `http://localhost:8000`). O resto do app continua com dados de demonstração.
+
 ## Como está organizado
 
 ```
@@ -118,7 +130,6 @@ Toda afirmação sobre lei leva `CitacaoCartao`, e as fontes ficam em `lib/guard
 ## Pendências conhecidas
 
 - **Respostas da Abertura (#71):** as perguntas existem, mas as respostas não vão para lugar nenhum. O nível da `EscalaSentimento` nem pode ser lido, porque ela não tem `onChange`.
-- **Resolução da cena:** `pandora-cena.png` tem 400×413px, e a nova abertura a amplia para a largura da tela (60% dela no computador), então ela sai borrada. O design system pede uma versão de pelo menos 1600px.
 
 - **Contatos do fluxo de crise, para o grupo decidir:**
   - **Jogadores Anônimos** está fora da tela. Nenhuma fonte oficial confirmou o site: `jogadoresanonimos.com.br` responde, mas não deu para confirmar que é o JA Brasil. Quando alguém confirmar, basta preencher `href` e `fonte` em `contatos.ts`.

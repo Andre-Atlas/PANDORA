@@ -1,19 +1,32 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { Fragment, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useAvisoDemo } from "@/components/AvisoDemo";
 import { CampoPerguntaApp } from "@/components/Controlados";
-import { CONVERSA, PESSOA } from "@/lib/demo/dados";
+import { CartoesDeFonte, TextoComCitacoes } from "@/components/CitacoesResposta";
+import { useCrise } from "@/components/crise/CriseProvider";
+import { ErroApi, perguntarElpis } from "@/lib/api/cliente";
+import type { RespostaChat } from "@/lib/api/tipos";
+import { PESSOA } from "@/lib/demo/dados";
 import { usePandora } from "@/lib/pandora/PandoraProvider";
 
-/** Até o chat de verdade (#80) chegar, toda pergunta nova recebe esta resposta. */
-export const RESPOSTA_DEMO =
-  "Esta é uma demonstração. A Elpis de verdade, que busca a resposta em fontes oficiais, chega com o chat (#80).";
+/** Perguntas que mostram o que a Elpis sabe responder com fonte. */
+export const SUGESTOES = [
+  "Podem bloquear meu salário por dívida de cartão?",
+  "O que é o mínimo existencial?",
+  "Existe limite para os juros do rotativo?",
+];
+
+type Mensagem =
+  | { id: number; autor: "voce"; texto: string }
+  | { id: number; autor: "elpis"; estado: "enviando" }
+  | { id: number; autor: "elpis"; estado: "erro"; erro: string; pergunta: string }
+  | { id: number; autor: "elpis"; estado: "ok"; resposta: RespostaChat };
 
 /**
- * Tela 4 da galeria. A conversa começa com as trocas das telas 4a (resposta
- * com fonte) e 4b (limites). O microfone abre o modo voz (4c).
+ * Tela 4 da galeria. A Elpis responde de verdade: a pergunta vai ao RAG pela API,
+ * e a resposta volta com as fontes oficiais ou com a abstenção "Sem fonte suficiente".
+ * O microfone abre o modo voz (4c).
  */
 export function Elpis() {
   const [ouvindo, setOuvindo] = useState(false);
@@ -21,116 +34,147 @@ export function Elpis() {
 }
 
 function Conversa({ onVoz }: { onVoz: () => void }) {
-  const { CabecalhoElpis, Balao, CitacaoCartao, BlocoCalculado, Friso, Selo, Icone, Botao } = usePandora();
-  const router = useRouter();
+  const { CabecalhoElpis, Balao, Friso, Selo, Botao } = usePandora();
   const avisar = useAvisoDemo();
-  const [novas, setNovas] = useState<string[]>([]);
+  const { abrirCrise } = useCrise();
+  const [mensagens, setMensagens] = useState<Mensagem[]>([]);
+  const proximoId = useRef(0);
+  const cancelar = useRef(new AbortController());
   const fim = useRef<HTMLDivElement>(null);
 
-  useEffect(() => {
-    if (novas.length) fim.current?.scrollIntoView({ behavior: "smooth", block: "end" });
-  }, [novas]);
+  const ocupada = mensagens.some((m) => m.autor === "elpis" && m.estado === "enviando");
 
-  const perguntar = (texto: string) => setNovas((lista) => [...lista, texto]);
+  useEffect(() => {
+    // novo controlador a cada montagem: o StrictMode monta, desmonta e monta de novo,
+    // e um controlador já abortado engoliria os erros como se fossem cancelamento
+    const controle = new AbortController();
+    cancelar.current = controle;
+    return () => controle.abort();
+  }, []);
+
+  useEffect(() => {
+    if (mensagens.length) fim.current?.scrollIntoView({ behavior: "smooth", block: "end" });
+  }, [mensagens]);
+
+  const responder = useCallback(
+    async (idElpis: number, pergunta: string) => {
+      const trocar = (nova: Mensagem) => setMensagens((lista) => lista.map((m) => (m.id === idElpis ? nova : m)));
+      try {
+        const resposta = await perguntarElpis(pergunta, cancelar.current.signal);
+        trocar({ id: idElpis, autor: "elpis", estado: "ok", resposta });
+        if (resposta.crise) abrirCrise();
+      } catch (erro) {
+        if (cancelar.current.signal.aborted) return;
+        const mensagem = erro instanceof ErroApi ? erro.message : "Algo deu errado. Tente de novo.";
+        trocar({ id: idElpis, autor: "elpis", estado: "erro", erro: mensagem, pergunta });
+      }
+    },
+    [abrirCrise],
+  );
+
+  const perguntar = (texto: string) => {
+    if (ocupada) return;
+    const idVoce = proximoId.current++;
+    const idElpis = proximoId.current++;
+    setMensagens((lista) => [
+      ...lista,
+      { id: idVoce, autor: "voce", texto },
+      { id: idElpis, autor: "elpis", estado: "enviando" },
+    ]);
+    void responder(idElpis, texto);
+  };
+
+  const tentarDeNovo = (id: number, pergunta: string) => {
+    if (ocupada) return;
+    setMensagens((lista) => lista.map((m) => (m.id === id ? { id, autor: "elpis", estado: "enviando" } : m)));
+    void responder(id, pergunta);
+  };
+
   const anexar = () => avisar("Demonstração: o envio de foto ou PDF ainda não existe.");
 
   return (
     <>
       <CabecalhoElpis />
       <div className="pd-corpo pd-conversa" aria-live="polite">
-        {/* 4a · Resposta com fonte */}
-        <Balao autor="voce">{CONVERSA.salario.pergunta}</Balao>
         <Balao>
           <p>
-            <strong>Não.</strong> O salário é impenhorável para dívidas de cartão e de empréstimo. O que um cobrador diz
-            por telefone não muda essa regra.
+            Oi! Eu sou a Elpis. Respondo com base em fontes oficiais, como a Lei do Superendividamento e as normas do
+            Banco Central, e mostro de onde veio cada resposta.
           </p>
-          <CitacaoCartao norma={CONVERSA.salario.norma} href={CONVERSA.salario.href} rotuloLink="Ler no Planalto">
-            Consultei 3 trechos em fontes oficiais.
-          </CitacaoCartao>
-        </Balao>
-        <Friso tipo="onda" curto />
-        <Balao autor="voce">{CONVERSA.ordem.pergunta}</Balao>
-        <Balao>
-          <p>
-            Primeiro a comida e a casa das crianças. Depois a luz, para não haver corte. O que sobra vai para o cartão.
-          </p>
-          <BlocoCalculado linhas={CONVERSA.ordem.linhas} />
+          <p>Não sou advogada nem consultora de investimentos. Quando eu não achar uma fonte, vou dizer.</p>
         </Balao>
 
-        {/* 4b · Limites: recusa educativa e falta de fonte */}
-        <Friso tipo="onda" curto />
-        <Balao autor="voce">{CONVERSA.investimento.pergunta}</Balao>
-        <Balao>
-          <div>
-            <Selo tom="neutro" icone="info">
-              Recusa educativa
-            </Selo>
-          </div>
-          <p>
-            Não recomendo ações, fundos ou títulos específicos. Isso é consultoria regulada pela CVM. Posso te ensinar a
-            avaliar qualquer opção para a reserva:
-          </p>
-          <ul className="pd-lista">
-            {CONVERSA.investimento.criterios.map(([criterio, explicacao]) => (
-              <li key={criterio}>
-                <Icone nome="check" tamanho={20} />
-                <span className="pd-lista-texto">
-                  <strong>{criterio}:</strong> {explicacao}
-                </span>
-              </li>
-            ))}
-          </ul>
-          <CitacaoCartao
-            norma="Resoluções CVM 19 e 20/2021"
-            href="https://www.gov.br/investidor/"
-            rotuloLink="Portal do Investidor"
-          />
-        </Balao>
-        <Friso tipo="onda" curto />
-        <Balao autor="voce">{CONVERSA.tarifa.pergunta}</Balao>
-        <Balao>
-          <div>
-            <Selo tom="neutro" icone="lupa">
-              Sem fonte suficiente
-            </Selo>
-          </div>
-          <p>Não encontrei uma fonte oficial que responda isso com segurança, e prefiro não adivinhar.</p>
-          <p>Se mandar uma foto do extrato com a tarifa, procuro de novo. O Procon também pode orientar você.</p>
-          <Botao variante="secundario" icone="camera" onClick={anexar}>
-            Enviar foto
-          </Botao>
-        </Balao>
-
-        {/* Perguntas desta visita */}
-        {novas.map((pergunta, i) => (
-          <Fragment key={i}>
+        {mensagens.map((m) => (
+          <div key={m.id} className="app-mensagem">
             <Friso tipo="onda" curto />
-            <Balao autor="voce">{pergunta}</Balao>
-            <Balao>
-              <div>
-                <Selo tom="neutro" icone="info">
-                  Demonstração
-                </Selo>
-              </div>
-              <p>{RESPOSTA_DEMO}</p>
-            </Balao>
-          </Fragment>
+            {m.autor === "voce" ? (
+              <Balao autor="voce">{m.texto}</Balao>
+            ) : m.estado === "enviando" ? (
+              <Balao>
+                <p className="app-consultando" role="status">
+                  Consultando as fontes oficiais…
+                </p>
+              </Balao>
+            ) : m.estado === "erro" ? (
+              <Balao>
+                <p role="alert">{m.erro}</p>
+                <Botao variante="secundario" onClick={() => tentarDeNovo(m.id, m.pergunta)}>
+                  Tentar de novo
+                </Botao>
+              </Balao>
+            ) : (
+              <RespostaElpis id={m.id} resposta={m.resposta} Selo={Selo} Balao={Balao} />
+            )}
+          </div>
         ))}
 
         <div className="pd-sugestoes" ref={fim}>
-          <button type="button" className="pd-sugestao" onClick={() => perguntar(CONVERSA.sugestoes[0])}>
-            {CONVERSA.sugestoes[0]}
-          </button>
-          <button type="button" className="pd-sugestao" onClick={() => router.push("/dividas")}>
-            {CONVERSA.sugestoes[1]}
-          </button>
+          {SUGESTOES.map((s) => (
+            <button key={s} type="button" className="pd-sugestao" disabled={ocupada} onClick={() => perguntar(s)}>
+              {s}
+            </button>
+          ))}
         </div>
       </div>
       <div className="pd-chat-rodape">
-        <CampoPerguntaApp onEnviar={perguntar} onVoz={onVoz} onAnexo={anexar} />
+        <CampoPerguntaApp onEnviar={perguntar} onVoz={onVoz} onAnexo={anexar} desativado={ocupada} />
       </div>
     </>
+  );
+}
+
+type Pandora = ReturnType<typeof usePandora>;
+
+function RespostaElpis({
+  id,
+  resposta,
+  Selo,
+  Balao,
+}: {
+  id: number;
+  resposta: RespostaChat;
+  Selo: Pandora["Selo"];
+  Balao: Pandora["Balao"];
+}) {
+  const base = `elpis-${id}`;
+  return (
+    <Balao>
+      {resposta.crise ? (
+        <div>
+          <Selo tom="alerta" icone="info">
+            Apoio agora
+          </Selo>
+        </div>
+      ) : resposta.abstencao ? (
+        <div>
+          <Selo tom="neutro" icone="lupa">
+            Sem fonte suficiente
+          </Selo>
+        </div>
+      ) : null}
+      <TextoComCitacoes texto={resposta.texto} citacoes={resposta.citacoes} base={base} />
+      <CartoesDeFonte citacoes={resposta.citacoes} base={base} />
+    </Balao>
   );
 }
 

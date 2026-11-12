@@ -1,7 +1,7 @@
 /* @ds-bundle: {"format":4,"namespace":"Pandora","components":[{"name":"Icone"},{"name":"Friso"},{"name":"Disco"},{"name":"Meandro"},{"name":"Serra"},{"name":"CaixaMarca"},{"name":"Elpis"},{"name":"Brasao"},{"name":"Anfora"},{"name":"Botao"},{"name":"BotaoIcone"},{"name":"BotaoVoz"},{"name":"Segmento"},{"name":"Alternador"},{"name":"Progresso"},{"name":"OpcaoCartao"},{"name":"EscalaSentimento"},{"name":"Consentimento"},{"name":"Cartao"},{"name":"Selo"},{"name":"SeloCalculado"},{"name":"Trilho"},{"name":"Insight"},{"name":"LinkCartao"},{"name":"LinhaDivida"},{"name":"DegrausProgresso"},{"name":"Balao"},{"name":"CitacaoCartao"},{"name":"BlocoCalculado"},{"name":"CampoPergunta"},{"name":"CabecalhoElpis"},{"name":"TrilhaCaminho"},{"name":"QuizOpcao"},{"name":"Rolagem"},{"name":"Aparelho"},{"name":"CabecalhoMito"},{"name":"NavBase"},{"name":"Galeria"},{"name":"Tela"},{"name":"TelaAbertura"},{"name":"TelaInicio"},{"name":"TelaDividas"},{"name":"TelaElpis"},{"name":"TelaTrilha"},{"name":"TelaGuardiao"},{"name":"TelaMetas"},{"name":"TelaCrise"},{"name":"TelaGuardiaoAmpliada"}]} */
 (function () {
   var React = window.React, h = React.createElement, useState = React.useState, useId = React.useId, useRef = React.useRef, useEffect = React.useEffect, Fragment = React.Fragment;
-  var CENA_PADRAO = './assets/Cena/pandora-cena.png';
+  var CENA_PADRAO = './assets/Cena/pandora-cena.svg';
 
   function cx() { return Array.prototype.filter.call(arguments, Boolean).join(' '); }
 

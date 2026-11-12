@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useEffect } from "react";
-import cena from "@pandora/design-system/assets/Cena/pandora-cena.png";
+import cena from "@pandora/design-system/assets/Cena/pandora-cena.svg";
 import { BotaoLink } from "@/components/BotaoLink";
 import { marcarAberturaVista } from "@/lib/abertura/portao";
 import { usePandora } from "@/lib/pandora/PandoraProvider";
@@ -59,11 +59,11 @@ export function Abertura() {
     <div className="abertura">
       <section className="pd-abertura pd-base abertura-heroi" aria-labelledby="abertura-nome">
         {/* Fundo: a mesma cena, esfumada pelo design system. Decorativa. */}
-        <Image src={cena} width={400} height={413} sizes="100vw" alt="" aria-hidden className="pd-abertura-fundo" />
+        <Image src={cena} width={2000} height={2000} sizes="100vw" alt="" aria-hidden className="pd-abertura-fundo" />
         <Image
           src={cena}
-          width={400}
-          height={413}
+          width={2000}
+          height={2000}
           preload
           sizes="(min-width: 800px) 60vw, 100vw"
           className="pd-abertura-cena"

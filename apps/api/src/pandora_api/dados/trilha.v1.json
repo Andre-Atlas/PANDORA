@@ -1,0 +1,499 @@
+{
+  "versao": "1",
+  "gerado_em": "2026-11-12T17:44:29+00:00",
+  "corpus": "515669eb8f54",
+  "modelo": "qwen2.5:14b",
+  "validacao": "automatica+triagem",
+  "hash": "4527dd6c8f2df423b43977b61652b3207e32e9abfd74368211b0b72397e88648",
+  "etapas": [
+    {
+      "id": "minimo-existencial",
+      "n": 1,
+      "t": "Mínimo existencial",
+      "x": 70,
+      "lado": "d",
+      "marco": null,
+      "emblema": "templo",
+      "licao": {
+        "id": "minimo-existencial",
+        "titulo": "Mínimo existencial",
+        "pergunta_guia": "O que é o mínimo existencial e como ele protege quem está superendividado?",
+        "explicacao": "O mínimo existencial é a parcela da renda que deve ser preservada para garantir a subsistência do consumidor superendividado [1]. O valor dessa parcela é definido por decreto, e o Supremo Tribunal Federal determinou que o Conselho Monetário Nacional faça estudos técnicos todo ano para avaliar a atualização dele [2]. Ele protege o superendividado ao assegurar que a pessoa não comprometa sua subsistência ao pagar suas dívidas. A Lei do Superendividamento (Lei 14.181/2021) e o Código de Defesa do Consumidor estabelecem que a repactuação de dívidas deve preservar o mínimo existencial, impedindo que o consumidor fique sem recursos essenciais para sobreviver [1][3]. AVISO DE VIGÊNCIA: Trechos sobre a exclusão do consignado foram superados pelo STF em 23/04/2026.",
+        "fontes": [
+          {
+            "n": 1,
+            "norma": "Cartilha sobre o Tratamento do Superendividamento do Consumidor",
+            "artigo": null,
+            "link": "https://www.cnj.jus.br/wp-content/uploads/2022/08/cartilha-superendividamento.pdf",
+            "trecho": "A Lei n. 14.181/2021 traz, do direito constitucional, a noção de mínimo existencial e visa, com seu conjunto de regras, assegurar a sua preservação, tanto na repactuação de dívidas como na concessão de crédito (art. 6º, inc. XII) para a pessoa natural (art. 5º, inc. VI). A regulamentação do mínimo existencial, consoante previsão do próprio diploma consumerista, deu-se por meio da edição de decreto",
+            "pagina": 16,
+            "ressalva": "Trechos sobre a exclusão do consignado foram superados pelo STF em 23/04/2026."
+          },
+          {
+            "n": 2,
+            "norma": "MPF: decisão do STF sobre o mínimo existencial",
+            "artigo": null,
+            "link": "https://www.mpf.mp.br/o-mpf/unidades/procuradoria-geral-da-republica-pgr/noticias/valor-do-minimo-existencial-deve-assegurar-dignidade-da-pessoa-humana-decide-stf",
+            "trecho": "O Conselho Monetário Nacional (CMN) deverá promover estudos técnicos anuais para verificar a possibilidade de atualização do valor do chamado do mínimo existencial – a parcela da renda a ser preservada para garantir a subsistência das pessoas superendividadas. A determinação é do Plenário do Supremo Tribunal Federal (STF), que, ao concluir a análise do assunto nesta quinta-feira (23), seguiu parci",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 3,
+            "norma": "Lei 14.181/2021 (Lei do Superendividamento), inserido em Código de Defesa do Consumidor (Lei 8.078/1990)",
+            "artigo": "Art. 104-A",
+            "link": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14181.htm",
+            "trecho": "Art. 104-A. A requerimento do consumidor superendividado pessoa natural, o juiz poderá instaurar processo de repactuação de dívidas, com vistas à realização de audiência conciliatória, presidida por ele ou por conciliador credenciado no juízo, com a presença de todos os credores de dívidas previstas no art. 54-A deste Código, na qual o consumidor apresentará proposta de plano de pagamento com praz",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 4,
+            "norma": "Lei 14.181/2021 (Lei do Superendividamento), inserido em Código de Defesa do Consumidor (Lei 8.078/1990)",
+            "artigo": "Art. 6",
+            "link": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14181.htm",
+            "trecho": "Art. 6º [...] [...] XI - a garantia de práticas de crédito responsável, de educação financeira e de prevenção e tratamento de situações de superendividamento, preservado o mínimo existencial, nos termos da regulamentação, por meio da revisão e da repactuação da dívida, entre outras medidas; XII - a preservação do mínimo existencial, nos termos da regulamentação, na repactuação de dívidas e na conc",
+            "pagina": null,
+            "ressalva": null
+          }
+        ],
+        "citacoes_explicacao": [
+          1,
+          2,
+          3
+        ],
+        "perguntas": [
+          {
+            "enunciado": "De acordo com a Lei do Superendividamento, qual é o prazo máximo para o plano de pagamento proposto pelo consumidor superendividado?",
+            "opcoes": [
+              "5 anos",
+              "3 anos",
+              "7 anos"
+            ],
+            "certa": 0,
+            "feedback": "O prazo máximo para o plano de pagamento proposto pelo consumidor superendividado é de 5 anos. [3]",
+            "citacoes": [
+              3
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "juros-e-cet",
+      "n": 2,
+      "t": "Juros e CET",
+      "x": 200,
+      "lado": "e",
+      "marco": null,
+      "emblema": "balanca",
+      "licao": {
+        "id": "juros-e-cet",
+        "titulo": "Juros e CET",
+        "pergunta_guia": "O que é o Custo Efetivo Total (CET) e por que comparar o CET e não só a taxa de juros?",
+        "explicacao": "O Custo Efetivo Total (CET) é uma medida que indica o custo total de um empréstimo ou financiamento, incluindo juros, tarifas, impostos e outros encargos [1]. Comparar o CET é importante porque ele fornece uma visão mais completa do custo real da operação, permitindo que o consumidor avalie adequadamente diferentes ofertas de crédito e escolha a que oferece melhores condições [1][2]. Simplesmente comparar a taxa de juros pode ser enganoso, pois não reflete todos os custos associados à operação [1].",
+        "fontes": [
+          {
+            "n": 1,
+            "norma": "Caderno de Educação Financeira: Gestão de Finanças Pessoais",
+            "artigo": null,
+            "link": "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/caderno_cidadania_financeira.pdf",
+            "trecho": "Custo Efetivo Total O Custo Efetivo Total (CET) diz quanto efetivamente custa um empréstimo, ou financiamento, incluindo não só os juros, mas também tarifas, impostos e outros encargos cobrados do cliente. A vantagem do CET é a possibilidade de comparar o que duas ou mais instituições financeiras estão oferecendo e saber qual cobra menos pelo serviço. Assim, dependendo dos encargos cobrados por um",
+            "pagina": 37,
+            "ressalva": null
+          },
+          {
+            "n": 2,
+            "norma": "Código de Defesa do Consumidor (Lei 8.078/1990, compilado)",
+            "artigo": "Art. 54-B",
+            "link": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm",
+            "trecho": "Art. 54-B. No fornecimento de crédito e na venda a prazo, além das informações obrigatórias previstas no art. 52 deste Código e na legislação aplicável à matéria, o fornecedor ou o intermediário deverá informar o consumidor, prévia e adequadamente, no momento da oferta, sobre: I - o custo efetivo total e a descrição dos elementos que o compõem; II - a taxa efetiva mensal de juros, bem como a taxa ",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 3,
+            "norma": "Lei 14.181/2021 (Lei do Superendividamento), inserido em Código de Defesa do Consumidor (Lei 8.078/1990)",
+            "artigo": "Art. 54-B",
+            "link": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14181.htm",
+            "trecho": "Art. 54-B . No fornecimento de crédito e na venda a prazo, além das informações obrigatórias previstas no art. 52 deste Código e na legislação aplicável à matéria, o fornecedor ou o intermediário deverá informar o consumidor, prévia e adequadamente, no momento da oferta, sobre: I - o custo efetivo total e a descrição dos elementos que o compõem; II - a taxa efetiva mensal de juros, bem como a taxa",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 4,
+            "norma": "Resolução CMN 4.881/2020 (Custo Efetivo Total)",
+            "artigo": "Art. 1",
+            "link": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20CMN&numero=4881",
+            "trecho": "Art. 1º Esta Resolução dispõe sobre o cálculo e a informação do Custo Efetivo Total (CET) pelas instituições financeiras e pelas sociedades de arrendamento mercantil na oferta ou na contratação de operação de crédito e de arrendamento mercantil financeiro com pessoas naturais, inclusive empresários individuais, ou com pessoas jurídicas classificadas como microempresas e empresas de pequeno porte ,",
+            "pagina": null,
+            "ressalva": null
+          }
+        ],
+        "citacoes_explicacao": [
+          1,
+          2
+        ],
+        "perguntas": [
+          {
+            "enunciado": "Qual é o prazo mínimo de validade da oferta de crédito ou venda a prazo?",
+            "opcoes": [
+              "2 dias",
+              "1 dia",
+              "3 dias"
+            ],
+            "certa": 0,
+            "feedback": "O prazo mínimo de validade da oferta é de 2 dias, conforme o Art. 54-B, III [2].",
+            "citacoes": [
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "rotativo",
+      "n": 3,
+      "t": "Rotativo",
+      "x": 288,
+      "lado": "e",
+      "marco": null,
+      "emblema": "espiral",
+      "licao": {
+        "id": "rotativo",
+        "titulo": "Rotativo",
+        "pergunta_guia": "Como funcionam os juros do cartão de crédito rotativo e existe limite para eles?",
+        "explicacao": "Os juros e encargos financeiros cobrados no crédito rotativo e no parcelamento de saldo devedor das faturas de cartões de crédito devem ser submetidos à aprovação do Conselho Monetário Nacional, por intermédio do Banco Central do Brasil, anualmente. Se não houver aprovação desses limites no prazo de 90 dias após a publicação da lei, o total cobrado a título de juros e encargos financeiros não poderá exceder o valor original da dívida [1][2]. Isso significa que, se não houver limites aprovados, os juros e encargos não podem ser maiores que o saldo devedor original.",
+        "fontes": [
+          {
+            "n": 1,
+            "norma": "Lei 14.690/2023 (Teto de juros do rotativo)",
+            "artigo": "Art. 28",
+            "link": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14690.htm",
+            "trecho": "Art. 28. Os emissores de cartão de crédito e de outros instrumentos de pagamento pós-pagos utilizados em arranjos abertos ou fechados, como medida de autorregulação, devem submeter à aprovação do Conselho Monetário Nacional, por intermédio do Banco Central do Brasil, de forma fundamentada e com periodicidade anual, limites para as taxas de juros e encargos financeiros cobrados no crédito rotativo ",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 2,
+            "norma": "Resolução CMN 5.112/2023 (Rotativo e portabilidade da fatura), inserido em Resolução CMN 4.549/2017",
+            "artigo": "Art. 2-A",
+            "link": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20CMN&numero=5112",
+            "trecho": "Art. 2º-A Para os fins do disposto no art. 28 da Lei nº 14.690, de 3 de outubro de 2023, consideram-se: I - operação de crédito para financiamento do saldo devedor da fatura de cartão de crédito e de demais instrumentos de pagamento pós-pagos: as operações de crédito rotativo e de parcelamento de fatura vinculadas à respectiva conta de pagamento pós-paga, inclusive em decorrência do disposto no ar",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 3,
+            "norma": "Lei 14.690/2023 (Teto de juros do rotativo)",
+            "artigo": "Art. 31-E",
+            "link": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14690.htm",
+            "trecho": "Art. 31-E. As despesas decorrentes da aquisição, pela União, de carteiras de créditos inadimplidos ou de eventual integralização de cotas em fundo correrão à conta de dotações orçamentárias consignadas ao Ministério da Fazenda, observado o limite máximo de R$ 15.000.000.000,00 (quinze bilhões de reais). Parágrafo único. As despesas de que trata o caput têm natureza discricionária e observarão a di",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 4,
+            "norma": "Lei 14.690/2023 (Teto de juros do rotativo)",
+            "artigo": "Art. 27",
+            "link": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14690.htm",
+            "trecho": "Art. 27. As instituições criadas por lei própria ou autorizadas a funcionar pelo Banco Central do Brasil e outras instituições que ofereçam crédito deverão adotar medidas de educação financeira direcionadas aos seus consumidores para prevenção ao inadimplemento de operações e ao superendividamento de pessoas físicas. § 1º Os consumidores têm direito à portabilidade do saldo devedor da fatura de ca",
+            "pagina": null,
+            "ressalva": null
+          }
+        ],
+        "citacoes_explicacao": [
+          1,
+          2
+        ],
+        "perguntas": [
+          {
+            "enunciado": "Qual é o prazo máximo para aprovação dos limites de juros e encargos financeiros cobrados no crédito rotativo e no parcelamento de saldo devedor das faturas de cartões de crédito?",
+            "opcoes": [
+              "120 dias",
+              "60 dias",
+              "90 dias"
+            ],
+            "certa": 2,
+            "feedback": "O prazo máximo para aprovação é de 90 dias, conforme o § 1º do Art. 28 da Lei 14.690/2023 [1].",
+            "citacoes": [
+              1
+            ]
+          },
+          {
+            "enunciado": "Qual é o valor máximo que pode ser cobrado a título de juros e encargos financeiros se os limites não forem aprovados no prazo estabelecido?",
+            "opcoes": [
+              "Valor original da dívida",
+              "Valor da dívida mais 50%",
+              "Valor da dívida mais 100%"
+            ],
+            "certa": 0,
+            "feedback": "O valor máximo é o valor original da dívida, conforme o § 1º do Art. 28 da Lei 14.690/2023 [1].",
+            "citacoes": [
+              1
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "repactuacao",
+      "n": 4,
+      "t": "Repactuação",
+      "x": 200,
+      "lado": "e",
+      "marco": "Marco: conheço meus direitos",
+      "emblema": "oliveira",
+      "licao": {
+        "id": "repactuacao",
+        "titulo": "Repactuação",
+        "pergunta_guia": "Como funciona a repactuação de dívidas pela Lei do Superendividamento?",
+        "explicacao": "A repactuação de dívidas pela Lei do Superendividamento, conforme o artigo 104-A do Código de Defesa do Consumidor [1][2], ocorre quando o consumidor superendividado solicita ao juiz a instauração de um processo para revisão e integração dos contratos e repactuação das dívidas remanescentes. O juiz então convoca uma audiência conciliatória com a presença de todos os credores, onde o consumidor apresenta uma proposta de plano de pagamento com prazo máximo de 5 anos, preservando o mínimo existencial e as garantias e formas de pagamento originalmente pactuadas. Se algum credor não comparecer injustificado, a dívida dele é suspensa e o consumidor é obrigado a seguir o plano de pagamento, pagando o credor ausente após os presentes. Se houver conciliação, a sentença judicial homologará o acordo e terá eficácia de título executivo e coisa julgada. O plano de pagamento deve incluir medidas para facilitar o pagamento, suspensão ou extinção de ações judiciais e data para exclusão do consumidor de bancos de dados de inadimplentes. AVISO DE VIGÊNCIA: Trechos sobre a exclusão do consignado foram superados pelo STF em 23/04/2026.",
+        "fontes": [
+          {
+            "n": 1,
+            "norma": "Código de Defesa do Consumidor (Lei 8.078/1990, compilado)",
+            "artigo": "Art. 104-A",
+            "link": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm",
+            "trecho": "Art. 104-A. A requerimento do consumidor superendividado pessoa natural, o juiz poderá instaurar processo de repactuação de dívidas, com vistas à realização de audiência conciliatória, presidida por ele ou por conciliador credenciado no juízo, com a presença de todos os credores de dívidas previstas no art. 54-A deste Código, na qual o consumidor apresentará proposta de plano de pagamento com praz",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 2,
+            "norma": "Lei 14.181/2021 (Lei do Superendividamento), inserido em Código de Defesa do Consumidor (Lei 8.078/1990)",
+            "artigo": "Art. 104-A",
+            "link": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14181.htm",
+            "trecho": "Art. 104-A. A requerimento do consumidor superendividado pessoa natural, o juiz poderá instaurar processo de repactuação de dívidas, com vistas à realização de audiência conciliatória, presidida por ele ou por conciliador credenciado no juízo, com a presença de todos os credores de dívidas previstas no art. 54-A deste Código, na qual o consumidor apresentará proposta de plano de pagamento com praz",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 3,
+            "norma": "Cartilha sobre o Tratamento do Superendividamento do Consumidor",
+            "artigo": null,
+            "link": "https://www.cnj.jus.br/wp-content/uploads/2022/08/cartilha-superendividamento.pdf",
+            "trecho": "Considerando que o artigo 104-A do Código de Defesa do Consumidor (CDC), norma de ordem pública e interesse social, determina que por “requerimento do consumidor superendividado pessoa natural, o juiz poderá instaurar processo de repactuação de dívidas, com vistas à realização de audiência conciliatória, presidida por ele ou conciliador credenciado no juízo, com a presença de todos os credores de ",
+            "pagina": 39,
+            "ressalva": "Trechos sobre a exclusão do consignado foram superados pelo STF em 23/04/2026."
+          },
+          {
+            "n": 4,
+            "norma": "Código de Defesa do Consumidor (Lei 8.078/1990, compilado)",
+            "artigo": "Art. 104-B",
+            "link": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm",
+            "trecho": "Art. 104-B. Se não houver êxito na conciliação em relação a quaisquer credores, o juiz, a pedido do consumidor, instaurará processo por superendividamento para revisão e integração dos contratos e repactuação das dívidas remanescentes mediante plano judicial compulsório e procederá à citação de todos os credores cujos créditos não tenham integrado o acordo porventura celebrado. § 1º Serão consider",
+            "pagina": null,
+            "ressalva": null
+          }
+        ],
+        "citacoes_explicacao": [
+          1,
+          2
+        ],
+        "perguntas": [
+          {
+            "enunciado": "Qual é o prazo máximo para o pagamento da dívida no processo de repactuação?",
+            "opcoes": [
+              "5 anos",
+              "7 anos",
+              "3 anos"
+            ],
+            "certa": 0,
+            "feedback": "O prazo máximo para o pagamento da dívida no processo de repactuação é de 5 anos [1].",
+            "citacoes": [
+              1
+            ]
+          },
+          {
+            "enunciado": "Se um credor não comparecer à audiência conciliatória, o que acontece?",
+            "opcoes": [
+              "O débito é duplicado",
+              "O débito é suspenso",
+              "O débito é cancelado"
+            ],
+            "certa": 1,
+            "feedback": "O não comparecimento injustificado de um credor acarreta a suspensão da exigibilidade do débito [1].",
+            "citacoes": [
+              1
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "golpes-e-med",
+      "n": 5,
+      "t": "Golpes e MED",
+      "x": 78,
+      "lado": "d",
+      "marco": "Marco: sei me proteger",
+      "emblema": "elmo",
+      "licao": {
+        "id": "golpes-e-med",
+        "titulo": "Golpes e MED",
+        "pergunta_guia": "O que é o MED do Pix e o que fazer ao cair em um golpe?",
+        "explicacao": "O Mecanismo Especial de Devolução (MED) do Pix é um sistema que permite a devolução de valores em caso de fraude. Se você cair em um golpe, deve notificar imediatamente o seu banco sobre a suspeita de fraude. O banco pode bloquear os recursos da transação por até 72 horas para investigar [2]. Durante esse período, se confirmada a fraude, os valores serão devolvidos ao remetente [2].",
+        "fontes": [
+          {
+            "n": 1,
+            "norma": "Resolução BCB 147/2021 (Mecanismo Especial de Devolução do Pix)",
+            "artigo": "Art. 78-F",
+            "link": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20BCB&numero=147",
+            "trecho": "Art. 78-F. A notificação de infração deve ser solicitada pelo participante prestador de serviço de pagamento do usuário pagador ou pelo participante prestador de serviço de pagamento do usuário recebedor sempre que houver fundada suspeita do uso do arranjo para a prática de fraude. Parágrafo único. A notificação de infração pode ser solicitada para transações: I - liquidadas no SPI; II - liquidada",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 2,
+            "norma": "Resolução BCB 147/2021 (Mecanismo Especial de Devolução do Pix)",
+            "artigo": "Art. 39-B",
+            "link": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20BCB&numero=147",
+            "trecho": "Art. 39-B. Os recursos oriundos de uma transação no âmbito do Pix deverão ser bloqueados cautelarmente pelo participante prestador de serviço de pagamento do usuário recebedor quando houver suspeita de fraude. § 1º A avaliação de suspeita de fraude deve incluir: I - a quantidade de notificações de infração vinculadas ao usuário recebedor, à sua chave Pix e ao número da sua conta transacional; II -",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 3,
+            "norma": "Resolução BCB 147/2021 (Mecanismo Especial de Devolução do Pix)",
+            "artigo": "Art. 32",
+            "link": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20BCB&numero=147",
+            "trecho": "Art. 32. [...] [...] V - responsabilizar-se por fraudes no âmbito do Pix decorrentes de falhas nos seus mecanismos de gerenciamento de riscos, compreendendo a inobservância de medidas de gestão de risco definidas neste Regulamento e em dispositivos normativos complementares; VI - conferir tratamento não discriminatório para os diferentes participantes do Pix com os quais estabelecerem relação para",
+            "pagina": null,
+            "ressalva": null
+          },
+          {
+            "n": 4,
+            "norma": "Resolução BCB 147/2021 (Mecanismo Especial de Devolução do Pix)",
+            "artigo": "Art. 78-K",
+            "link": "https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20BCB&numero=147",
+            "trecho": "Art. 78-K. A consulta a informações vinculadas às chaves Pix para fins de segurança do Pix deve ser feita com o propósito de alimentar os mecanismos de análise de fraude dos participantes, inclusive em processos que não estejam diretamente relacionados ao Pix.",
+            "pagina": null,
+            "ressalva": null
+          }
+        ],
+        "citacoes_explicacao": [
+          2
+        ],
+        "perguntas": [
+          {
+            "enunciado": "Qual é o prazo máximo para um bloqueio cautelar de recursos suspeitos de fraude no Pix?",
+            "opcoes": [
+              "48 horas",
+              "72 horas",
+              "96 horas"
+            ],
+            "certa": 1,
+            "feedback": "O bloqueio cautelar deve durar no máximo 72 horas para avaliação de suspeita de fraude [2].",
+            "citacoes": [
+              2
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "reserva-de-emergencia",
+      "n": 6,
+      "t": "Reserva de emergência",
+      "x": 200,
+      "lado": "e",
+      "marco": "Marco: tenho um plano",
+      "emblema": "anfora",
+      "licao": {
+        "id": "reserva-de-emergencia",
+        "titulo": "Reserva de emergência",
+        "pergunta_guia": "O que é uma reserva de emergência e por onde começar a formá-la?",
+        "explicacao": "Uma reserva de emergência é um fundo separado que você cria para lidar com circunstâncias inesperadas, como reparos em casa, consertos de veículos ou despesas médicas. Para começar a formá-la, primeiro estabeleça um orçamento superavitário, ou seja, gaste menos do que você recebe [2]. Em seguida, separe uma quantia mensal para a reserva assim que receber seu salário, preferencialmente autorizando uma transferência automática para uma conta poupança [2]. Inicialmente, o objetivo é ter uma reserva suficiente para cobrir três a seis meses de despesas essenciais [1].",
+        "fontes": [
+          {
+            "n": 1,
+            "norma": "Caderno de Educação Financeira: Gestão de Finanças Pessoais",
+            "artigo": null,
+            "link": "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/caderno_cidadania_financeira.pdf",
+            "trecho": "Outra alternativa, formar uma reserva para eventualidades, requer disciplina para colocá-la em prática. Nessa situação, em que você decide constituir uma poupança em separado para lidar com circunstâncias não esperadas, a responsabilidade por manter a poupança em níveis adequados é sua. Para que isso funcione bem, é necessário que três coisas aconteçam: • você não pode cair na tentação de utilizar",
+            "pagina": 71,
+            "ressalva": null
+          },
+          {
+            "n": 2,
+            "norma": "Caderno de Educação Financeira: Gestão de Finanças Pessoais",
+            "artigo": null,
+            "link": "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/caderno_cidadania_financeira.pdf",
+            "trecho": "5 O orçamento é uma ferramenta valiosa para que você consiga gerenciar sua vida financeira. Crie o saudável hábito de fazê-lo. Você só tem a ganhar. 5 Após conseguir obter um orçamento superavitário, ou seja, gastar menos do que recebe, crie o hábito de poupar regularmente, tanto para realizar seus sonhos como para ter segurança em situações imprevistas ou de emergência. 5 Lembre-se da regra de ou",
+            "pagina": 30,
+            "ressalva": null
+          },
+          {
+            "n": 3,
+            "norma": "Caderno de Educação Financeira: Gestão de Finanças Pessoais",
+            "artigo": null,
+            "link": "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/caderno_cidadania_financeira.pdf",
+            "trecho": "II. Apenas as alternativas b e c estão corretas. III. As alternativas a, b e c estão corretas. IV. Todas as alternativas estão erradas. 7) Assinale (F) para as alternativas falsa e (V) para as verdadeiras, considerando as recomendações referentes à decisão de investir. ( ) Devemos nos informar permanentemente sobre os investimentos realizados e, de tempos em tempos, reavaliar nossas decisões para ",
+            "pagina": 90,
+            "ressalva": null
+          },
+          {
+            "n": 4,
+            "norma": "Caderno de Educação Financeira: Gestão de Finanças Pessoais",
+            "artigo": null,
+            "link": "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/caderno_cidadania_financeira.pdf",
+            "trecho": "Despesas emergenciais Imprevistos verdadeiros acontecem. Um defeito ou uma batida no veículo, um eletrodoméstico quebrado, ou problemas de saúde na família são exemplos corriqueiros. Entretanto, nem sempre estamos preparados financeiramente para superar esses obstáculos. Logo, manter uma reserva financeira (a reserva de emergência) para cobrir eventualidades é um importante cuidado para você não c",
+            "pagina": 42,
+            "ressalva": null
+          }
+        ],
+        "citacoes_explicacao": [
+          1,
+          2
+        ],
+        "perguntas": [
+          {
+            "enunciado": "Qual é a recomendação para lidar com circunstâncias não esperadas?",
+            "opcoes": [
+              "Formar uma reserva financeira separada",
+              "Investir em ações",
+              "Contratar vários seguros diferentes"
+            ],
+            "certa": 0,
+            "feedback": "Formar uma reserva financeira separada é recomendado para lidar com circunstâncias não esperadas, conforme mencionado na fonte [1].",
+            "citacoes": [
+              1
+            ]
+          }
+        ]
+      }
+    }
+  ],
+  "triagem": {
+    "nota": "Triagem manual sobre a validação automática. A revisão humana completa fica para o segundo refino.",
+    "removidas": [
+      {
+        "licao": "minimo-existencial",
+        "enunciado": "Qual é o valor mínimo do mínimo existencial estabelecido pelo Decreto Presidencial 11.150/2022?",
+        "motivo": "apresenta R$ 303 como valor vigente, mas a decisão do STF (fonte 2) manda o CMN estudar a atualização do valor"
+      },
+      {
+        "licao": "juros-e-cet",
+        "enunciado": "Qual informação é obrigatória para o consumidor no momento da oferta de crédito?",
+        "motivo": "mais de uma opção é correta: o Art. 54-B exige taxa de juros, CET e valor das prestações"
+      },
+      {
+        "licao": "golpes-e-med",
+        "enunciado": "Quando um usuário pagador pode solicitar notificação de infração no Pix?",
+        "motivo": "a opção marcada como certa não responde à pergunta com clareza"
+      },
+      {
+        "licao": "reserva-de-emergencia",
+        "enunciado": "Qual é a melhor maneira de evitar o endividamento em caso de separação?",
+        "motivo": "foge do tema da reserva de emergência"
+      }
+    ],
+    "editadas": [
+      {
+        "licao": "minimo-existencial",
+        "motivo": "o texto gerado tratava os 25% do Decreto 11.150/2022 como valor atual; a fonte 2 diz que o STF mandou atualizá-lo"
+      }
+    ]
+  }
+}

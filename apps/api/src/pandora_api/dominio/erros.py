@@ -26,3 +26,15 @@ class ConsentimentoNecessario(ErroDominio):
 
 class ConsentimentoNaoEncontrado(ErroDominio):
     pass
+
+
+class AssistenteIndisponivel(ErroDominio):
+    """O serviço de respostas (RAG) não respondeu a tempo ou devolveu algo inesperado."""
+
+
+class LicaoNaoEncontrada(ErroDominio):
+    pass
+
+
+class PerguntaInvalida(ErroDominio):
+    """Índice de pergunta ou de opção fora do intervalo da lição."""

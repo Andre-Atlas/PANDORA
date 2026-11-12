@@ -82,13 +82,20 @@ Se um dos dois arquivos ficar desatualizado, um teste falha: `test_contrato.py` 
 | Dívidas | `GET /dividas`, `GET /score` | Contrato pronto, 501 → #72 (motor da #65) |
 | Plano | `POST /plano` | Contrato pronto, 501 → #71 (motor da #65) |
 | Previsão | `GET /previsao` | Contrato pronto, 501 → #84 |
-| Chat | `POST /chat` | Contrato pronto, 501 → #85. A resposta segue a `Resposta` do RAG (`services/rag`). |
+| Chat | `POST /chat` | Pronta (#85). **Pública, sem Bearer.** Chama o serviço do RAG (`PANDORA_RAG_URL`); sinal de crise responde com mensagem fixa de apoio e `crise=true`, sem chamar o modelo. 503 se o RAG estiver fora. |
+| Trilha | `GET /trilha`, `GET /trilha/licoes/{id}`, `POST /trilha/licoes/{id}/porque` | Pronta. **Pública, sem Bearer.** Conteúdo pré-gerado e triado (`dados/trilha.v1.json`); o "por quê?" é respondido ao vivo pelo RAG. |
 
 As rotas que respondem 501 já validam a sessão e a entrada, e a resposta diz qual issue vai implementá-las. Nenhuma delas devolve dado inventado.
 
 ### Exclusão total (RNF01)
 
 `DELETE /eu/dados` apaga a conta, as sessões e os consentimentos. Todo repositório com dado pessoal implementa `apagar_do_usuario` e entra na lista de `Privacidade` em `adaptadores/http/conteiner.py`. Quem criar um repositório novo (transações, extratos, conversas) precisa colocá-lo nessa lista.
+
+### Elpis e Trilha (públicas por enquanto)
+
+`/chat` e `/trilha*` não exigem token: o app ainda não tem login e nada pessoal é guardado (o progresso da trilha fica no navegador). Isso muda o contrato original da #85, que previa sessão. Antes do deploy (#88) é preciso colocar limite de requisições, porque cada pergunta custa de 8 a 14 s de GPU.
+
+O RAG roda como serviço próprio na máquina (MPS e Ollama não existem no container): `uv run pandora-rag servir` em `services/rag`, porta 8010. A API lê `PANDORA_RAG_URL` (padrão `http://localhost:8010`).
 
 ## Pendências
 
