@@ -6,10 +6,14 @@ import pytest
 from fastapi.testclient import TestClient
 
 from pandora_api.adaptadores.http.app import criar_app
-from pandora_api.adaptadores.http.conteiner import Conteiner, montar
+from pandora_api.adaptadores.http.conteiner import Conteiner, Financeiro, montar
+from pandora_api.adaptadores.ingestao.classificador_provisorio import ClassificadorProvisorio
+from pandora_api.adaptadores.ingestao.csv_provisorio import LeitorCsvProvisorio
 from pandora_api.adaptadores.persistencia.memoria import (
     ConsentimentosEmMemoria,
+    ExtratosEmMemoria,
     SessoesEmMemoria,
+    TransacoesEmMemoria,
     UsuariosEmMemoria,
 )
 from pandora_api.adaptadores.seguranca.scrypt import HasherScrypt
@@ -77,14 +81,30 @@ def relogio() -> RelogioParado:
 
 @pytest.fixture
 def repos():
-    return UsuariosEmMemoria(), SessoesEmMemoria(), ConsentimentosEmMemoria()
+    """Todos os repositórios com dado pessoal: o teste de exclusão total confere cada um."""
+    return (
+        UsuariosEmMemoria(),
+        SessoesEmMemoria(),
+        ConsentimentosEmMemoria(),
+        ExtratosEmMemoria(),
+        TransacoesEmMemoria(),
+    )
 
 
 @pytest.fixture
 def conteiner(repos, relogio, assistente) -> Conteiner:
-    usuarios, sessoes, consentimentos = repos
+    usuarios, sessoes, consentimentos, extratos, transacoes = repos
+    financeiro = Financeiro(extratos, transacoes, LeitorCsvProvisorio(), ClassificadorProvisorio())
     return montar(
-        usuarios, sessoes, consentimentos, HasherScrypt(), relogio, timedelta(hours=24), assistente, TrilhaFalsa()
+        usuarios,
+        sessoes,
+        consentimentos,
+        HasherScrypt(),
+        relogio,
+        timedelta(hours=24),
+        assistente,
+        TrilhaFalsa(),
+        financeiro,
     )
 
 

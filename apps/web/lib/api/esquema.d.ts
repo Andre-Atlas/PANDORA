@@ -155,7 +155,7 @@ export interface paths {
         put?: never;
         /**
          * Enviar extrato ou fatura (OFX, CSV ou PDF)
-         * @description Exige consentimento ativo para `diagnostico_financeiro`. O conteúdo do arquivo é tratado só como dado.
+         * @description Exige consentimento ativo para `diagnostico_financeiro`. O conteúdo do arquivo é tratado só como dado. Até 5 MB. Hoje só CSV é lido: OFX (#57) e PDF (#66) voltam com `status = falhou` e o motivo em `avisos`. Linhas já importadas não entram de novo.
          */
         post: operations["enviar_extrato"];
         delete?: never;
@@ -188,7 +188,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Listar transações */
+        /** Listar transações, da mais nova para a mais antiga */
         get: operations["listar_transacoes"];
         put?: never;
         post?: never;
@@ -211,7 +211,10 @@ export interface paths {
         delete?: never;
         options?: never;
         head?: never;
-        /** Corrigir a categoria com um toque (RF10) */
+        /**
+         * Corrigir a categoria com um toque (RF10)
+         * @description A correção da pessoa vence a do modelo (`origem_categoria = pessoa`) e recalcula se é essencial.
+         */
         patch: operations["corrigir_categoria"];
         trace?: never;
     };
@@ -222,7 +225,10 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** Raio-X do mês */
+        /**
+         * Raio-X do mês
+         * @description Mês no horário de Brasília. Sem transações no mês, tudo vem zerado e `gastos` vazio.
+         */
         get: operations["obter_raio_x"];
         put?: never;
         post?: never;
@@ -620,13 +626,19 @@ export interface components {
          * FormaPagamento
          * @enum {string}
          */
-        FormaPagamento: "PIX" | "DEBIT_CARD" | "CREDIT_CARD" | "BOLETO" | "DIRECT_DEBIT";
+        FormaPagamento: "PIX" | "DEBIT_CARD" | "CREDIT_CARD" | "BOLETO" | "DIRECT_DEBIT" | "OTHER";
         /** GastoPorCategoria */
         GastoPorCategoria: {
             categoria: components["schemas"]["Categoria"];
-            /** Total Centavos */
+            /**
+             * Total Centavos
+             * @description Saídas do mês nesta categoria, em valor positivo.
+             */
             total_centavos: number;
-            /** Essencial Centavos */
+            /**
+             * Essencial Centavos
+             * @description Parte do total que é Mínimo Existencial.
+             */
             essencial_centavos: number;
         };
         /** HTTPValidationError */
@@ -808,12 +820,18 @@ export interface components {
             renda_centavos: number;
             /**
              * Minimo Existencial Centavos
-             * @description Protegido: nenhum plano mexe nesse valor.
+             * @description Soma dos gastos essenciais do mês. Protegido: nenhum plano mexe nesse valor.
              */
             minimo_existencial_centavos: number;
-            /** Folga Centavos */
+            /**
+             * Folga Centavos
+             * @description Renda menos Mínimo Existencial. Negativa quando o essencial não cabe.
+             */
             folga_centavos: number;
-            /** Gastos */
+            /**
+             * Gastos
+             * @description Da maior para a menor. Sem RENDA, TRANSFERENCIA (inclui pagar a fatura inteira) e INVESTIMENTO.
+             */
             gastos: components["schemas"]["GastoPorCategoria"][];
             calculo: components["schemas"]["Calculo"];
         };
@@ -883,6 +901,8 @@ export interface components {
         /**
          * TransacaoSaida
          * @description RASCUNHO: segue o dataset sintético da #51; falta fechar com a ingestão (#57).
+         *
+         *     Enquanto o classificador da #68 não é servido, `versao_modelo` começa com `provisorio-`.
          */
         TransacaoSaida: {
             /**
@@ -1322,6 +1342,16 @@ export interface operations {
                     "application/json": components["schemas"]["Problema"];
                 };
             };
+            /** @description Request Entity Too Large */
+            413: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": unknown;
+                    "application/json": components["schemas"]["Problema"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -1329,16 +1359,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Not Implemented */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": unknown;
-                    "application/json": components["schemas"]["Problema"];
                 };
             };
         };
@@ -1373,6 +1393,16 @@ export interface operations {
                     "application/json": components["schemas"]["Problema"];
                 };
             };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": unknown;
+                    "application/json": components["schemas"]["Problema"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -1380,16 +1410,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Not Implemented */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": unknown;
-                    "application/json": components["schemas"]["Problema"];
                 };
             };
         };
@@ -1436,16 +1456,6 @@ export interface operations {
                     "application/json": components["schemas"]["HTTPValidationError"];
                 };
             };
-            /** @description Not Implemented */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": unknown;
-                    "application/json": components["schemas"]["Problema"];
-                };
-            };
         };
     };
     corrigir_categoria: {
@@ -1482,6 +1492,16 @@ export interface operations {
                     "application/json": components["schemas"]["Problema"];
                 };
             };
+            /** @description Not Found */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/problem+json": unknown;
+                    "application/json": components["schemas"]["Problema"];
+                };
+            };
             /** @description Validation Error */
             422: {
                 headers: {
@@ -1489,16 +1509,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Not Implemented */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": unknown;
-                    "application/json": components["schemas"]["Problema"];
                 };
             };
         };
@@ -1540,16 +1550,6 @@ export interface operations {
                 };
                 content: {
                     "application/json": components["schemas"]["HTTPValidationError"];
-                };
-            };
-            /** @description Not Implemented */
-            501: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/problem+json": unknown;
-                    "application/json": components["schemas"]["Problema"];
                 };
             };
         };

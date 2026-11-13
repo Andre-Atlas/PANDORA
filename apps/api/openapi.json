@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "PANDORA API",
-    "description": "\nAPI do PANDORA. Front, ingestão, modelos e agentes conversam por aqui.\n\n- **Valores** em centavos inteiros. **Taxas** em decimal, enviadas como texto para não perder precisão.\n- **Erros** em `application/problem+json`.\n- Recursos que ainda não existem respondem **501** com a issue que vai implementá-los.\n- **Sem token** (o app ainda não tem login): `/chat` e `/trilha*`. Não guardam dado pessoal.\n- **Autenticação**: `POST /auth/sessoes` devolve um token; envie `Authorization: Bearer <token>`.\n- **Transação**: esquema em **rascunho** (dataset da #51), a fechar com a ingestão (#57).\n",
+    "description": "\nAPI do PANDORA. Front, ingestão, modelos e agentes conversam por aqui.\n\n- **Valores** em centavos inteiros. **Taxas** em decimal, enviadas como texto para não perder precisão.\n- **Erros** em `application/problem+json`.\n- Recursos que ainda não existem respondem **501** com a issue que vai implementá-los.\n- **Sem token** (o app ainda não tem login): `/chat` e `/trilha*`. Não guardam dado pessoal.\n- **Autenticação**: `POST /auth/sessoes` devolve um token; envie `Authorization: Bearer <token>`.\n- **Transação**: esquema em **rascunho** (dataset da #51), a fechar com a ingestão (#57).\n- **Extrato**: por enquanto só CSV, com leitor e classificador provisórios (#57 e #68 trazem os de verdade).\n",
     "version": "0.1.0"
   },
   "paths": {
@@ -402,7 +402,7 @@
           "raio-x"
         ],
         "summary": "Enviar extrato ou fatura (OFX, CSV ou PDF)",
-        "description": "Exige consentimento ativo para `diagnostico_financeiro`. O conteúdo do arquivo é tratado só como dado.",
+        "description": "Exige consentimento ativo para `diagnostico_financeiro`. O conteúdo do arquivo é tratado só como dado. Até 5 MB. Hoje só CSV é lido: OFX (#57) e PDF (#66) voltam com `status = falhou` e o motivo em `avisos`. Linhas já importadas não entram de novo.",
         "operationId": "enviar_extrato",
         "requestBody": {
           "content": {
@@ -436,8 +436,8 @@
               }
             }
           },
-          "501": {
-            "description": "Not Implemented",
+          "403": {
+            "description": "Forbidden",
             "content": {
               "application/problem+json": {},
               "application/json": {
@@ -447,8 +447,8 @@
               }
             }
           },
-          "403": {
-            "description": "Forbidden",
+          "413": {
+            "description": "Request Entity Too Large",
             "content": {
               "application/problem+json": {},
               "application/json": {
@@ -522,7 +522,7 @@
             },
             "description": "Unauthorized"
           },
-          "501": {
+          "404": {
             "content": {
               "application/problem+json": {},
               "application/json": {
@@ -531,7 +531,7 @@
                 }
               }
             },
-            "description": "Not Implemented"
+            "description": "Not Found"
           },
           "422": {
             "description": "Validation Error",
@@ -551,7 +551,7 @@
         "tags": [
           "raio-x"
         ],
-        "summary": "Listar transações",
+        "summary": "Listar transações, da mais nova para a mais antiga",
         "operationId": "listar_transacoes",
         "security": [
           {
@@ -567,7 +567,7 @@
               "anyOf": [
                 {
                   "type": "string",
-                  "pattern": "^\\d{4}-\\d{2}$",
+                  "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
                   "examples": [
                     "2026-10"
                   ]
@@ -641,17 +641,6 @@
             },
             "description": "Unauthorized"
           },
-          "501": {
-            "content": {
-              "application/problem+json": {},
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problema"
-                }
-              }
-            },
-            "description": "Not Implemented"
-          },
           "422": {
             "description": "Validation Error",
             "content": {
@@ -671,6 +660,7 @@
           "raio-x"
         ],
         "summary": "Corrigir a categoria com um toque (RF10)",
+        "description": "A correção da pessoa vence a do modelo (`origem_categoria = pessoa`) e recalcula se é essencial.",
         "operationId": "corrigir_categoria",
         "security": [
           {
@@ -721,7 +711,7 @@
             },
             "description": "Unauthorized"
           },
-          "501": {
+          "404": {
             "content": {
               "application/problem+json": {},
               "application/json": {
@@ -730,7 +720,7 @@
                 }
               }
             },
-            "description": "Not Implemented"
+            "description": "Not Found"
           },
           "422": {
             "description": "Validation Error",
@@ -751,6 +741,7 @@
           "raio-x"
         ],
         "summary": "Raio-X do mês",
+        "description": "Mês no horário de Brasília. Sem transações no mês, tudo vem zerado e `gastos` vazio.",
         "operationId": "obter_raio_x",
         "security": [
           {
@@ -764,7 +755,7 @@
             "required": true,
             "schema": {
               "type": "string",
-              "pattern": "^\\d{4}-\\d{2}$",
+              "pattern": "^\\d{4}-(0[1-9]|1[0-2])$",
               "examples": [
                 "2026-10"
               ],
@@ -793,17 +784,6 @@
               }
             },
             "description": "Unauthorized"
-          },
-          "501": {
-            "content": {
-              "application/problem+json": {},
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problema"
-                }
-              }
-            },
-            "description": "Not Implemented"
           },
           "422": {
             "description": "Validation Error",
@@ -1831,7 +1811,8 @@
           "DEBIT_CARD",
           "CREDIT_CARD",
           "BOLETO",
-          "DIRECT_DEBIT"
+          "DIRECT_DEBIT",
+          "OTHER"
         ],
         "title": "FormaPagamento"
       },
@@ -1842,11 +1823,13 @@
           },
           "total_centavos": {
             "type": "integer",
-            "title": "Total Centavos"
+            "title": "Total Centavos",
+            "description": "Saídas do mês nesta categoria, em valor positivo."
           },
           "essencial_centavos": {
             "type": "integer",
-            "title": "Essencial Centavos"
+            "title": "Essencial Centavos",
+            "description": "Parte do total que é Mínimo Existencial."
           }
         },
         "type": "object",
@@ -2291,18 +2274,20 @@
           "minimo_existencial_centavos": {
             "type": "integer",
             "title": "Minimo Existencial Centavos",
-            "description": "Protegido: nenhum plano mexe nesse valor."
+            "description": "Soma dos gastos essenciais do mês. Protegido: nenhum plano mexe nesse valor."
           },
           "folga_centavos": {
             "type": "integer",
-            "title": "Folga Centavos"
+            "title": "Folga Centavos",
+            "description": "Renda menos Mínimo Existencial. Negativa quando o essencial não cabe."
           },
           "gastos": {
             "items": {
               "$ref": "#/components/schemas/GastoPorCategoria"
             },
             "type": "array",
-            "title": "Gastos"
+            "title": "Gastos",
+            "description": "Da maior para a menor. Sem RENDA, TRANSFERENCIA (inclui pagar a fatura inteira) e INVESTIMENTO."
           },
           "calculo": {
             "$ref": "#/components/schemas/Calculo"
@@ -2539,7 +2524,7 @@
           "essencial"
         ],
         "title": "TransacaoSaida",
-        "description": "RASCUNHO: segue o dataset sintético da #51; falta fechar com a ingestão (#57)."
+        "description": "RASCUNHO: segue o dataset sintético da #51; falta fechar com a ingestão (#57).\n\nEnquanto o classificador da #68 não é servido, `versao_modelo` começa com `provisorio-`."
       },
       "UsuarioSaida": {
         "properties": {

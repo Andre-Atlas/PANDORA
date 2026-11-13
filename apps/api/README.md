@@ -39,12 +39,13 @@ PANDORA_TEST_DB_URL=postgresql://pandora:pandora_local@localhost:5434/pandora uv
 
 ```
 src/pandora_api/
-  dominio/       tipos e regras puras: usuário, sessão, consentimento, transação
-  portas/        interfaces: repositórios, hasher de senha, relógio
-  aplicacao/     casos de uso: contas, consentimentos, privacidade
+  dominio/       tipos e regras puras: usuário, sessão, consentimento, transação, extrato, Raio-X
+  portas/        interfaces: repositórios, hasher de senha, relógio, leitor de extrato, classificador
+  aplicacao/     casos de uso: contas, consentimentos, privacidade, extratos e transações
   adaptadores/
     http/        FastAPI: rotas, esquemas (o contrato) e erros
     persistencia/  Postgres (psycopg) e memória (testes)
+    ingestao/    leitor de CSV e classificador PROVISÓRIOS (trocar pelos da #57 e da #68)
     seguranca/   scrypt e relógio do sistema
   principal.py   monta tudo para o uvicorn
 ```
@@ -78,7 +79,7 @@ Se um dos dois arquivos ficar desatualizado, um teste falha: `test_contrato.py` 
 | Sistema | `GET /saude` | Pronta |
 | Conta | `POST /auth/cadastro`, `POST /auth/sessoes`, `DELETE /auth/sessoes/atual`, `GET /eu` | Pronta |
 | Privacidade | `POST/GET /consentimentos`, `POST /consentimentos/{id}/revogacao`, `DELETE /eu/dados` | Pronta |
-| Raio-X | `POST /extratos`, `GET /extratos/{id}`, `GET /transacoes`, `PATCH /transacoes/{id}/categoria`, `GET /raio-x` | Contrato pronto, 501 → #72. O envio já exige consentimento. |
+| Raio-X | `POST /extratos`, `GET /extratos/{id}`, `GET /transacoes`, `PATCH /transacoes/{id}/categoria`, `GET /raio-x` | Pronta (#72), **só CSV** e com leitor e classificador provisórios (abaixo). |
 | Dívidas | `GET /dividas`, `GET /score` | Contrato pronto, 501 → #72 (motor da #65) |
 | Plano | `POST /plano` | Contrato pronto, 501 → #71 (motor da #65) |
 | Previsão | `GET /previsao` | Contrato pronto, 501 → #84 |
@@ -87,9 +88,21 @@ Se um dos dois arquivos ficar desatualizado, um teste falha: `test_contrato.py` 
 
 As rotas que respondem 501 já validam a sessão e a entrada, e a resposta diz qual issue vai implementá-las. Nenhuma delas devolve dado inventado.
 
+### Raio-X (#72)
+
+Fluxo: `POST /consentimentos` (`diagnostico_financeiro`) → `POST /extratos` com um CSV → `GET /raio-x?mes=2026-10`.
+
+- **Envio** é síncrono: responde 202 já com `status = concluido` ou `falhou`. Linhas com problema viram `avisos` e as outras entram. Linhas já importadas (mesma conta, data, valor e descrição) não entram de novo; duas linhas iguais no mesmo arquivo são duas transações. Até 5 MB (413 acima disso).
+- **Leitor provisório** (`adaptadores/ingestao/csv_provisorio.py`): lê o formato do dataset sintético da #51 (`posted_at`, `amount`, `description_masked`, `category`...) e CSVs simples com `data`, `valor` e `descricao`, com `,` ou `;`, UTF-8 ou Latin-1, valor em `1.234,56` ou `1234.56`. Data sem fuso é tratada como horário de Brasília. OFX e PDF voltam com `falhou` e o motivo, apontando para #57 e #66. A descrição passa por `mascarar_descricao` (CPF, CNPJ, e-mail e sequências longas de dígitos viram `***`). **Nomes de pessoas não são mascarados.**
+- **Classificador provisório** (`adaptadores/ingestao/classificador_provisorio.py`): não é modelo. Usa a categoria do arquivo quando existe (só o dataset sintético traz) e, sem ela, uma tabela pequena de MCC. O que não casa vira `TRANSFERENCIA`, que fica fora dos gastos, para não inflar categoria nenhuma. `versao_modelo` começa com `provisorio-`. Essencial = categoria em Moradia, Utilidades, Alimentação, Saúde ou Educação, a menos que o arquivo traga `is_essential`.
+- **Raio-X**: o mês é o do horário de Brasília. Renda = entradas `RENDA`. Gastos = saídas, menos `TRANSFERENCIA` (inclui pagar a fatura inteira), `INVESTIMENTO` e `RENDA`. Mínimo Existencial = soma das saídas essenciais. Folga = renda − Mínimo Existencial (pode ser negativa).
+- **Correção** (`PATCH /transacoes/{id}/categoria`): grava `origem_categoria = pessoa`, zera a confiança e recalcula se é essencial.
+
+Para trocar pelos adaptadores de verdade, implemente `LeitorExtrato` ou `ClassificadorTransacoes` (`portas/ingestao.py`) e troque a montagem em `principal.py`.
+
 ### Exclusão total (RNF01)
 
-`DELETE /eu/dados` apaga a conta, as sessões e os consentimentos. Todo repositório com dado pessoal implementa `apagar_do_usuario` e entra na lista de `Privacidade` em `adaptadores/http/conteiner.py`. Quem criar um repositório novo (transações, extratos, conversas) precisa colocá-lo nessa lista.
+`DELETE /eu/dados` apaga a conta, as sessões, os consentimentos, os extratos e as transações. Todo repositório com dado pessoal implementa `apagar_do_usuario` e entra na lista de `Privacidade` em `adaptadores/http/conteiner.py`. Quem criar um repositório novo (transações, extratos, conversas) precisa colocá-lo nessa lista.
 
 ### Elpis e Trilha (públicas por enquanto)
 
@@ -98,6 +111,10 @@ As rotas que respondem 501 já validam a sessão e a entrada, e a resposta diz q
 O RAG roda como serviço próprio na máquina (MPS e Ollama não existem no container): `uv run pandora-rag servir` em `services/rag`, porta 8010. A API lê `PANDORA_RAG_URL` (padrão `http://localhost:8010`).
 
 ## Pendências
+
+- **Raio-X com adaptadores provisórios.** OFX e PDF esperam #57 e #66; o classificador de verdade espera #68 e #83. As correções de categoria ainda não voltam para o classificador como rótulo de treino.
+- **Mapa de dívidas e score** (`GET /dividas`, `GET /score`) continuam em 501: precisam do motor da #65 (CET, média do BCB) e de uma fonte para as dívidas (extrato não traz saldo devedor nem CET).
+- **Envio síncrono.** Bom para CSV pequeno; PDF com OCR (#66) vai pedir fila e `status = processando`.
 
 - **Esquema de transação em rascunho.** Os campos seguem o dataset sintético da #51 (`services/ml/sintetico`, na branch `dev/rayssa`). Falta fechar com a ingestão da Luana (#57), que é o passo 3 da #62. Os nomes estão em português (`valor_centavos`, `descricao_mascarada`); o dataset usa inglês (`amount`, `description_masked`).
 - **Chat sem streaming.** O RAG de hoje devolve a resposta inteira. Se o chat passar a usar streaming, o contrato de `POST /chat` muda.

@@ -38,3 +38,24 @@ class LicaoNaoEncontrada(ErroDominio):
 
 class PerguntaInvalida(ErroDominio):
     """Índice de pergunta ou de opção fora do intervalo da lição."""
+
+
+class ExtratoNaoEncontrado(ErroDominio):
+    pass
+
+
+class TransacaoNaoEncontrada(ErroDominio):
+    pass
+
+
+class ArquivoGrandeDemais(ErroDominio):
+    def __init__(self, limite_bytes: int) -> None:
+        super().__init__(f"O limite é de {limite_bytes // (1024 * 1024)} MB por arquivo.")
+
+
+class FormatoNaoSuportado(ErroDominio):
+    """A ingestão não sabe ler este tipo de arquivo (ainda)."""
+
+
+class ArquivoIlegivel(ErroDominio):
+    """O arquivo tem um formato conhecido, mas o conteúdo não dá para ler."""

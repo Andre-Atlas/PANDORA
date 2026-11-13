@@ -21,7 +21,7 @@ def test_email_repetido_e_senha_curta(conteiner):
 def test_entrar_guarda_so_o_hash_do_token(conteiner, repos):
     conteiner.contas.cadastrar("carla@exemplo.com", "senha-forte-1")
     sessao = conteiner.contas.entrar("carla@exemplo.com", "senha-forte-1")
-    _, sessoes, _ = repos
+    _, sessoes, *_ = repos
     assert sessao.token not in sessoes.dados
     assert conteiner.contas.usuario_da_sessao(sessao.token).email == "carla@exemplo.com"
 

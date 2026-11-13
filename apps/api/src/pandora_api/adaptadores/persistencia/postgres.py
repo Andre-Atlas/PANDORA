@@ -11,6 +11,15 @@ from psycopg.rows import dict_row
 from psycopg_pool import ConnectionPool
 
 from pandora_api.dominio.consentimento import Consentimento, Finalidade
+from pandora_api.dominio.extrato import Extrato, StatusExtrato
+from pandora_api.dominio.transacao import (
+    FUSO_DA_PESSOA,
+    Categoria,
+    FormaPagamento,
+    OrigemCategoria,
+    Parcela,
+    Transacao,
+)
 from pandora_api.dominio.usuario import Sessao, Usuario
 
 MIGRACOES = [
@@ -41,6 +50,39 @@ MIGRACOES = [
     )
     """,
     "CREATE INDEX IF NOT EXISTS consentimentos_usuario ON consentimentos (usuario_id)",
+    """
+    CREATE TABLE IF NOT EXISTS extratos (
+        id UUID PRIMARY KEY,
+        usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        nome_arquivo TEXT NOT NULL,
+        status TEXT NOT NULL,
+        recebido_em TIMESTAMPTZ NOT NULL,
+        transacoes_importadas INTEGER,
+        avisos TEXT[] NOT NULL DEFAULT '{}'
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS extratos_usuario ON extratos (usuario_id)",
+    """
+    CREATE TABLE IF NOT EXISTS transacoes (
+        id UUID PRIMARY KEY,
+        usuario_id UUID NOT NULL REFERENCES usuarios(id) ON DELETE CASCADE,
+        conta_id TEXT NOT NULL,
+        data_hora TIMESTAMPTZ NOT NULL,
+        mes CHAR(7) NOT NULL,
+        valor_centavos BIGINT NOT NULL,
+        forma_pagamento TEXT NOT NULL,
+        descricao_mascarada TEXT NOT NULL,
+        mcc CHAR(4),
+        categoria TEXT NOT NULL,
+        origem_categoria TEXT NOT NULL,
+        confianca_categoria DOUBLE PRECISION,
+        versao_modelo TEXT,
+        essencial BOOLEAN NOT NULL,
+        parcela_numero SMALLINT,
+        parcela_total SMALLINT
+    )
+    """,
+    "CREATE INDEX IF NOT EXISTS transacoes_usuario_mes ON transacoes (usuario_id, mes, data_hora DESC)",
 ]
 
 
@@ -156,3 +198,139 @@ class ConsentimentosPostgres:
     def apagar_do_usuario(self, usuario_id: UUID) -> None:
         with self._banco.conexao() as con:
             con.execute("DELETE FROM consentimentos WHERE usuario_id = %s", (usuario_id,))
+
+
+class ExtratosPostgres:
+    _COLUNAS = "id, usuario_id, nome_arquivo, status, recebido_em, transacoes_importadas, avisos"
+
+    def __init__(self, banco: BancoPostgres) -> None:
+        self._banco = banco
+
+    def salvar(self, e: Extrato) -> None:
+        with self._banco.conexao() as con:
+            con.execute(
+                f"""INSERT INTO extratos ({self._COLUNAS}) VALUES (%s, %s, %s, %s, %s, %s, %s)
+                ON CONFLICT (id) DO UPDATE SET status = EXCLUDED.status,
+                    transacoes_importadas = EXCLUDED.transacoes_importadas, avisos = EXCLUDED.avisos""",
+                (
+                    e.id,
+                    e.usuario_id,
+                    e.nome_arquivo,
+                    e.status.value,
+                    e.recebido_em,
+                    e.transacoes_importadas,
+                    list(e.avisos),
+                ),
+            )
+
+    def por_id(self, usuario_id: UUID, extrato_id: UUID) -> Extrato | None:
+        with self._banco.conexao() as con:
+            linha = con.execute(
+                f"SELECT {self._COLUNAS} FROM extratos WHERE id = %s AND usuario_id = %s", (extrato_id, usuario_id)
+            ).fetchone()
+        if linha is None:
+            return None
+        return Extrato(**{**linha, "status": StatusExtrato(linha["status"]), "avisos": tuple(linha["avisos"])})
+
+    def apagar_do_usuario(self, usuario_id: UUID) -> None:
+        with self._banco.conexao() as con:
+            con.execute("DELETE FROM extratos WHERE usuario_id = %s", (usuario_id,))
+
+
+class TransacoesPostgres:
+    _COLUNAS = (
+        "id, conta_id, data_hora, valor_centavos, forma_pagamento, descricao_mascarada, mcc, categoria, "
+        "origem_categoria, confianca_categoria, versao_modelo, essencial, parcela_numero, parcela_total"
+    )
+
+    def __init__(self, banco: BancoPostgres) -> None:
+        self._banco = banco
+
+    @staticmethod
+    def _de_linha(linha: dict) -> Transacao:
+        numero, total = linha.pop("parcela_numero"), linha.pop("parcela_total")
+        return Transacao(
+            **{
+                **linha,
+                "data_hora": linha["data_hora"].astimezone(FUSO_DA_PESSOA),
+                "forma_pagamento": FormaPagamento(linha["forma_pagamento"]),
+                "categoria": Categoria(linha["categoria"]),
+                "origem_categoria": OrigemCategoria(linha["origem_categoria"]),
+                "parcela": Parcela(numero, total) if numero else None,
+            }
+        )
+
+    @staticmethod
+    def _valores(usuario_id: UUID, t: Transacao) -> tuple:
+        return (
+            t.id,
+            usuario_id,
+            t.conta_id,
+            t.data_hora,
+            t.mes,
+            t.valor_centavos,
+            t.forma_pagamento.value,
+            t.descricao_mascarada,
+            t.mcc,
+            t.categoria.value,
+            t.origem_categoria.value,
+            t.confianca_categoria,
+            t.versao_modelo,
+            t.essencial,
+            t.parcela.numero if t.parcela else None,
+            t.parcela.total if t.parcela else None,
+        )
+
+    def adicionar(self, usuario_id: UUID, transacoes: list[Transacao]) -> None:
+        if not transacoes:
+            return
+        with self._banco.conexao() as con, con.cursor() as cur:
+            cur.executemany(
+                """INSERT INTO transacoes (id, usuario_id, conta_id, data_hora, mes, valor_centavos, forma_pagamento,
+                    descricao_mascarada, mcc, categoria, origem_categoria, confianca_categoria, versao_modelo,
+                    essencial, parcela_numero, parcela_total)
+                VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)""",
+                [self._valores(usuario_id, t) for t in transacoes],
+            )
+
+    def atualizar(self, usuario_id: UUID, t: Transacao) -> None:
+        with self._banco.conexao() as con:
+            con.execute(
+                """UPDATE transacoes SET categoria = %s, origem_categoria = %s, confianca_categoria = %s,
+                    essencial = %s WHERE id = %s AND usuario_id = %s""",
+                (t.categoria.value, t.origem_categoria.value, t.confianca_categoria, t.essencial, t.id, usuario_id),
+            )
+
+    def por_id(self, usuario_id: UUID, transacao_id: UUID) -> Transacao | None:
+        with self._banco.conexao() as con:
+            linha = con.execute(
+                f"SELECT {self._COLUNAS} FROM transacoes WHERE id = %s AND usuario_id = %s", (transacao_id, usuario_id)
+            ).fetchone()
+        return self._de_linha(linha) if linha else None
+
+    def listar(
+        self, usuario_id: UUID, mes: str | None, categoria: Categoria | None, deslocamento: int, limite: int
+    ) -> tuple[list[Transacao], int]:
+        filtro = (
+            "usuario_id = %(u)s AND (%(m)s::text IS NULL OR mes = %(m)s) AND (%(c)s::text IS NULL OR categoria = %(c)s)"
+        )
+        p = {"u": usuario_id, "m": mes, "c": categoria.value if categoria else None, "o": deslocamento, "l": limite}
+        with self._banco.conexao() as con:
+            total = con.execute(f"SELECT count(*) AS n FROM transacoes WHERE {filtro}", p).fetchone()["n"]
+            linhas = con.execute(
+                f"SELECT {self._COLUNAS} FROM transacoes WHERE {filtro} "
+                "ORDER BY data_hora DESC, id DESC OFFSET %(o)s LIMIT %(l)s",
+                p,
+            ).fetchall()
+        return [self._de_linha(linha) for linha in linhas], total
+
+    def do_mes(self, usuario_id: UUID, mes: str) -> list[Transacao]:
+        with self._banco.conexao() as con:
+            linhas = con.execute(
+                f"SELECT {self._COLUNAS} FROM transacoes WHERE usuario_id = %s AND mes = %s", (usuario_id, mes)
+            ).fetchall()
+        return [self._de_linha(linha) for linha in linhas]
+
+    def apagar_do_usuario(self, usuario_id: UUID) -> None:
+        with self._banco.conexao() as con:
+            con.execute("DELETE FROM transacoes WHERE usuario_id = %s", (usuario_id,))

@@ -46,11 +46,14 @@ def registrar_tratadores(app: FastAPI) -> None:
         (erros.LicaoNaoEncontrada, 404, "licao-nao-encontrada", "Lição não encontrada."),
         (erros.PerguntaInvalida, 422, "pergunta-invalida", "A pergunta ou a opção não existe nesta lição."),
         (erros.AssistenteIndisponivel, 503, "elpis-indisponivel", "A Elpis não está disponível agora."),
+        (erros.ExtratoNaoEncontrado, 404, "extrato-nao-encontrado", "Extrato não encontrado."),
+        (erros.TransacaoNaoEncontrada, 404, "transacao-nao-encontrada", "Transação não encontrada."),
+        (erros.ArquivoGrandeDemais, 413, "arquivo-grande-demais", "O arquivo é grande demais."),
     ]
     for classe, status, codigo, titulo in tabela:
 
         async def tratar(_: Request, exc: Exception, status=status, codigo=codigo, titulo=titulo) -> JSONResponse:
-            detalhe = str(exc) if isinstance(exc, erros.SenhaFraca) else None
+            detalhe = str(exc) if isinstance(exc, erros.SenhaFraca | erros.ArquivoGrandeDemais) else None
             return _resposta(status, codigo, titulo, detalhe)
 
         app.add_exception_handler(classe, tratar)
