@@ -12,10 +12,10 @@ Os artefatos brutos completos desta execução estão gravados em:
 
 | Jornada | Persona | Agentes Acionados | Interações (`trace`) | Latência | Invariantes Verificados |
 |---|---|---|---|---|---|
-| **1** | **Carla Mendes (`carla_34`)** | `orquestrador` → `analista` → `estrategista` → `educador` → `compliance` | 6 | `0,0585 s` | Mínimo Existencial R$ 2.100 blindado · SGS `22022` · Citações `[1][2][3]` (Lei 14.181, Lei 14.690, CPC art. 833) |
-| **2** | **Diego Oliveira (`diego_24`)** | `orquestrador` → `analista` → `coach` → `educador` → `compliance` | 6 | `0,0163 s` | Perda líquida R$ 700 (62,5%) · 10 tanques gasolina · **Protocolo de Crise (`CVV 188`, CAPS AD, JA)** · Lei 14.790 |
-| **3** | **Júlia Santos (`julia_31`)** | `orquestrador` → `analista` → `educador` → `compliance` | 5 | `0,0168 s` | **Trava CVM (Res. 19/2021)** · Recusa Educativa com 3 critérios (Liquidez D+0, Tesouro/FGC, Selic/CDI) · Citações `[1][2][3]` |
-| **4** | **Sr. Antônio (`antonio_67`)** | `orquestrador` → `analista` → `estrategista` → `guardiao` → `educador` → `compliance` | 7 | `0,0570 s` | **Anti-Injection neutralizado** · Boleto divergente (DV inválido, banco `341` ≠ `001`, PF) · **MED Pix (80 dias, Res. BCB 147)** |
+| **1** | **Carla Mendes (`carla_34`)** | `orquestrador` → `analista` → `estrategista` → `educador` → `compliance` | 6 | `0,0683 s` | Mínimo Existencial R$ 2.100 blindado · SGS `22022` · Citações `[1][2][3]` (Lei 14.181, Lei 14.690, CPC art. 833) |
+| **2** | **Diego Oliveira (`diego_24`)** | `orquestrador` → `analista` → `coach` → `educador` → `compliance` | 6 | `0,0206 s` | Perda líquida R$ 700 (62,5%) · 10 tanques gasolina · **Protocolo de Crise (`CVV 188`, CAPS AD, JA)** · Lei 14.790 |
+| **3** | **Júlia Santos (`julia_31`)** | `orquestrador` → `analista` → `educador` → `compliance` | 5 | `0,0205 s` | **Trava CVM (Res. 19/2021)** · Recusa Educativa com 3 critérios (Liquidez D+0, Tesouro/FGC, Selic/CDI) · Citações `[1][2][3]` |
+| **4** | **Sr. Antônio (`antonio_67`)** | `orquestrador` → `analista` → `estrategista` → `guardiao` → `educador` → `compliance` | 7 | `0,0927 s` | **Anti-Injection neutralizado** · Boleto divergente (DV inválido, banco `341` ≠ `001`, PF) · **MED Pix (80 dias, Res. BCB 147)** |
 
 *(Além das 4 jornadas no modo determinístico acima, o teste automatizado `test_loop_de_revisao_compliance_corrige_rascunho_que_viola_cvm` valida o loop `compliance -> revisao -> compliance` contra um `GatewayVioladorCVM` simulando um LLM que desobedece à regra CVM no 1º turno).*
 

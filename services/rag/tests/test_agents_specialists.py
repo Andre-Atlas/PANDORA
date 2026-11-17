@@ -156,7 +156,7 @@ def test_compliance_reprova_rascunho_com_recomendacao_cvm_ou_sem_crise():
     est = EstadoMultiagente(
         persona_id="julia_31",
         consulta_usuario="Qual CDB especifico do Banco X devo comprar hoje?",
-        rascunho_resposta="Compre o CDB do Banco X agora.",
+        rascunho_resposta="Recomendo um CDB do Nubank agora.",
     )
     est = OrquestradorAgent().planejar(est)
     est = ComplianceAgent().validar(est)
@@ -166,9 +166,21 @@ def test_compliance_reprova_rascunho_com_recomendacao_cvm_ou_sem_crise():
     est_crise = EstadoMultiagente(
         persona_id="diego_24",
         consulta_usuario="Perdi tudo de novo, nao consigo parar sozinho.",
-        rascunho_resposta="Tente economizar no proximo mes.",
+        rascunho_resposta="Pague o valor de R$ 188,00 no proximo mes.",
     )
     est_crise = OrquestradorAgent().planejar(est_crise)
     est_crise = ComplianceAgent().validar(est_crise)
     assert est_crise.veredito.crise_acionada is True
     assert est_crise.veredito.aprovado is False
+
+
+def test_educador_abstem_fora_de_dominio_e_mascara_query():
+    est = EstadoMultiagente(
+        consulta_usuario="Meu CPF 123.456.789-00. Qual a melhor receita de bolo de cenoura com chocolate?"
+    )
+    est = EducadorAgent().executar(est, _retriever_teste())
+    assert est.evidencias is not None
+    assert est.evidencias.abstencao is True
+    assert est.evidencias.hits_aprovados == 0
+    assert "123.456.789-00" not in est.evidencias.queries_executadas[0]
+    assert "[CPF]" in est.evidencias.queries_executadas[0]

@@ -59,8 +59,41 @@ def test_quatro_jornadas_demo_exercitam_todos_os_7_agentes_e_cumprem_guardrails(
     assert antonio.inspecao_fraude is not None and antonio.inspecao_fraude.injection_detectada is True
     assert antonio.inspecao_fraude.boleto is not None and antonio.inspecao_fraude.boleto.suspeito is True
     assert "MED" in antonio.resposta_final or "147" in antonio.resposta_final
+    assert antonio.agentes_acionados == [
+        "orquestrador",
+        "analista",
+        "estrategista",
+        "guardiao",
+        "educador",
+        "compliance",
+    ]
     assert (tmp_path / "demonstracao_multiagente.md").exists()
     assert (tmp_path / "demonstracao_multiagente.json").exists()
+
+
+def test_consulta_fora_de_dominio_ativa_abstencao_segura():
+    retr, _ = construir_retriever_padrao(usar_reranker=False, preferir_embutido=True)
+    grafo = GrafoPandora(retriever=retr)
+    res = grafo.executar("Qual a melhor receita de bolo de cenoura com cobertura de chocolate?")
+    assert res.evidencias is not None and res.evidencias.abstencao is True
+    assert res.veredito is not None and res.veredito.aprovado is True
+    assert "Não encontrei isso nas fontes oficiais" in res.resposta_final
+
+
+def test_compliance_fail_closed_nao_expoe_rascunho_reprovado(monkeypatch):
+    retr, _ = construir_retriever_padrao(usar_reranker=False, preferir_embutido=True)
+    grafo = GrafoPandora(retriever=retr)
+
+    def _rascunho_vazado(estado, *args, **kwargs):
+        estado.rascunho_resposta = "Compre o CDB do Banco X com CPF 123.456.789-00."
+        return estado
+
+    monkeypatch.setattr(grafo.orquestrador, "sintetizar", _rascunho_vazado)
+    res = grafo.executar("Qual CDB específico devo comprar hoje?", persona_id="julia_31")
+    assert res.veredito is not None and res.veredito.aprovado is False
+    assert "123.456.789-00" not in res.resposta_final
+    assert "Compre o CDB do Banco X" not in res.resposta_final
+    assert "Liquidez Diária" in res.resposta_final
 
 
 def test_loop_de_revisao_compliance_corrige_rascunho_que_viola_cvm():

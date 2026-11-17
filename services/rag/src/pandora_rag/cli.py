@@ -4,7 +4,6 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Optional
 
 import typer
 
@@ -25,7 +24,8 @@ def coletar() -> None:
 @app.command()
 def extrair() -> None:
     """Extrai o texto limpo de data/raw para data/text."""
-    from pandora_rag.ingest.extract import extrair as _extrair, salvar_texto
+    from pandora_rag.ingest.extract import extrair as _extrair
+    from pandora_rag.ingest.extract import salvar_texto
     from pandora_rag.ingest.fontes import carregar_fontes
 
     for f in carregar_fontes():
@@ -74,16 +74,18 @@ def buscar(pergunta: str, k: int = 5, tabela: str = "chunks", rerank: bool = Fal
 
 @app.command()
 def ask(pergunta: str, llm: str = "haiku", k: int = 5, tabela: str = "chunks", rerank: bool = True,
-        modelo: str = MODELO_EMBEDDING, saida_json: Optional[bool] = False) -> None:
+        modelo: str = MODELO_EMBEDDING, saida_json: bool | None = False) -> None:
     """Consulta completa: busca, resposta fundamentada e fontes."""
     from pandora_rag.generate.answer import responder
     from pandora_rag.generate.gateway import Gateway
+    from pandora_rag.generate.pii import mascarar
 
     retr = _retriever(modelo, tabela, rerank)
     hits = retr.buscar(pergunta, k)
     resp = responder(Gateway(), llm, pergunta, hits)
     if saida_json:
-        typer.echo(json.dumps({"pergunta": pergunta, "resposta": resp.texto, "abstencao": resp.abstencao,
+        pergunta_limpa, _ = mascarar(pergunta)
+        typer.echo(json.dumps({"pergunta": pergunta_limpa, "resposta": resp.texto, "abstencao": resp.abstencao,
                                "citacoes": [c.__dict__ for c in resp.citacoes]}, ensure_ascii=False, indent=2))
         return
     typer.echo(f"PERGUNTA: {pergunta}\n\nCHUNKS RECUPERADOS:")
@@ -104,6 +106,8 @@ def agent(
     offline: bool = False,
     documento_ocr: str | None = None,
     linha_digitavel: str | None = None,
+    banco_alegado: str | None = None,
+    beneficiario_pf: bool = False,
     saida_json: bool = False,
 ) -> None:
     """Executa uma consulta completa no grafo dos 7 agentes especializados."""
@@ -118,6 +122,8 @@ def agent(
         persona_id=persona,
         documento_ocr=documento_ocr,
         linha_digitavel=linha_digitavel,
+        banco_alegado=banco_alegado,
+        beneficiario_pf=beneficiario_pf,
         llm=None if offline else llm,
     )
     if saida_json:

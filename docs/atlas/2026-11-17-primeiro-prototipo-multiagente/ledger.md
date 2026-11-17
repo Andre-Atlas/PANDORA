@@ -22,5 +22,7 @@
 - [x] **Task 1 `[arch]`:** Contratos Pydantic (`models.py`) e ferramentas determinísticas (`tools.py`) — commit `2317443`
 - [x] **Task 2 `[core]`:** Implementação dos 7 agentes especializados (`specialists.py`) — commit `784abb1`
 - [x] **Task 3 `[arch]`:** Grafo multiagente (`graph.py`), cenários (`scenarios.py`), fallback `DATA_DIR` (`config.py`) e CLI (`cli.py`) — commit `23f1d24` + `4b912c8`
-- [x] **Task 4 `[core]`:** Execução real da demo (`docs/agentes/runs/`), documentação completa em `docs/agentes/` e atualização do `README.md`
+- [x] **Task 4 `[core]`:** Execução real da demo (`docs/agentes/runs/`), documentação completa em `docs/agentes/` e atualização do `README.md` — commit `5a7de23`
+- [x] **Fase 5 (Onda de Correções pós-revisão `code-reviewer` + `security-reviewer`):** Endurecimento fail-closed de compliance, portão de abstenção RNF04 sem reranker, blindagem de PII em `pii.py` + citações, ampliação dos detectores CVM/Crise/Injection, extração `personas_data.py`, validação SQL em `store.py`, resolução relativa em `config.py` e roteamento sequencial de especialistas.
+
 

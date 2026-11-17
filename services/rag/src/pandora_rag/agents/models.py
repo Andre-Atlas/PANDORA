@@ -188,11 +188,11 @@ class VereditoCompliance(BaseModel):
 class EstadoMultiagente(BaseModel):
     """Estado tipado compartilhado ao longo de toda a execução do GrafoPandora."""
 
-    persona_id: str | None = None
-    consulta_usuario: str
-    documento_ocr: str | None = None
-    linha_digitavel: str | None = None
-    banco_alegado: str | None = None
+    persona_id: str | None = Field(default=None, max_length=64)
+    consulta_usuario: str = Field(max_length=8000)
+    documento_ocr: str | None = Field(default=None, max_length=20000)
+    linha_digitavel: str | None = Field(default=None, max_length=256)
+    banco_alegado: str | None = Field(default=None, max_length=256)
     beneficiario_pf: bool = False
     consulta_mascarada: str = ""
     pii_contagem: dict[str, int] = Field(default_factory=dict)

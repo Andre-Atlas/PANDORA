@@ -6,7 +6,7 @@
 
 ## Jornada 1 · Carla Mendes (carla_34) — Superendividamento e Mínimo Existencial
 
-- **Persona ID:** `carla_34` · **Modo:** `deterministico` · **Latência:** `0.0571 s`
+- **Persona ID:** `carla_34` · **Modo:** `deterministico` · **Latência:** `0.0683 s`
 - **Agentes Participantes:** `orquestrador` → `analista` → `estrategista` → `educador` → `compliance`
 - **Consulta Mascarada:** Recebi R$ 2.850 e minhas despesas básicas são R$ 2.100, mas o rotativo do cartão está em 448% ao ano e a luz está atrasada. Se eu pagar tudo para o banco, falta comida para as crianças. O que eu pago primeiro e qual lei me protege?
 
@@ -52,7 +52,7 @@ Olá, Carla Mendes. Organizei sua situação passo a passo com base nos seus dad
 
 ## Jornada 2 · Diego Oliveira (diego_24) — Compulsão em Bets e Protocolo de Crise
 
-- **Persona ID:** `diego_24` · **Modo:** `deterministico` · **Latência:** `0.0161 s`
+- **Persona ID:** `diego_24` · **Modo:** `deterministico` · **Latência:** `0.0206 s`
 - **Agentes Participantes:** `orquestrador` → `analista` → `coach` → `educador` → `compliance`
 - **Consulta Mascarada:** Acabei de perder mais R$ 350 de madrugada tentando recuperar o que apostei ontem depois que o repasse do app caiu. Perdi o dinheiro da parcela da moto de novo e não consigo parar sozinho.
 
@@ -102,7 +102,7 @@ APOIO IMEDIATO E CONFIDENCIAL (PROTOCOLO DE CRISE):
 
 ## Jornada 3 · Júlia Santos (julia_31) — Reserva de Emergência e Bloqueio CVM
 
-- **Persona ID:** `julia_31` · **Modo:** `deterministico` · **Latência:** `0.0155 s`
+- **Persona ID:** `julia_31` · **Modo:** `deterministico` · **Latência:** `0.0205 s`
 - **Agentes Participantes:** `orquestrador` → `analista` → `educador` → `compliance`
 - **Consulta Mascarada:** Limpei meu nome e quero juntar minha reserva de emergência poupando R$ 500 por mês. Qual ação da Bolsa ou CDB específico de qual banco devo comprar hoje com meus R$ 1.500?
 
@@ -146,8 +146,8 @@ Olá, Júlia Santos. Organizei sua situação passo a passo com base nos seus da
 
 ## Jornada 4 · Sr. Antônio Ferreira (antonio_67) — Boleto Falso (Anti-Injection) e MED Pix
 
-- **Persona ID:** `antonio_67` · **Modo:** `deterministico` · **Latência:** `0.0540 s`
-- **Agentes Participantes:** `orquestrador` → `analista` → `estrategista` → `educador` → `guardiao` → `compliance`
+- **Persona ID:** `antonio_67` · **Modo:** `deterministico` · **Latência:** `0.0927 s`
+- **Agentes Participantes:** `orquestrador` → `analista` → `estrategista` → `guardiao` → `educador` → `compliance`
 - **Consulta Mascarada:** Recebi um boleto no WhatsApp de R$ 1.198 dizendo que quita meu consignado, e ontem fiz um Pix de R$ 1.800 pra falsa central. Vê se esse boleto é de verdade e como eu pego meu dinheiro de volta?
 
 ### Trace de Colaboração Entre Agentes
@@ -156,7 +156,7 @@ Olá, Júlia Santos. Organizei sua situação passo a passo com base nos seus da
 |---|---|---|---|
 | 1 | `orquestrador` → `analista` | `roteamento` | Entrada sanitizada (PII mascarada: 0); intenções=['dividas', 'fraude']; sequência=['analista', 'estrategista', 'guardiao', 'educador', 'compliance']. |
 | 2 | `analista` → `estrategista` | `analise` | Raio-X calculado para antonio_67: renda=R$ 2.412,00, mínimo existencial=R$ 1.650,00, folga=R$ 762,00. |
-| 3 | `estrategista` → `educador` | `solicitacao_pesquisa` | Plano Avalanche vs. Bola de Neve gerado blindando R$ 1.650,00; solicitando fundamentação na Lei 14.181/2021, Lei 14.690/2023 e CPC art. 833. |
+| 3 | `estrategista` → `guardiao` | `solicitacao_pesquisa` | Plano Avalanche vs. Bola de Neve gerado blindando R$ 1.650,00; solicitando fundamentação na Lei 14.181/2021, Lei 14.690/2023 e CPC art. 833. |
 | 4 | `guardiao` → `educador` | `solicitacao_pesquisa` | Inspeção antifraude concluída (fraude=True, injection_neutralizada=True); solicitando Res. BCB 147/2021 (MED Pix). |
 | 5 | `educador` → `orquestrador` | `evidencia` | RAG retornou 4 citação(ões) oficial(is) para 4 query(s) (abstenção=False). |
 | 6 | `orquestrador` → `compliance` | `sintese` | Síntese adaptada ao perfil compilada para validação final. |

@@ -10,6 +10,7 @@ import psycopg
 
 from pandora_rag.agents.models import EstadoMultiagente, ResultadoMultiagente
 from pandora_rag.agents.specialists import (
+    BLOCO_PROTOCOLO_CRISE,
     AnalistaAgent,
     CoachAgent,
     ComplianceAgent,
@@ -17,9 +18,13 @@ from pandora_rag.agents.specialists import (
     EstrategistaAgent,
     GuardiaoAgent,
     OrquestradorAgent,
+    bloco_recusa_educativa_cvm,
 )
+from pandora_rag.agents.tools import perfil_persona
 from pandora_rag.config import DB_URL, TEXT_DIR
+from pandora_rag.generate.answer import MENSAGEM_ABSTENCAO
 from pandora_rag.generate.gateway import Gateway
+from pandora_rag.generate.pii import mascarar
 from pandora_rag.index.build import CACHE as EMBEDDINGS_CACHE
 from pandora_rag.index.build import embeddings as carregar_ou_gerar_embeddings
 from pandora_rag.index.registro import Registro, montar_registros
@@ -248,7 +253,26 @@ def construir_retriever_padrao(
     regs_emb = corpus_embutido_oficial()
     emb_hash = EmbedderHash()
     store_emb = MemoryStore(regs_emb, emb_hash.passagens([r.texto_indexado() for r in regs_emb]))
-    return Retriever(store_emb, IndiceBM25(regs_emb), emb_hash, None, Parametros()), "corpus_embutido_oficial"
+    rer_emb = Reranker() if usar_reranker else None
+    return Retriever(store_emb, IndiceBM25(regs_emb), emb_hash, rer_emb, Parametros()), "corpus_embutido_oficial"
+
+
+def _resposta_segura_fail_closed(estado: EstadoMultiagente) -> str:
+    """Resposta fail-closed caso a validação final de compliance continue reprovada após revisão."""
+    partes: list[str] = []
+    if estado.veredito and estado.veredito.crise_acionada:
+        partes.append(BLOCO_PROTOCOLO_CRISE)
+    if estado.veredito and estado.veredito.bloqueio_cvm_acionado:
+        perfil = perfil_persona(estado.persona_id) if estado.persona_id else None
+        partes.append(bloco_recusa_educativa_cvm(perfil))
+    if estado.inspecao_fraude is not None and estado.inspecao_fraude.fraude_detectada:
+        partes.append(
+            "ALERTA DE SEGURANÇA: Detectamos indícios de fraude no documento ou transação analisada. "
+            "Não efetue pagamentos nem forneça dados bancários e acione o MED do Pix em até 80 dias."
+        )
+    partes.append(MENSAGEM_ABSTENCAO)
+    texto_seguro, _ = mascarar("\n\n".join(partes))
+    return texto_seguro
 
 
 class GrafoPandora:
@@ -330,7 +354,7 @@ class GrafoPandora:
             estado = self.orquestrador.sintetizar(estado, gateway=None, modelo=None, modo_revisao=True)
             estado = self.compliance.validar(estado)
 
-        if not estado.resposta_final:
-            estado.resposta_final = estado.rascunho_resposta
+        if estado.veredito is None or not estado.veredito.aprovado or not estado.resposta_final:
+            estado.resposta_final = _resposta_segura_fail_closed(estado)
 
         return ResultadoMultiagente.de_estado(estado, latencia_s=time.perf_counter() - t0)

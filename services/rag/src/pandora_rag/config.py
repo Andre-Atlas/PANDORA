@@ -2,6 +2,8 @@
 from __future__ import annotations
 
 import os
+import re
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -9,6 +11,7 @@ ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = ROOT.parents[1]
 FONTES_PATH = ROOT / "fontes.yaml"
 LOCK_PATH = ROOT / "corpus.lock"
+_RE_ENV_CHAVE = re.compile(r"[A-Za-z_][A-Za-z0-9_]*")
 
 
 def _resolver_data_dir() -> Path:
@@ -18,20 +21,25 @@ def _resolver_data_dir() -> Path:
     local = ROOT / "data"
     if (local / "text").exists():
         return local
-    try:
-        comum = subprocess.run(
-            ["git", "rev-parse", "--git-common-dir"],
-            cwd=REPO_ROOT,
-            capture_output=True,
-            text=True,
-            check=True,
-        ).stdout.strip()
-        if comum:
-            cand = Path(comum).resolve().parent / "services" / "rag" / "data"
-            if (cand / "text").exists():
-                return cand
-    except (OSError, subprocess.SubprocessError):
-        pass
+    git_bin = shutil.which("git")
+    if git_bin:
+        try:
+            comum = subprocess.run(
+                [git_bin, "rev-parse", "--git-common-dir"],
+                cwd=REPO_ROOT,
+                capture_output=True,
+                text=True,
+                timeout=5,
+                check=True,
+            ).stdout.strip()
+            if comum:
+                p = Path(comum)
+                resolved = p.resolve() if p.is_absolute() else (REPO_ROOT / p).resolve()
+                cand = resolved.parent / "services" / "rag" / "data"
+                if (cand / "text").exists():
+                    return cand
+        except (OSError, subprocess.SubprocessError):
+            pass
     return local
 
 
@@ -52,7 +60,9 @@ def carregar_env(caminho: Path = ROOT / ".env") -> None:
         linha = linha.strip()
         if linha and not linha.startswith("#") and "=" in linha:
             chave, _, valor = linha.partition("=")
-            os.environ.setdefault(chave.strip(), valor.strip().strip("\"'"))
+            chave_limpa = chave.strip()
+            if _RE_ENV_CHAVE.fullmatch(chave_limpa):
+                os.environ.setdefault(chave_limpa, valor.strip().strip("\"'"))
 
 
 carregar_env()

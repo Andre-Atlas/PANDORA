@@ -19,6 +19,13 @@ from pandora_rag.agents.models import (
     TransacaoPersona,
     ValidacaoBoleto,
 )
+from pandora_rag.agents.personas_data import (
+    BANCOS_POR_NOME,
+    PERFIL_PADRAO,
+    PERFIS_PERSONAS,
+    ROTEIRO_MED_PIX,
+    SERIES_SGS_BCB,
+)
 from pandora_rag.config import REPO_ROOT
 from pandora_rag.generate.pii import mascarar
 
@@ -26,222 +33,9 @@ CSV_PERSONAS_PADRAO = (
     REPO_ROOT / "docs" / "evidencias" / "datasets" / "amostra_transacoes_sinteticas_personas.csv"
 )
 
-SERIES_SGS_BCB: dict[str, dict[str, Any]] = {
-    "22022": {
-        "nome": "Taxa média de juros — PF — Cartão de crédito rotativo",
-        "valor_referencia": 435.9,
-        "unidade": "% a.a.",
-    },
-    "25467": {
-        "nome": "Taxa média mensal de juros — PF — Crédito pessoal consignado INSS",
-        "valor_referencia": 24.5,
-        "unidade": "% a.a.",
-    },
-    "432": {
-        "nome": "Taxa de juros — Meta Selic definida pelo Copom",
-        "valor_referencia": 14.25,
-        "unidade": "% a.a.",
-    },
-    "12": {
-        "nome": "Taxa de juros — CDI",
-        "valor_referencia": 14.15,
-        "unidade": "% a.a.",
-    },
-    "433": {
-        "nome": "IPCA — Variação mensal",
-        "valor_referencia": 0.45,
-        "unidade": "% a.m.",
-    },
-}
-
-PERFIS_PERSONAS: dict[str, dict[str, Any]] = {
-    "carla_34": {
-        "persona_id": "carla_34",
-        "nome": "Carla Mendes",
-        "idade": 34,
-        "arquetipo": "Superendividamento Estrutural Familiar e Defesa do Mínimo Existencial",
-        "renda_mensal": 2850.00,
-        "minimo_existencial": 2100.00,
-        "tom_comunicacao": "acolhedor_simples",
-        "dividas": [
-            {
-                "credor": "Concessionaria Energia (Luz)",
-                "modalidade": "servico_essencial",
-                "saldo": 360.00,
-                "cet_anual_pct": 12.0,
-                "parcela_mensal": 360.00,
-                "dias_atraso": 45,
-                "essencial": True,
-            },
-            {
-                "credor": "Cartao de Credito (Banco A)",
-                "modalidade": "rotativo_cartao",
-                "saldo": 4200.00,
-                "cet_anual_pct": 448.0,
-                "parcela_mensal": 630.00,
-                "dias_atraso": 0,
-                "essencial": False,
-            },
-            {
-                "credor": "Emprestimo Pessoal (Financeira B)",
-                "modalidade": "emprestimo_pessoal",
-                "saldo": 5800.00,
-                "cet_anual_pct": 112.0,
-                "parcela_mensal": 480.00,
-                "dias_atraso": 0,
-                "essencial": False,
-            },
-        ],
-    },
-    "diego_24": {
-        "persona_id": "diego_24",
-        "nome": "Diego Oliveira",
-        "idade": 24,
-        "arquetipo": "Transtorno do Jogo Online (Bets) e Intervenção Comportamental Empática",
-        "renda_mensal": 1120.00,
-        "renda_mensal_estimada": 3100.00,
-        "minimo_existencial": 515.00,
-        "tom_comunicacao": "parceiro_sem_julgamento",
-        "dividas": [],
-    },
-    "antonio_67": {
-        "persona_id": "antonio_67",
-        "nome": "Sr. Antônio Ferreira",
-        "idade": 67,
-        "arquetipo": "Vulnerabilidade Digital, Golpes no Pix/Boleto e Proteção Previdenciária",
-        "renda_mensal": 2412.00,
-        "minimo_existencial": 1650.00,
-        "tom_comunicacao": "acessivel_idoso",
-        "dividas": [
-            {
-                "credor": "Consignado INSS Contrato 04",
-                "modalidade": "consignado_inss",
-                "saldo": 18000.00,
-                "cet_anual_pct": 26.8,
-                "parcela_mensal": 723.60,
-                "dias_atraso": 0,
-                "essencial": False,
-            }
-        ],
-    },
-    "mariana_28": {
-        "persona_id": "mariana_28",
-        "nome": "Mariana Costa",
-        "idade": 28,
-        "arquetipo": "Renda Variável (MEI), Compras por Impulso (BNPL) e Fragmentação em 4 Cartões",
-        "renda_mensal": 3200.00,
-        "minimo_existencial": 2100.00,
-        "tom_comunicacao": "pratico_estruturado",
-        "dividas": [
-            {
-                "credor": "Cartoes Digitais Consolidados",
-                "modalidade": "parcelado_cartao",
-                "saldo": 6450.00,
-                "cet_anual_pct": 79.4,
-                "parcela_mensal": 2150.00,
-                "dias_atraso": 0,
-                "essencial": False,
-            }
-        ],
-    },
-    "julia_31": {
-        "persona_id": "julia_31",
-        "nome": "Júlia Santos",
-        "idade": 31,
-        "arquetipo": "Reconstrução Pós-Dívida, Ansiedade de Recaída e Educação sob Guardrails CVM",
-        "renda_mensal": 4500.00,
-        "minimo_existencial": 2800.00,
-        "capacidade_poupanca": 500.00,
-        "meta_reserva_6_meses": 16800.00,
-        "tom_comunicacao": "educativo_calmo",
-        "dividas": [],
-    },
-    "rosangela_43": {
-        "persona_id": "rosangela_43",
-        "nome": "Rosângela Souza",
-        "idade": 43,
-        "arquetipo": "Proteção do Benefício Social e Dano Colateral das Bets na Família",
-        "renda_mensal": 1560.00,
-        "minimo_existencial": 1400.00,
-        "tom_comunicacao": "acolhedor_simples",
-        "dividas": [],
-    },
-    "rafael_39": {
-        "persona_id": "rafael_39",
-        "nome": "Rafael Martins",
-        "idade": 39,
-        "arquetipo": "Cheque Especial Crônico e Troca de Dívida Cara por Barata",
-        "renda_mensal": 5200.00,
-        "minimo_existencial": 3600.00,
-        "tom_comunicacao": "analitico_direto",
-        "dividas": [],
-    },
-    "lucas_19": {
-        "persona_id": "lucas_19",
-        "nome": "Lucas Andrade",
-        "idade": 19,
-        "arquetipo": "Primeiro Cartão de Crédito e Golpes em Compras Digitais",
-        "renda_mensal": 1400.00,
-        "minimo_existencial": 600.00,
-        "tom_comunicacao": "didatico_jovem",
-        "dividas": [],
-    },
-    "fernanda_46": {
-        "persona_id": "fernanda_46",
-        "nome": "Fernanda Rocha",
-        "idade": 46,
-        "arquetipo": "Choque de Renda por Demissão, Gestão da Rescisão e Decisões sob Pressão",
-        "renda_mensal": 2500.00,
-        "minimo_existencial": 5590.00,
-        "tom_comunicacao": "estruturado_acolhedor",
-        "dividas": [],
-    },
-    "patricia_53": {
-        "persona_id": "patricia_53",
-        "nome": "Patrícia Nogueira",
-        "idade": 53,
-        "arquetipo": "Cuidadora: Finanças Delegadas da Mãe Idosa e Sobrecarga Financeira",
-        "renda_mensal": 3900.00,
-        "minimo_existencial": 3100.00,
-        "tom_comunicacao": "pratico_cuidador",
-        "dividas": [],
-    },
-}
-
-_PERFIL_PADRAO: dict[str, Any] = {
-    "persona_id": "visitante",
-    "nome": "Pessoa Usuária",
-    "idade": None,
-    "arquetipo": "Educação Financeira e Proteção do Orçamento",
-    "renda_mensal": 0.0,
-    "minimo_existencial": 0.0,
-    "tom_comunicacao": "acolhedor_simples",
-    "dividas": [],
-}
-
 _CATEGORIAS_ESSENCIAIS = {"MORADIA", "ALIMENTACAO", "SAUDE", "TRANSPORTE"}
-
-_BANCOS_POR_NOME: dict[str, str] = {
-    "banco do brasil": "001",
-    "santander": "033",
-    "banrisul": "041",
-    "banco inter": "077",
-    "inter": "077",
-    "caixa": "104",
-    "caixa economica": "104",
-    "bradesco": "237",
-    "nubank": "260",
-    "nu pagamentos": "260",
-    "itau": "341",
-    "c6": "336",
-    "mercado pago": "323",
-}
-
-_ROTEIRO_MED_PIX: list[str] = [
-    "1. Acione imediatamente o MED (Mecanismo Especial de Devolução) no app ou SAC do banco em até 80 dias (Res. BCB nº 147/2021) para bloquear cautelarmente os valores.",
-    "2. Separe o ID Fim-a-Fim (E2E) da transferência Pix, o comprovante com data/horário, o boleto suspeito e os prints das mensagens.",
-    "3. Registre Boletim de Ocorrência (Delegacia Eletrônica) e abra reclamação no Banco Central (Meu BC) ou Consumidor.gov.br caso o banco negue o protocolo.",
-]
+_RE_PERSONA_ID_SEGURA = re.compile(r"[a-z0-9_]{1,40}")
+_RE_TAG_DOC = re.compile(r"</?documento_externo_nao_confiavel\b[^>]*>", re.IGNORECASE)
 
 _PADROES_INJECTION: list[re.Pattern[str]] = [
     re.compile(r"ignore\s+(?:as\s+|todas\s+as\s+)?instruc"),
@@ -249,45 +43,60 @@ _PADROES_INJECTION: list[re.Pattern[str]] = [
     re.compile(r"desconsidere\s+(?:as\s+)?regras"),
     re.compile(r"esqueca\s+(?:as\s+)?instruc"),
     re.compile(r"aprove\s+(?:o\s+pagamento\s+)?imediatamente"),
-    re.compile(r"(?:aprove|confirme|diga)\s+(?:o\s+pagamento|que\s+o\s+boleto\s+e\s+seguro)"),
-    re.compile(r"(?:^|\s)system\s*:"),
+    re.compile(
+        r"(?:aprove|confirme|diga)\s+(?:o\s+pagamento|que\s+o\s+boleto\s+e\s+(?:seguro|legitimo|valido|confiavel))"
+    ),
+    re.compile(r"(?:^|\s)(?:system|human|assistant)\s*:"),
     re.compile(r"<\|im_(?:start|end)\|>"),
+    re.compile(r"</?system>"),
     re.compile(r"\[/?inst\]"),
     re.compile(r"override\s+(?:safety|rules|system)"),
 ]
 
 _PADROES_CRISE: list[re.Pattern[str]] = [
-    re.compile(r"\bnao\s+consigo\s+parar\b"),
-    re.compile(r"\bnao\s+consigo\s+controlar\b"),
+    re.compile(r"\b(?:nao|n)\s+consigo\s+(?:mais\s+)?(?:me\s+)?(?:parar|controlar|sair)\b"),
     re.compile(r"\bnao\s+consigo\s+sair\s+disso\b"),
     re.compile(r"\bperdi\s+tudo\b"),
-    re.compile(r"\b(?:me\s+matar|suicid\w*|acabar\s+com\s+tudo|nao\s+quero\s+mais\s+viver|desistir\s+da\s+vida)\b"),
+    re.compile(
+        r"\b(?:me\s+mat(?:ar|o)|suicid\w*|quero\s+morrer|vontade\s+de\s+morrer|"
+        r"tirar\s+(?:a\s+)?minha\s+vida|acabar\s+com\s+(?:tudo|a\s+minha\s+vida)|"
+        r"nao\s+quero\s+(?:mais\s+)?viver|desistir\s+da\s+vida)\b"
+    ),
     re.compile(r"\b(?:sem\s+saida|nao\s+aguento\s+mais|desespero\s+total)\b"),
 ]
 
+_ATIVOS_REGULADOS = (
+    r"(?:acao|acoes|cdb|lci|lca|fundo|fiis?|etf|bdr|coe|cri|cra|debenture|"
+    r"cripto\w*|bitcoin|ativo|papel|titulo|carteira|tesouro)"
+)
+_VERBOS_CVM = (
+    r"(?:comprar|vender|investir|aplicar|escolher|manter|colocar|"
+    r"compro|invisto|aplico|coloco|recomenda\w*|recomende|indica\w*|indique|suger\w*|sugira|vale\s+a\s+pena)"
+)
+
 _PADROES_CVM: list[re.Pattern[str]] = [
+    re.compile(rf"\b(?:qual|quais)\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco)\b.{{0,120}}\b{_VERBOS_CVM}\b"),
+    re.compile(rf"\b(?:qual|quais)\b.{{0,120}}\b{_VERBOS_CVM}\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco)\b"),
+    re.compile(rf"\b(?:qual|quais)\s+(?:o\s+|a\s+)?melhor\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco|investimento)\b"),
     re.compile(
-        r"\b(?:qual|quais)\b.*\b(?:acao|acoes|cdb|lci|lca|fundo|fiis?|cripto|bitcoin|ativo|banco)\b.*\b(?:comprar|investir|aplicar|escolher|melhor|recomenda|indica)\b"
+        rf"\b(?:devo|posso|vale\s+a\s+pena|onde|em\s+qual(?:\s+banco)?)\s+{_VERBOS_CVM}\b"
+        rf".{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco|corretora|dinheiro|reserva)\b"
     ),
     re.compile(
-        r"\b(?:qual|quais)\s+(?:o\s+|a\s+)?melhor\b.*\b(?:acao|acoes|cdb|lci|lca|fundo|fiis?|cripto|bitcoin|ativo|banco|investimento)\b"
+        rf"\b(?:recomenda\w*|recomende|indica\w*|indique|suger\w*|sugira|me\s+diz\s+qual|diga\s+qual)\b"
+        rf".{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco)\b"
     ),
     re.compile(
-        r"\b(?:devo|posso|vale\s+a\s+pena|onde|em\s+qual(?:\s+banco)?)\s+(?:comprar|aplicar|investir|colocar)\b.*\b(?:acao|acoes|cdb|lci|lca|fundo|fiis?|banco\s+\w+|corretora|ativo|dinheiro|reserva)\b"
-    ),
-    re.compile(
-        r"\b(?:recomenda|indica|sugere|me\s+diz\s+qual|diga\s+qual)\b.*\b(?:acao|acoes|cdb|lci|lca|fundo|ativo|papel|banco|titulo)\b"
-    ),
-    re.compile(
-        r"\b(?:[a-z]{4}(?:3|4|11)\b.*\b(?:comprar|vender|investir|recomenda)|(?:comprar|vender|investir)\b.*\b[a-z]{4}(?:3|4|11)\b)"
+        rf"\b(?:[a-z]{{4}}(?:3|4|5|6|11|34|35|39)\b.{{0,120}}\b{_VERBOS_CVM}|{_VERBOS_CVM}\b.{{0,120}}\b[a-z]{{4}}(?:3|4|5|6|11|34|35|39))\b"
     ),
 ]
 
 
 def _normalizar_texto(texto: str) -> str:
-    """Remove acentos e converte para minúsculas para casar padrões de forma previsível."""
+    """Remove acentos, caracteres invisíveis (Cf) e normaliza espaços."""
+    sem_invisiveis = "".join(c for c in texto if unicodedata.category(c) != "Cf")
     sem_acentos = "".join(
-        c for c in unicodedata.normalize("NFKD", texto) if not unicodedata.combining(c)
+        c for c in unicodedata.normalize("NFKD", sem_invisiveis) if not unicodedata.combining(c)
     )
     return re.sub(r"\s+", " ", sem_acentos.lower()).strip()
 
@@ -353,16 +162,16 @@ def _normalizar_codigo_banco(banco: str | None) -> str | None:
     if limpo.isdigit():
         return limpo.zfill(3)[:3]
     norm = _normalizar_texto(limpo)
-    for nome, codigo in _BANCOS_POR_NOME.items():
-        if nome in norm:
+    for nome, codigo in BANCOS_POR_NOME.items():
+        if re.search(rf"\b{re.escape(nome)}\b", norm):
             return codigo
     return None
 
 
 def _inferir_banco_em_texto(texto: str) -> str | None:
     norm = _normalizar_texto(texto)
-    for nome, codigo in _BANCOS_POR_NOME.items():
-        if nome in norm:
+    for nome, codigo in BANCOS_POR_NOME.items():
+        if re.search(rf"\b{re.escape(nome)}\b", norm):
             return codigo
     return None
 
@@ -402,8 +211,8 @@ def perfil_persona(persona_id: str) -> dict[str, Any]:
     """Retorna metadados financeiros e de tom da persona, com fallback neutro seguro."""
     dados = PERFIS_PERSONAS.get(persona_id)
     if dados is None:
-        copia = deepcopy(_PERFIL_PADRAO)
-        copia["persona_id"] = persona_id
+        copia = deepcopy(PERFIL_PADRAO)
+        copia["persona_id"] = persona_id if _RE_PERSONA_ID_SEGURA.fullmatch(persona_id) else "visitante"
         return copia
     return deepcopy(dados)
 
@@ -480,7 +289,7 @@ def calcular_raio_x(
         )
 
     return DiagnosticoFinanceiro(
-        persona_id=persona_id,
+        persona_id=perfil["persona_id"],
         renda_mensal=renda_mensal,
         minimo_existencial=minimo_existencial,
         folga_disponivel=folga_disponivel,
@@ -654,24 +463,31 @@ def analisar_compulsao_bets(
 
 
 def sanitizar_documento_nao_confiavel(texto: str) -> tuple[str, bool]:
-    """Neutraliza tentativas de prompt injection em OCR/boletos e encapsula com delimitadores."""
-    injection_detectada = False
+    """Neutraliza prompt injection (linha e multi-linha) em OCR e encapsula com delimitadores."""
+    injection_linha = False
     linhas_limpas: list[str] = []
     for linha in texto.splitlines():
         norm = _normalizar_texto(linha)
         if any(p.search(norm) for p in _PADROES_INJECTION):
-            injection_detectada = True
+            injection_linha = True
             linhas_limpas.append("[CONTEUDO_BLOQUEADO_INJECTION]")
         else:
-            linha_segura = linha.replace("<documento_externo_nao_confiavel>", "").replace(
-                "</documento_externo_nao_confiavel>", ""
-            )
+            linha_segura = _RE_TAG_DOC.sub("", linha)
             linha_mascarada, _ = mascarar(linha_segura)
             linhas_limpas.append(linha_mascarada)
 
-    corpo = "\n".join(linhas_limpas).strip()
+    corpo_linhas = "\n".join(linhas_limpas).strip()
+    norm_global = _normalizar_texto(_RE_TAG_DOC.sub("", texto))
+    injection_global = any(p.search(norm_global) for p in _PADROES_INJECTION)
+
+    if injection_global and not injection_linha:
+        # Injeção dividida entre múltiplas linhas: substitui o bloco textual suspeito por marcador único.
+        corpo = "[CONTEUDO_BLOQUEADO_INJECTION]"
+    else:
+        corpo = corpo_linhas
+
     encapsulado = f"<documento_externo_nao_confiavel>\n{corpo}\n</documento_externo_nao_confiavel>"
-    return encapsulado, injection_detectada
+    return encapsulado, (injection_linha or injection_global)
 
 
 def validar_boleto_febraban(
@@ -776,7 +592,7 @@ def inspecionar_fraudes(
     if suspeitas:
         alertas.append(f"{len(suspeitas)} transação(ões) marcada(s) com indício de fraude no histórico.")
 
-    roteiro_med = list(_ROTEIRO_MED_PIX) if fraude_detectada else []
+    roteiro_med = list(ROTEIRO_MED_PIX) if fraude_detectada else []
 
     return InspecaoFraude(
         texto_sanitizado=texto_sanitizado,
