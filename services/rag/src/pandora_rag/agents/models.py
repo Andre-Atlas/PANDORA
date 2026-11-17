@@ -237,7 +237,6 @@ class ResultadoMultiagente(BaseModel):
     """Resultado consolidado retornado pelo GrafoPandora e serializado pela CLI."""
 
     persona_id: str | None = None
-    consulta_usuario: str
     consulta_mascarada: str
     modo: Literal["deterministico", "hibrido_llm"] = "deterministico"
     latencia_s: float = Field(default=0.0, ge=0.0)
@@ -267,7 +266,6 @@ class ResultadoMultiagente(BaseModel):
                 agentes.append(msg.destino)
         return cls(
             persona_id=estado.persona_id,
-            consulta_usuario=estado.consulta_usuario,
             consulta_mascarada=estado.consulta_mascarada,
             modo=estado.modo,
             latencia_s=round(latencia_s, 4),
