@@ -2,7 +2,11 @@
 
 import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
+import { ROTA_ENTRAR } from "@/components/conta/PortaoConta";
 import { ConsentimentoControlado, ProgressoFluxo } from "@/components/Controlados";
+import { ErroApi, registrarConsentimento } from "@/lib/api/cliente";
+import { dadosReais } from "@/lib/conta/modo";
+import { lerToken, marcarConsentimentoPendente } from "@/lib/conta/sessao";
 import { usePandora } from "@/lib/pandora/PandoraProvider";
 
 export const ROTA_DEPOIS_DAS_PERGUNTAS = "/inicio";
@@ -29,9 +33,10 @@ const COMBINADO = [
 /**
  * Telas 1b a 1d da galeria: as três perguntas depois de "Começar".
  *
- * As respostas ainda não vão para lugar nenhum (#71): o fluxo existe para
- * mostrar o caminho. O aceite começa desmarcado, porque a LGPD exige que a
- * pessoa marque por conta própria; sem ele, "Abrir minha caixa" fica desativado.
+ * O sentimento e o que pesa ainda não vão para a API. O aceite começa
+ * desmarcado, porque a LGPD exige que a pessoa marque por conta própria; sem
+ * ele, "Abrir minha caixa" fica desativado. Com os dados reais ligados
+ * (`lib/conta/modo.ts`), o aceite é registrado em POST /consentimentos.
  */
 export function Perguntas() {
   const { EscalaSentimento, OpcaoCartao, Cartao, Icone, Botao } = usePandora();
@@ -52,7 +57,36 @@ export function Perguntas() {
     titulo.current?.focus();
   }, [passo]);
 
-  const abrirCaixa = () => router.push(ROTA_DEPOIS_DAS_PERGUNTAS);
+  const [registrando, setRegistrando] = useState(false);
+  const [erro, setErro] = useState<string | null>(null);
+
+  // Demonstração: vai direto ao Início. Dados reais: o aceite vira um consentimento na API,
+  // na hora (se já há sessão) ou depois do login (fica pendente nesta aba).
+  async function abrirCaixa() {
+    if (!dadosReais()) {
+      router.push(ROTA_DEPOIS_DAS_PERGUNTAS);
+      return;
+    }
+    if (!lerToken()) {
+      marcarConsentimentoPendente();
+      router.push(ROTA_ENTRAR);
+      return;
+    }
+    setRegistrando(true);
+    setErro(null);
+    try {
+      await registrarConsentimento();
+      router.push(ROTA_DEPOIS_DAS_PERGUNTAS);
+    } catch (falha) {
+      if (falha instanceof ErroApi && falha.status === 401) {
+        marcarConsentimentoPendente();
+        router.push(ROTA_ENTRAR);
+        return;
+      }
+      setErro(falha instanceof ErroApi ? falha.message : "Algo deu errado. Tente de novo.");
+      setRegistrando(false);
+    }
+  }
 
   if (passo === 1) {
     return (
@@ -130,8 +164,13 @@ export function Perguntas() {
       <ConsentimentoControlado marcado={aceite} onChange={setAceite}>
         Concordo com o uso dos meus dados para este diagnóstico.
       </ConsentimentoControlado>
+      {erro ? (
+        <p role="alert" className="app-erro">
+          {erro}
+        </p>
+      ) : null}
       <div className="pd-empurra" />
-      <Botao bloco seta desativado={!aceite} onClick={abrirCaixa}>
+      <Botao bloco seta desativado={!aceite || registrando} onClick={abrirCaixa}>
         Abrir minha caixa
       </Botao>
     </div>

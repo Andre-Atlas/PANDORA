@@ -29,6 +29,28 @@ npm run dev                                         # web em :3000
 
 A URL da API vem de `NEXT_PUBLIC_PANDORA_API_URL` (padrão `http://localhost:8000`). O resto do app continua com dados de demonstração.
 
+### Conta, extrato e Raio-X com dados reais (#71)
+
+Fica **desligado por padrão**: sem a variável, o app não pede login e o Início mostra a demonstração (Carla), para testar as outras telas sem conta e sem enviar dados. Para ligar:
+
+```bash
+cp apps/web/.env.example apps/web/.env.local   # e troque para NEXT_PUBLIC_PANDORA_DADOS_REAIS=1
+docker compose up -d db                        # banco da API em :5434
+cd apps/api && PANDORA_DB_URL=postgresql://pandora:pandora_local@localhost:5434/pandora \
+  uv run uvicorn pandora_api.principal:app --port 8000
+npm run dev                                    # reinicie: o Next fixa a variável ao subir
+```
+
+Ligado, o caminho é: Abertura → perguntas → aceite de "O combinado" → `/entrar` (criar conta ou entrar) → o aceite vira um consentimento em `POST /consentimentos` → Início. No Início:
+
+- **Envio de extrato** (CSV por enquanto, pelo leitor provisório da #72). O mês mostrado é o da transação mais recente, não o do relógio.
+- **Raio-X do mês** da API: renda, mínimo existencial, folga e gastos por categoria, com o selo "Calculado" e as entradas do cálculo.
+- **Correção de categoria** com um toque (`PATCH /transacoes/{id}/categoria`); o Raio-X se refaz em seguida.
+- **Score**: a API ainda responde 501 (#65), e o cartão diz que ainda não está pronto, em vez de mostrar um número fixo.
+- **Sair da conta**, provisoriamente no fim do Início, junto do seletor de tema.
+
+Com a variável ligada, todas as telas do grupo `(app)` pedem sessão (`PortaoConta`). O token fica no `localStorage` até vencer (`expira_em`) ou a API responder 401. Dívidas, Metas e Guardião continuam com a demonstração até o motor (#65) e a previsão (#84).
+
 ## Como está organizado
 
 ```
@@ -41,11 +63,13 @@ app/
   (app)/inicio/metas/                 Metas e previsão (tela 7), aberta pelo Início
   (fluxo)/layout.tsx  casca de tela cheia, sem navegação
   (fluxo)/comecar/    perguntas da Abertura (telas 1b a 1d)
+  (fluxo)/entrar/     criar conta ou entrar (só com os dados reais ligados)
   (fluxo)/trilha/licao/        lição da trilha (tela 5b)
   (fluxo)/guardiao/verificacao/  veredito do boleto em leitura ampliada (E2)
 components/
   CascaApp.tsx        conteúdo + navegação (ou a tela de crise)
   abertura/           página de entrada, perguntas e o portão da abertura
+  conta/              login e cadastro, e o portão que pede sessão com os dados reais ligados
   telas/              uma tela por rota, montada com os componentes do design system
   Controlados.tsx     peças do design system que ainda não aceitam handlers, refeitas com as mesmas classes
   AvisoDemo.tsx       aviso "Demonstração" para ações que ainda não existem
@@ -62,6 +86,8 @@ lib/
   tokens.ts           leitura de tokens.json para onde CSS não chega
   navegacao.ts        abas e rotas
   abertura/portao.ts  a abertura aparece a cada sessão nova
+  conta/              chave dos dados reais (modo.ts), sessão e consentimento depois do login
+  formato.ts          reais e meses em pt-BR (a API manda centavos e "2026-10")
   demo/dados.ts       dados de demonstração das telas (os da galeria), até a API entregar os reais
   crise/contatos.ts   contatos de apoio, cada um com a fonte oficial conferida
   guardiao/fontes.ts  normas e links do guia de autoexclusão, com data de revisão

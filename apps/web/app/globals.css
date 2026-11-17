@@ -250,3 +250,88 @@ body {
     animation: none;
   }
 }
+
+/* ---------------------------------------------------------------------
+ * Dados reais (#71): formulário de conta, envio de extrato e transações.
+ * O design system ainda não tem campo de texto nem seleção; estes usam
+ * só os tokens, com alvo de toque de 44px e o foco do sistema.
+ * ------------------------------------------------------------------ */
+
+.app-formulario {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-4);
+  margin-top: var(--espaco-4);
+}
+.app-campo-grupo {
+  display: flex;
+  flex-direction: column;
+  gap: var(--espaco-1);
+}
+.app-rotulo {
+  font-weight: 700;
+  font-size: 17px;
+  line-height: 24px;
+}
+.app-campo {
+  min-height: var(--alvo-minimo);
+  padding: 8px 14px;
+  border: 1px solid var(--linha-forte);
+  border-radius: var(--raio-sm);
+  background: var(--cartao);
+  color: var(--texto);
+  font-family: var(--font-texto);
+  font-size: 17px;
+  line-height: 24px;
+}
+.app-campo:focus-visible {
+  outline: 3px solid var(--foco);
+  outline-offset: 2px;
+}
+.app-erro {
+  margin: 0;
+  padding: var(--espaco-3);
+  border-radius: var(--raio-sm);
+  background: var(--alerta-suave);
+  color: var(--texto);
+  font-size: 15px;
+  line-height: 22px;
+}
+.app-subtitulo {
+  margin: var(--espaco-2) 0 0;
+  font-size: 17px;
+  line-height: 24px;
+}
+.app-detalhes summary {
+  min-height: var(--alvo-minimo);
+  display: flex;
+  align-items: center;
+  cursor: pointer;
+  color: var(--texto-2);
+}
+.app-transacoes {
+  display: flex;
+  flex-direction: column;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.app-transacao {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: var(--espaco-1) var(--espaco-3);
+  padding: var(--espaco-3) 0;
+  border-bottom: 1px solid var(--linha);
+}
+.app-transacao:last-child {
+  border-bottom: 0;
+}
+.app-transacao-texto {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+.app-transacao-categoria {
+  grid-column: 1 / -1;
+}

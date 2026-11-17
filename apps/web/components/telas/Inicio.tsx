@@ -4,13 +4,21 @@ import { useRouter } from "next/navigation";
 import { useAvisoDemo } from "@/components/AvisoDemo";
 import { CampoPerguntaApp, InsightAcao } from "@/components/Controlados";
 import { SeletorTema } from "@/components/SeletorTema";
+import { dadosReais } from "@/lib/conta/modo";
 import { INICIO, PESSOA } from "@/lib/demo/dados";
+import { ROTA_METAS } from "@/lib/navegacao";
 import { usePandora } from "@/lib/pandora/PandoraProvider";
+import { InicioReal } from "./InicioReal";
 
-export const ROTA_METAS = "/inicio/metas";
+export { ROTA_METAS };
 
-/** Tela 2 da galeria: Início com o Raio-X do mês. Dados de demonstração. */
+/** Tela 2 da galeria: Início com o Raio-X do mês. Dados da API ou de demonstração (`lib/conta/modo.ts`). */
 export function Inicio() {
+  return dadosReais() ? <InicioReal /> : <InicioDemo />;
+}
+
+/** O Início da galeria, com os dados de demonstração (Carla). */
+function InicioDemo() {
   const { CabecalhoMito, BotaoIcone, Cartao, Botao, Trilho, Selo, LinkCartao } = usePandora();
   const router = useRouter();
   const avisar = useAvisoDemo();

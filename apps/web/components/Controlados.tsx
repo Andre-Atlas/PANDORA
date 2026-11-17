@@ -143,6 +143,26 @@ export function CampoPerguntaApp({
   );
 }
 
+interface BotaoEnviarProps {
+  desativado?: boolean;
+  children: ReactNode;
+}
+
+/**
+ * `Botao` primário de bloco que envia o formulário. O do design system é sempre
+ * `type="button"`, e sem um botão de envio o Enter não envia formulários com
+ * mais de um campo.
+ */
+export function BotaoEnviar({ desativado = false, children }: BotaoEnviarProps) {
+  const { Icone } = usePandora();
+  return (
+    <button type="submit" className="pd-botao pd-botao-primario pd-botao-bloco" disabled={desativado}>
+      {children}
+      <Icone nome="seta" tamanho={22} />
+    </button>
+  );
+}
+
 interface ConsentimentoControladoProps {
   marcado: boolean;
   onChange: (marcado: boolean) => void;

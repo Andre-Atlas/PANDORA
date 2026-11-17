@@ -1,7 +1,10 @@
-import { render, screen } from "@testing-library/react";
+import { render, screen, waitFor } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
+import { ROTA_ENTRAR } from "@/components/conta/PortaoConta";
+import { CHAVE_CONSENTIMENTO_PENDENTE } from "@/lib/conta/sessao";
 import { PandoraProvider } from "@/lib/pandora/PandoraProvider";
+import { CONSENTIMENTO, json, ligarDadosReais, simularApi } from "@/test/apiFalsa";
 import { Perguntas, ROTA_DEPOIS_DAS_PERGUNTAS } from "./Perguntas";
 
 const navegacao = vi.hoisted(() => ({ push: vi.fn(), prefetch: vi.fn() }));
@@ -55,5 +58,44 @@ describe("Perguntas da abertura", () => {
     await renderizar();
     await userEvent.click(screen.getByRole("button", { name: "Voltar" }));
     expect(navegacao.push).toHaveBeenCalledWith("/");
+  });
+});
+
+describe("Perguntas com os dados reais ligados", () => {
+  beforeEach(() => navegacao.push.mockClear());
+  afterEach(() => vi.unstubAllGlobals());
+
+  async function aceitarEAbrir() {
+    await renderizar();
+    await userEvent.click(screen.getByRole("button", { name: "Pular" }));
+    await userEvent.click(screen.getByRole("button", { name: "Pular" }));
+    await userEvent.click(screen.getByRole("checkbox", { name: /Concordo com o uso dos meus dados/ }));
+    await userEvent.click(screen.getByRole("button", { name: /Abrir minha caixa/ }));
+  }
+
+  it("sem sessão, guarda o aceite e leva ao login", async () => {
+    ligarDadosReais();
+    const api = simularApi({});
+    await aceitarEAbrir();
+    expect(navegacao.push).toHaveBeenCalledWith(ROTA_ENTRAR);
+    expect(sessionStorage.getItem(CHAVE_CONSENTIMENTO_PENDENTE)).toBe("1");
+    expect(api.chamadas).toEqual([]);
+  });
+
+  it("com sessão, registra o consentimento na API e abre o Início", async () => {
+    ligarDadosReais({ comSessao: true });
+    const api = simularApi({ "POST /consentimentos": () => json(CONSENTIMENTO, 201) });
+    await aceitarEAbrir();
+    await waitFor(() => expect(navegacao.push).toHaveBeenCalledWith(ROTA_DEPOIS_DAS_PERGUNTAS));
+    expect(api.chamadas[0].corpo).toEqual({ finalidade: "diagnostico_financeiro", versao_termo: "2026-11" });
+  });
+
+  it("se o registro falhar, avisa e fica na tela", async () => {
+    ligarDadosReais({ comSessao: true });
+    simularApi({ "POST /consentimentos": () => json({ title: "x", status: 500 }, 500) });
+    await aceitarEAbrir();
+    expect(await screen.findByRole("alert")).toHaveTextContent(/Algo deu errado/);
+    expect(navegacao.push).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: /Abrir minha caixa/ })).toBeEnabled();
   });
 });

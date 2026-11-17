@@ -7,7 +7,10 @@ export const ABAS = [
   { id: "guardiao", rotulo: "Guardião", rota: "/guardiao" },
 ] as const;
 
-export type IdAba = (typeof ABAS)[number]["id"];
+/** Metas e previsão (tela 7), aberta pelo Início. */
+export const ROTA_METAS = "/inicio/metas";
+
+export type IdAba =(typeof ABAS)[number]["id"];
 
 /** Aba ativa para uma rota. Subpáginas (ex.: /inicio/metas) mantêm a aba do pai. */
 export function abaDaRota(caminho: string | null): IdAba | undefined {
