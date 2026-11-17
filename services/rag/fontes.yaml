@@ -1,4 +1,4 @@
-# Núcleo do corpus do RAG. Só fontes oficiais; a #54 completa as 31 do catálogo.
+# Núcleo do corpus do RAG (`fontes`) e inventário das 31 fontes do catálogo (`catalogo`, issue #54).
 # formato: html | pdf | bcb_api
 # data_referencia_normativa: data do ato ou da edição (YYYY-MM-DD)
 versao: 0.1.0
@@ -40,3 +40,290 @@ fontes:
   - {id: cvm-vieses-2, titulo: "Série CVM Comportamental, vol. 2: Vieses do Poupador", orgao: Comissão de Valores Mobiliários, tipo: cartilha, formato: pdf, url: "https://www.gov.br/investidor/pt-br/educacional/publicacoes-educacionais/cvm-comportamental/volume-2-vieses-do-poupador.pdf/@@display-file/file", camada_dominio: comportamental_vieses, nivel_urgencia: preventivo, data_referencia_normativa: "2020-01-01"}
   - {id: cvm-vieses-3, titulo: "Série CVM Comportamental, vol. 3: Vieses do Consumidor", orgao: Comissão de Valores Mobiliários, tipo: cartilha, formato: pdf, url: "https://www.gov.br/investidor/pt-br/educacional/publicacoes-educacionais/cvm-comportamental/volume-3-vieses-do-consumidor.pdf/@@display-file/file", camada_dominio: comportamental_vieses, nivel_urgencia: preventivo, data_referencia_normativa: "2020-01-01"}
   - {id: bcb-ee119, titulo: "Estudo Especial BCB 119/2024: mercado de apostas online", orgao: Banco Central do Brasil, tipo: estudo, formato: pdf, url: "https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE119_Analise_tecnica_sobre_o_mercado_de_apostas_online_no_Brasil_e_o_perfil_dos_apostadores.pdf", camada_dominio: comportamental_vieses, data_referencia_normativa: "2024-09-01"}
+
+# Inventário dos 31 itens do catálogo (docs/evidencias/01-catalogo-fontes-uso-finalidade-e-implementacao.md).
+# Cada item tem um ou mais alvos (arquivo ou endpoint). `fonte_id` liga o alvo a uma fonte do corpus acima.
+# Alvo sem `manual` é coletado por tipo (html, pdf, api) com `pandora-rag coletar-catalogo`.
+# `manual` diz por que o alvo exige tratamento humano (sem URL estável, login, volume ou fora do corpus).
+# frequencia: diaria | mensal | trimestral | semestral | anual | eventual (muda por alteração legal ou nova edição) | estatica
+catalogo:
+  # --- Grupo 1: educação, comportamento e psicometria ---
+  - numero: 1
+    nome: "Caderno de Educação Financeira: Gestão de Finanças Pessoais (2ª ed., 2026)"
+    grupo: 1
+    orgao: Banco Central do Brasil
+    frequencia: anual
+    alvos:
+      - {id: bcb-caderno, fonte_id: bcb-caderno, formato: pdf, url: "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/caderno_cidadania_financeira.pdf"}
+  - numero: 2
+    nome: "Série Cidadania Financeira nº 8 (Endividamento de Risco) e RCF 2025"
+    grupo: 1
+    orgao: Banco Central do Brasil
+    frequencia: anual
+    alvos:
+      - {id: bcb-cidadania-8, fonte_id: bcb-cidadania-8, formato: pdf, url: "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/serie_cidadania/serie_cidadania_financeira_8_endividamento_risco_2ed.pdf"}
+      - {id: bcb-rcf-2025, manual: "Relatório de Cidadania Financeira 2025: o catálogo não traz o link do PDF; localizar na página de Cidadania Financeira do BCB e incluir em fontes.yaml."}
+  - numero: 3
+    nome: "Guia de Boas Práticas em Educação e Saúde Financeira (v7, 2025) e acervo Meu Bolso em Dia"
+    grupo: 1
+    orgao: Febraban e Banco Central do Brasil
+    frequencia: anual
+    alvos:
+      - {id: febraban-guia-isfb, manual: "Guia e acervo ficam em páginas da Febraban sem URL de arquivo estável; baixar o PDF à mão e registrar o hash."}
+  - numero: 4
+    nome: "Série CVM Comportamental, vols. 1 a 3"
+    grupo: 1
+    orgao: Comissão de Valores Mobiliários
+    frequencia: estatica
+    alvos:
+      - {id: cvm-vieses-1, manual: "Volume 1 (Vieses do Investidor) ainda não tem URL confirmada no manifesto; os volumes 2 e 3 já são coletados."}
+      - {id: cvm-vieses-2, fonte_id: cvm-vieses-2, formato: pdf, url: "https://www.gov.br/investidor/pt-br/educacional/publicacoes-educacionais/cvm-comportamental/volume-2-vieses-do-poupador.pdf/@@display-file/file"}
+      - {id: cvm-vieses-3, fonte_id: cvm-vieses-3, formato: pdf, url: "https://www.gov.br/investidor/pt-br/educacional/publicacoes-educacionais/cvm-comportamental/volume-3-vieses-do-consumidor.pdf/@@display-file/file"}
+  - numero: 5
+    nome: "Livro TOP: Planejamento Financeiro Pessoal e Mercado de Valores Mobiliários (cap. 12)"
+    grupo: 1
+    orgao: CVM e Planejar
+    frequencia: estatica
+    alvos:
+      - {id: livro-top-cvm-planejar, manual: "Livro com direitos autorais e distribuição por cadastro; usar só o capítulo autorizado, obtido à mão."}
+  - numero: 6
+    nome: "Estudo Especial BCB 119/2024 e Raio X do Investidor Brasileiro (7ª a 9ª ed.)"
+    grupo: 1
+    orgao: Banco Central do Brasil e ANBIMA
+    frequencia: semestral
+    alvos:
+      - {id: bcb-ee119, fonte_id: bcb-ee119, formato: pdf, url: "https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE119_Analise_tecnica_sobre_o_mercado_de_apostas_online_no_Brasil_e_o_perfil_dos_apostadores.pdf"}
+      - {id: anbima-raio-x, manual: "Edições do Raio X ficam em página da ANBIMA sem URL estável de arquivo; baixar cada edição à mão."}
+  - numero: 7
+    nome: "Escalas psicométricas (IFDFW, CFPB, ICD-11 6C50) e Nudge"
+    grupo: 1
+    orgao: Prawitz et al.; CFPB; OMS; Thaler e Sunstein
+    frequencia: estatica
+    alvos:
+      - {id: escalas-psicometricas, manual: "Instrumentos publicados em artigos e normas; não há feed. Os itens das escalas são transcritos à mão para o esquema do formulário."}
+  # --- Grupo 2: superendividamento e defesa patrimonial ---
+  - numero: 8
+    nome: "Lei 14.181/2021 (Superendividamento), CDC e decretos do mínimo existencial"
+    grupo: 2
+    orgao: Presidência da República
+    frequencia: eventual
+    alvos:
+      - {id: lei-14181, fonte_id: lei-14181, formato: html, url: "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14181.htm"}
+      - {id: cdc, fonte_id: cdc, formato: html, url: "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm"}
+      - {id: decreto-11150, fonte_id: decreto-11150, formato: html, url: "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2022/decreto/d11150.htm"}
+      - {id: decreto-11567, fonte_id: decreto-11567, formato: html, url: "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/decreto/d11567.htm"}
+  - numero: 9
+    nome: "Julgamento do STF nas ADPFs 1005, 1006 e 1097 (23/04/2026)"
+    grupo: 2
+    orgao: Supremo Tribunal Federal e Ministério Público Federal
+    frequencia: eventual
+    alvos:
+      - {id: stf-adpf-1005, fonte_id: stf-adpf-1005, formato: html, url: "https://noticias.stf.jus.br/?p=162192"}
+      - {id: mpf-adpf-1005, fonte_id: mpf-adpf-1005, formato: html, url: "https://www.mpf.mp.br/o-mpf/unidades/procuradoria-geral-da-republica-pgr/noticias/valor-do-minimo-existencial-deve-assegurar-dignidade-da-pessoa-humana-decide-stf"}
+      - {id: stf-acordao-adpfs, manual: "Acórdão ainda não coletado: o portal do STF exige consulta por número do processo; acompanhar a publicação e incluir o PDF."}
+  - numero: 10
+    nome: "Cartilha do Superendividamento do CNJ (2022) e Recomendação CNJ 125/2021"
+    grupo: 2
+    orgao: Conselho Nacional de Justiça
+    frequencia: estatica
+    alvos:
+      - {id: cnj-cartilha, fonte_id: cnj-cartilha, formato: pdf, url: "https://www.cnj.jus.br/wp-content/uploads/2022/08/cartilha-superendividamento.pdf"}
+      - {id: cnj-rec-125, manual: "Recomendação 125/2021 (Anexo II, formulário-padrão) está no sistema de atos normativos do CNJ; baixar o PDF à mão."}
+  - numero: 11
+    nome: "Manual do TJSP, Programa de Apoio ao Superendividado (Procon-SP) e cartilha do Procon de Juiz de Fora"
+    grupo: 2
+    orgao: TJSP, Procon-SP e Procon Juiz de Fora
+    frequencia: estatica
+    alvos:
+      - {id: tjsp-manual, fonte_id: tjsp-manual, formato: pdf, url: "https://www.tjsp.jus.br/Download/Conciliacao/Manual-Superindividamento.pdf"}
+      - {id: procon-pas, fonte_id: procon-pas, formato: pdf, url: "https://www.procon.sp.gov.br/wp-content/uploads/files/como_participar_pas.pdf"}
+      - {id: procon-jf, fonte_id: procon-jf, formato: pdf, url: "https://www.pjf.mg.gov.br/administracao_indireta/procon/material_grafico/cartilhas/arquivos/superendividamento.pdf"}
+  - numero: 12
+    nome: "Cenário do Superendividamento (SENACON/PNUD) e cartilhas das Defensorias e do MPCE"
+    grupo: 2
+    orgao: SENACON, PNUD e Defensorias Públicas
+    frequencia: estatica
+    alvos:
+      - {id: senacon-manual, fonte_id: senacon-manual, formato: pdf, url: "https://www.gov.br/mj/pt-br/assuntos/seus-direitos/consumidor/escola-nacional-endc/biblioteca/manuais/prevencao-e-tratamento-do-superendividamento.pdf"}
+      - {id: senacon-pnud-produto-2, manual: "Produto 2 (SENACON/PNUD) sem URL confirmada no catálogo; localizar e baixar à mão."}
+      - {id: defensorias-cartilhas, manual: "Cartilhas de DPDF, DPRJ, DPES e MPCE vêm de quatro sites diferentes, cada um com seu link; baixar à mão."}
+  - numero: 13
+    nome: "Defesa de bens e serviços: veículo (DL 911/69), imóvel (Lei 9.514/97), bem de família, penhora e serviços essenciais"
+    grupo: 2
+    orgao: Presidência da República e ANEEL
+    frequencia: eventual
+    alvos:
+      - {id: dl-911, fonte_id: dl-911, formato: html, url: "https://www.planalto.gov.br/ccivil_03/decreto-lei/1965-1988/del0911compilado.htm"}
+      - {id: lei-9514, fonte_id: lei-9514, formato: html, url: "https://www.planalto.gov.br/ccivil_03/leis/l9514.htm"}
+      - {id: lei-8009, fonte_id: lei-8009, formato: html, url: "https://www.planalto.gov.br/ccivil_03/leis/l8009.htm"}
+      - {id: cpc, fonte_id: cpc, formato: html, url: "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13105.htm"}
+      - {id: lei-14015, fonte_id: lei-14015, formato: html, url: "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/lei/l14015.htm"}
+      - {id: lei-14711, manual: "Lei 14.711/2023 ainda fora do manifesto do corpus; confirmar a URL no Planalto e incluir em fontes."}
+      - {id: aneel-ren-1000, manual: "REN ANEEL 1.000/2021 fora do manifesto; o texto compilado fica no sistema de legislação da ANEEL, sem URL de arquivo estável."}
+  # --- Grupo 3: regulação bancária e jurisprudência ---
+  - numero: 14
+    nome: "Lei 14.690/2023 e Resolução CMN 5.112/2023 (teto do rotativo)"
+    grupo: 3
+    orgao: Presidência da República e Conselho Monetário Nacional
+    frequencia: eventual
+    alvos:
+      - {id: lei-14690, fonte_id: lei-14690, formato: html, url: "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14690.htm"}
+      - {id: cmn-5112, fonte_id: cmn-5112, formato: api, ext: json, url: "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=5112"}
+  - numero: 15
+    nome: "Resoluções CMN 5.057/2022 e 5.265/2025 e Resolução Conjunta 15/2025 (portabilidade)"
+    grupo: 3
+    orgao: Conselho Monetário Nacional e Banco Central do Brasil
+    frequencia: eventual
+    alvos:
+      - {id: cmn-5057, fonte_id: cmn-5057, formato: api, ext: json, url: "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=5057"}
+      - {id: cmn-5265, manual: "Resolução CMN 5.265/2025 fora do manifesto; testar a URL da API de normativos do BCB (mesmo padrão da 5.057) e incluir em fontes."}
+      - {id: bcb-resolucao-conjunta-15, manual: "Resolução Conjunta 15/2025 fora do manifesto; o parâmetro da API de normativos para atos conjuntos não foi confirmado."}
+  - numero: 16
+    nome: "Resolução CMN 4.881/2020 (CET) e Resolução BCB 365/2023 (fatura de cartão)"
+    grupo: 3
+    orgao: Conselho Monetário Nacional e Banco Central do Brasil
+    frequencia: eventual
+    alvos:
+      - {id: cmn-4881, fonte_id: cmn-4881, formato: api, ext: json, url: "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=4881"}
+      - {id: bcb-365, manual: "Resolução BCB 365/2023 fora do manifesto; testar a URL da API de normativos (padrão da Res. BCB 147) e incluir em fontes."}
+  - numero: 17
+    nome: "Resoluções CMN 4.558/2017, 4.882/2020 e 4.655/2018 (comissão de permanência e encargos de atraso)"
+    grupo: 3
+    orgao: Conselho Monetário Nacional e Banco Central do Brasil
+    frequencia: eventual
+    alvos:
+      - {id: cmn-4558, fonte_id: cmn-4558, formato: api, ext: json, url: "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o&p2=4558"}
+      - {id: cmn-4882, fonte_id: cmn-4882, formato: api, ext: json, url: "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=4882"}
+      - {id: cmn-4655, manual: "Resolução CMN 4.655/2018 fora do manifesto; testar a URL da API de normativos e incluir em fontes."}
+  - numero: 18
+    nome: "Tema Repetitivo 27 do STJ, Súmula 596/STF e Súmulas 283, 381, 382, 539 e 541/STJ"
+    grupo: 3
+    orgao: Superior Tribunal de Justiça e Supremo Tribunal Federal
+    frequencia: eventual
+    alvos:
+      - {id: stj-sumulas, fonte_id: stj-sumulas, formato: pdf, url: "https://scon.stj.jus.br/docs_internet/VerbetesSTJ.pdf"}
+      - {id: stj-tema-27, manual: "Tema 27 (REsp 1.061.530/RS) é consultado por número no portal de repetitivos do STJ, sem URL de arquivo estável."}
+      - {id: stf-sumula-596, manual: "Súmula 596/STF é consultada por número no portal do STF, sem URL de arquivo estável."}
+  - numero: 19
+    nome: "Súmulas 359, 385, 479 e 548/STJ, Código Civil art. 206, Tema 1.264/STJ e Resolução BCB 147/2021 (MED)"
+    grupo: 3
+    orgao: STJ, Presidência da República e Banco Central do Brasil
+    frequencia: eventual
+    alvos:
+      - {id: bcb-147, fonte_id: bcb-147, formato: api, ext: json, url: "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20BCB&p2=147"}
+      - {id: stj-tema-1264, manual: "Tema 1.264 é consultado por número no portal de repetitivos do STJ, sem URL de arquivo estável."}
+      - {id: codigo-civil, manual: "Código Civil compilado (art. 206, § 5º, I) fora do manifesto; confirmar a URL no Planalto e incluir em fontes. As súmulas 359, 385, 479 e 548 já vêm do PDF do STJ (item 18)."}
+  - numero: 20
+    nome: "Resoluções CVM 19, 20 e 30/2021 e Lei 13.709/2018 (LGPD)"
+    grupo: 3
+    orgao: Comissão de Valores Mobiliários e Presidência da República
+    frequencia: eventual
+    alvos:
+      - {id: cvm-19, fonte_id: cvm-19, formato: pdf, url: "https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol019.pdf"}
+      - {id: cvm-20, fonte_id: cvm-20, formato: pdf, url: "https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol020.pdf"}
+      - {id: cvm-30, fonte_id: cvm-30, formato: pdf, url: "https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol030.pdf"}
+      - {id: lgpd, manual: "Lei 13.709/2018 fora do manifesto do corpus; confirmar a URL no Planalto e incluir em fontes."}
+  # --- Grupo 4: APIs dinâmicas e bases abertas ---
+  - numero: 21
+    nome: "API Olinda / OData: taxas de juros de operações de crédito (TaxaJuros v2)"
+    grupo: 4
+    orgao: Banco Central do Brasil
+    frequencia: diaria
+    alvos:
+      - {id: olinda-taxas-juros-mensal, formato: api, ext: json, url: "https://olinda.bcb.gov.br/olinda/servico/taxaJuros/versao/v2/odata/TaxasJurosMensalPorMes?$top=100&$orderby=Mes%20desc&$format=json", obs: "Amostra das 100 taxas mais recentes por mês; a consulta real é feita pela tool do motor quantitativo."}
+  - numero: 22
+    nome: "Webservice SGS: séries temporais do Banco Central"
+    grupo: 4
+    orgao: Banco Central do Brasil
+    frequencia: diaria
+    alvos:
+      - {id: sgs-12, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/10?formato=json", obs: "CDI"}
+      - {id: sgs-432, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/10?formato=json", obs: "Selic meta"}
+      - {id: sgs-433, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados/ultimos/10?formato=json", obs: "IPCA"}
+      - {id: sgs-1619, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.1619/dados/ultimos/10?formato=json", obs: "Salário mínimo"}
+      - {id: sgs-21085, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.21085/dados/ultimos/10?formato=json"}
+      - {id: sgs-25463, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.25463/dados/ultimos/10?formato=json"}
+      - {id: sgs-25464, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.25464/dados/ultimos/10?formato=json"}
+      - {id: sgs-25467, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.25467/dados/ultimos/10?formato=json"}
+      - {id: sgs-25477, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.25477/dados/ultimos/10?formato=json"}
+      - {id: sgs-29034, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.29034/dados/ultimos/10?formato=json", obs: "Inadimplência PF"}
+      - {id: sgs-29037, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.29037/dados/ultimos/10?formato=json", obs: "Endividamento das famílias"}
+      - {id: sgs-29038, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.29038/dados/ultimos/10?formato=json"}
+      - {id: sgs-29033, formato: api, ext: json, url: "https://api.bcb.gov.br/dados/serie/bcdata.sgs.29033/dados/ultimos/10?formato=json"}
+  - numero: 23
+    nome: "SCR.data: base aberta de operações de crédito (v2)"
+    grupo: 4
+    orgao: Banco Central do Brasil
+    frequencia: mensal
+    alvos:
+      - {id: scr-data, manual: "Arquivos CSV/ZIP mensais de grande volume (mais de 700 mil séries); a carga em DuckDB/Parquet é tarefa do pipeline analítico, não da coleta bruta."}
+  - numero: 24
+    nome: "Base aberta do Consumidor.gov.br, SINDEC e ranking de reclamações do BCB"
+    grupo: 4
+    orgao: SENACON/MJ e Banco Central do Brasil
+    frequencia: mensal
+    alvos:
+      - {id: consumidor-gov-br, manual: "Base publicada no portal de dados abertos, com um arquivo por período e links que mudam; baixar à mão até haver URL estável."}
+      - {id: bcb-ranking-reclamacoes, manual: "Ranking trimestral publicado como planilha em página do BCB sem URL fixa; baixar à mão."}
+  - numero: 25
+    nome: "Série histórica da PEIC (CNC) e Mapa da Inadimplência (Serasa)"
+    grupo: 4
+    orgao: CNC e Serasa
+    frequencia: mensal
+    alvos:
+      - {id: cnc-peic, manual: "Séries publicadas em páginas e relatórios sem API nem URL estável."}
+      - {id: serasa-mapa-inadimplencia, manual: "Mapa publicado em página institucional, sem API nem URL estável."}
+  - numero: 26
+    nome: "Lista oficial de operadoras de apostas autorizadas (.bet.br)"
+    grupo: 4
+    orgao: Secretaria de Prêmios e Apostas (SPA/MF)
+    frequencia: mensal
+    alvos:
+      - {id: lei-14790, fonte_id: lei-14790, formato: html, url: "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14790.htm"}
+      - {id: spa-lista-bets, manual: "Lista em página do Ministério da Fazenda, sem URL de arquivo confirmada; a normalização é a issue #59 (modelos auxiliares)."}
+  # --- Grupo 5: datasets de QA, transações e avaliação (Hugging Face: coleta só do cartão/metadados) ---
+  - numero: 27
+    nome: "Personal-Finance-Queries e personal-finance-advice-qa"
+    grupo: 5
+    orgao: Hugging Face (comunidade)
+    frequencia: eventual
+    alvos:
+      - {id: hf-personal-finance-queries, formato: api, ext: json, url: "https://huggingface.co/api/datasets/Akhil-Theerthala/Personal-Finance-Queries", obs: "Coleta o cartão (revisão e arquivos); os dados são baixados no treino."}
+      - {id: hf-personal-finance-advice-qa, formato: api, ext: json, url: "https://huggingface.co/api/datasets/flamiinngo/personal-finance-advice-qa", obs: "Coleta o cartão (revisão e arquivos); os dados são baixados no treino."}
+  - numero: 28
+    nome: "cfpb-consumer-complaints e relatos-consumidor-gov-br"
+    grupo: 5
+    orgao: Hugging Face e Kaggle (comunidade)
+    frequencia: eventual
+    alvos:
+      - {id: hf-cfpb-consumer-complaints, formato: api, ext: json, url: "https://huggingface.co/api/datasets/vivekkopthsd/cfpb-consumer-complaints", obs: "Coleta o cartão; os dados são baixados no treino."}
+      - {id: kaggle-relatos-consumidor-gov-br, manual: "Kaggle exige login e chave de API; baixar à mão."}
+  - numero: 29
+    nome: "fiqa-personal-finance-dataset, reclamacao-agua-e-saneamento, juris-tcu e normas-tcu"
+    grupo: 5
+    orgao: Hugging Face (comunidade e UFCA)
+    frequencia: eventual
+    alvos:
+      - {id: hf-fiqa-personal-finance, formato: api, ext: json, url: "https://huggingface.co/api/datasets/bilalRahib/fiqa-personal-finance-dataset", obs: "Coleta o cartão; os dados são baixados no treino."}
+      - {id: hf-reclamacao-agua-saneamento, formato: api, ext: json, url: "https://huggingface.co/api/datasets/dnacx/reclamacao-agua-e-saneamento", obs: "Coleta o cartão; os dados são baixados no treino."}
+      - {id: hf-juris-tcu, formato: api, ext: json, url: "https://huggingface.co/api/datasets/ufca-llms/juris-tcu", obs: "Coleta o cartão; os dados são baixados no treino."}
+      - {id: hf-normas-tcu, formato: api, ext: json, url: "https://huggingface.co/api/datasets/ufca-llms/normas-tcu", obs: "Coleta o cartão; os dados são baixados no treino."}
+  - numero: 30
+    nome: "brazilian-real-bank-dataset, ULB Credit Card Fraud, PaySim e amostra sintética das personas"
+    grupo: 5
+    orgao: Kaggle, OpenML e PANDORA
+    frequencia: estatica
+    alvos:
+      - {id: kaggle-brazilian-real-bank, manual: "Kaggle exige login e chave de API; baixar à mão."}
+      - {id: ulb-credit-card-fraud, manual: "Distribuído no Kaggle e no OpenML, com login; baixar à mão."}
+      - {id: kaggle-paysim, manual: "Kaggle exige login e chave de API; baixar à mão."}
+      - {id: amostra-personas, manual: "Já versionada no repositório (docs/evidencias/datasets/amostra_transacoes_sinteticas_personas.csv); não há o que coletar."}
+  - numero: 31
+    nome: "FinQA, TAT-QA e ConvFinQA (benchmarks de avaliação, fora do banco vetorial)"
+    grupo: 5
+    orgao: Hugging Face (IBM Research, NExT, TheFinAI)
+    frequencia: estatica
+    alvos:
+      - {id: hf-finqa, formato: api, ext: json, url: "https://huggingface.co/api/datasets/ibm-research/finqa", obs: "Só avaliação. Coleta o cartão; os dados são baixados na suíte de testes."}
+      - {id: hf-tat-qa, formato: api, ext: json, url: "https://huggingface.co/api/datasets/next-tat/TAT-QA", obs: "Só avaliação. Coleta o cartão; os dados são baixados na suíte de testes."}
+      - {id: hf-en-convfinqa, formato: api, ext: json, url: "https://huggingface.co/api/datasets/TheFinAI/en-convfinqa", obs: "Só avaliação. Coleta o cartão; os dados são baixados na suíte de testes."}
