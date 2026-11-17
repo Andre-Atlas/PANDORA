@@ -112,7 +112,7 @@ def agent(
 
     retr, origem = construir_retriever_padrao(usar_reranker=False, preferir_embutido=offline)
     gw = Gateway() if (llm and not offline) else None
-    grafo = GrafoPandora(retriever=retr, gateway=gw)
+    grafo = GrafoPandora(retriever=retr, gateway=gw, origem_retriever=origem)
     res = grafo.executar(
         consulta=pergunta,
         persona_id=persona,
@@ -143,7 +143,7 @@ def demo(
 
     retr, origem = construir_retriever_padrao(usar_reranker=False, preferir_embutido=offline)
     gw = Gateway() if (llm and not offline) else None
-    grafo = GrafoPandora(retriever=retr, gateway=gw)
+    grafo = GrafoPandora(retriever=retr, gateway=gw, origem_retriever=origem)
     resultados = executar_demonstracao(grafo, llm=None if offline else llm, saida_dir=saida_dir)
     typer.echo(f"Demonstração concluída ({len(resultados)} jornadas, retriever={origem}):")
     for cen, res in zip(CENARIOS_DEMO, resultados, strict=True):

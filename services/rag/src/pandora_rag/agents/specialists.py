@@ -259,7 +259,8 @@ class OrquestradorAgent:
 
         if estado.inspecao_fraude is not None:
             f = estado.inspecao_fraude
-            linhas_fraude = ["2. ALERTA DE SEGURANÇA E GOLPE (GUARDIÃO):"]
+            num_bloco = "3" if estado.plano_dividas is not None else "2"
+            linhas_fraude = [f"{num_bloco}. ALERTA DE SEGURANÇA E GOLPE (GUARDIÃO):"]
             if f.injection_detectada:
                 linhas_fraude.append(
                     "- Aviso técnico: o documento enviado continha texto oculto tentando manipular a análise, mas foi isolado e bloqueado com segurança."
@@ -301,10 +302,11 @@ class OrquestradorAgent:
 
         if estado.evidencias is not None:
             ev = estado.evidencias
+            num_ev = "4" if (estado.plano_dividas is not None and estado.inspecao_fraude is not None) else "3"
             if ev.abstencao and not (cvm_ativo or estado.plano_dividas or estado.analise_compulsao or estado.inspecao_fraude):
                 blocos.append(MENSAGEM_ABSTENCAO)
             elif ev.citacoes:
-                linhas_ev = ["3. BASE LEGAL E FONTES OFICIAIS CITADAS:"]
+                linhas_ev = [f"{num_ev}. BASE LEGAL E FONTES OFICIAIS CITADAS:"]
                 for c in ev.citacoes:
                     art = f", {c.artigo}" if c.artigo else ""
                     resumo_trecho = c.trecho.strip().replace("\n", " ")[:180]
@@ -532,15 +534,32 @@ class EducadorAgent:
                 queries.append(estado.consulta_mascarada or estado.consulta_usuario)
 
         hits_por_id: dict[str, Hit] = {}
+        hits_por_query: list[Hit] = []
         for q in queries:
-            for h in retriever.buscar(q, k=k):
-                if h.score_rerank is not None and h.score_rerank < limiar_abstencao:
-                    continue
+            resultados_q = [
+                h
+                for h in retriever.buscar(q, k=k)
+                if h.score_rerank is None or h.score_rerank >= limiar_abstencao
+            ]
+            for h in resultados_q[:1]:
+                if h.registro.id not in hits_por_id:
+                    hits_por_id[h.registro.id] = h
+                    hits_por_query.append(h)
+            for h in resultados_q[1:]:
                 atual = hits_por_id.get(h.registro.id)
-                if atual is None or h.score > atual.score:
+                if atual is None:
                     hits_por_id[h.registro.id] = h
 
-        hits_ordenados = sorted(hits_por_id.values(), key=lambda h: h.score, reverse=True)[: max(k, len(queries))]
+        if len(hits_por_query) >= max(k, len(queries)):
+            hits_ordenados = hits_por_query[: max(k, len(queries))]
+        else:
+            faltam = max(k, len(queries)) - len(hits_por_query)
+            restantes = sorted(
+                (h for rid, h in hits_por_id.items() if all(x.registro.id != rid for x in hits_por_query)),
+                key=lambda h: h.score,
+                reverse=True,
+            )
+            hits_ordenados = hits_por_query + restantes[:faltam]
         citacoes = [
             CitacaoAgente(
                 n=idx,

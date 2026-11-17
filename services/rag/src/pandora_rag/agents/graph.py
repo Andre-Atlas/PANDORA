@@ -6,6 +6,7 @@ import time
 import zlib
 
 import numpy as np
+import psycopg
 
 from pandora_rag.agents.models import EstadoMultiagente, ResultadoMultiagente
 from pandora_rag.agents.specialists import (
@@ -19,12 +20,18 @@ from pandora_rag.agents.specialists import (
 )
 from pandora_rag.config import DB_URL, TEXT_DIR
 from pandora_rag.generate.gateway import Gateway
+from pandora_rag.index.build import CACHE as EMBEDDINGS_CACHE
+from pandora_rag.index.build import embeddings as carregar_ou_gerar_embeddings
 from pandora_rag.index.registro import Registro, montar_registros
 from pandora_rag.index.store import MemoryStore, PgVectorStore
 from pandora_rag.index.tokenizer import tokenizar
 from pandora_rag.retrieve.hybrid import IndiceBM25, Parametros, Reranker, Retriever
 
 logger = logging.getLogger(__name__)
+
+
+def _cache_embeddings_dir_disponivel() -> bool:
+    return EMBEDDINGS_CACHE.exists() and any(EMBEDDINGS_CACHE.glob("*.npy"))
 
 
 class EmbedderHash:
@@ -207,6 +214,8 @@ def construir_retriever_padrao(
     """Constrói o Retriever priorizando Postgres, depois corpus local extraído, e por fim corpus embutido."""
     if not preferir_embutido:
         try:
+            with psycopg.connect(DB_URL, connect_timeout=2) as _:
+                pass
             from pandora_rag.index.embedder import Embedder
 
             emb = Embedder(modelo_embedding)
@@ -215,16 +224,23 @@ def construir_retriever_padrao(
             if regs:
                 rer = Reranker() if usar_reranker else None
                 return Retriever(pg, IndiceBM25(regs), emb, rer), "pgvector"
-        except (ImportError, OSError, RuntimeError, ValueError) as exc:
+        except (ImportError, OSError, RuntimeError, ValueError, psycopg.Error) as exc:
             logger.info("Postgres indisponível para agentes; tentando índice local em memória: %s", exc)
 
         if TEXT_DIR.exists() and any(TEXT_DIR.iterdir()):
             try:
                 regs = montar_registros("estrutural", texto_dir=TEXT_DIR)
                 if regs:
+                    rer = Reranker() if usar_reranker else None
+                    if _cache_embeddings_dir_disponivel():
+                        from pandora_rag.index.embedder import Embedder
+
+                        emb = Embedder(modelo_embedding)
+                        vetores = carregar_ou_gerar_embeddings(regs, emb)
+                        store = MemoryStore(regs, vetores)
+                        return Retriever(store, IndiceBM25(regs), emb, rer), "corpus_local_bge_m3"
                     emb_hash = EmbedderHash()
                     store = MemoryStore(regs, emb_hash.passagens([r.texto_indexado() for r in regs]))
-                    rer = Reranker() if usar_reranker else None
                     return Retriever(store, IndiceBM25(regs), emb_hash, rer), "corpus_local_bm25_hash"
             except (ImportError, OSError, RuntimeError, ValueError) as exc:
                 logger.info("Falha ao carregar corpus local extraído; usando embutido: %s", exc)
@@ -244,12 +260,13 @@ class GrafoPandora:
         gateway: Gateway | None = None,
         k_evidencias: int = 3,
         limiar_abstencao: float = 0.02,
+        origem_retriever: str | None = None,
     ):
         if retriever is None:
             retriever, origem = construir_retriever_padrao(usar_reranker=False, preferir_embutido=False)
-            self.origem_retriever = origem
+            self.origem_retriever = origem_retriever or origem
         else:
-            self.origem_retriever = "retriever_injetado"
+            self.origem_retriever = origem_retriever or "retriever_injetado"
         self.retriever = retriever
         self.gateway = gateway
         self.k_evidencias = k_evidencias
