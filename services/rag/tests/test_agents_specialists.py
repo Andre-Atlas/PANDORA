@@ -163,6 +163,16 @@ def test_compliance_reprova_rascunho_com_recomendacao_cvm_ou_sem_crise():
     assert est.veredito.bloqueio_cvm_acionado is True
     assert est.veredito.aprovado is False
 
+    est_inf = EstadoMultiagente(
+        persona_id="julia_31",
+        consulta_usuario="Como montar reserva de emergencia?",
+        rascunho_resposta="Recomendo comprar CDB do Nubank e aplicar em LCI.",
+    )
+    est_inf = OrquestradorAgent().planejar(est_inf)
+    est_inf = ComplianceAgent().validar(est_inf)
+    assert est_inf.veredito.bloqueio_cvm_acionado is True
+    assert est_inf.veredito.aprovado is False
+
     est_crise = EstadoMultiagente(
         persona_id="diego_24",
         consulta_usuario="Perdi tudo de novo, nao consigo parar sozinho.",
@@ -174,7 +184,7 @@ def test_compliance_reprova_rascunho_com_recomendacao_cvm_ou_sem_crise():
     assert est_crise.veredito.aprovado is False
 
 
-def test_educador_abstem_fora_de_dominio_e_mascara_query():
+def test_educador_abstem_fora_de_dominio_e_rejeita_homonimo_apenas_bm25():
     est = EstadoMultiagente(
         consulta_usuario="Meu CPF 123.456.789-00. Qual a melhor receita de bolo de cenoura com chocolate?"
     )
@@ -184,3 +194,18 @@ def test_educador_abstem_fora_de_dominio_e_mascara_query():
     assert est.evidencias.hits_aprovados == 0
     assert "123.456.789-00" not in est.evidencias.queries_executadas[0]
     assert "[CPF]" in est.evidencias.queries_executadas[0]
+
+    # Simula retriever denso (dim >= 512) com falso positivo puramente lexical (bm25 alto, vetor None)
+    from pandora_rag.retrieve.hybrid import Hit
+
+    reg = _retriever_teste().registros[0]
+
+    class _RetrDensoFalso:
+        embedder = type("E", (), {"dim": 1024})()
+
+        def buscar(self, pergunta, k=3):
+            return [Hit(registro=reg, score=0.016, score_vetor=None, score_bm25=4.98)]
+
+    est_hom = EstadoMultiagente(consulta_usuario="Qual a melhor receita de bolo?")
+    est_hom = EducadorAgent().executar(est_hom, _RetrDensoFalso())  # type: ignore[arg-type]
+    assert est_hom.evidencias is not None and est_hom.evidencias.abstencao is True

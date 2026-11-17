@@ -35,13 +35,17 @@ from pandora_rag.retrieve.hybrid import Hit, Retriever
 logger = logging.getLogger(__name__)
 
 _RE_RECOMENDACAO_DIRETA_CVM = re.compile(
-    r"\b(?:compre|invista|aplique|escolha|recomendo|sugiro|indico|vale\s+a\s+pena\s+(?:comprar|aplicar|investir))"
+    r"\b(?:compre|invista|aplique|escolha|recomendo|sugiro|indico|vale\s+a\s+pena)"
+    r"(?:\s+(?:comprar|investir|aplicar|escolher|colocar))?"
     r"(?:\s+(?:em|um|uma|o|a|no|na|os|as)){0,3}\s+"
-    r"(?:cdb|acao|acoes|fundo|fiis?|etf|bdr|cripto\w*|bitcoin|[a-z]{4}(?:3|4|5|6|11|34|35|39)|banco\s+\w+|itau|nubank|bradesco|santander)\b"
+    r"(?:cdb|lci|lca|coe|cri|cra|debenture|tesouro|acao|acoes|fundo|fiis?|etf|bdr|"
+    r"cripto\w*|bitcoin|[a-z]{4}(?:3|4|5|6|11|34|35|39)|banco\s+\w+|itau|nubank|bradesco|santander)\b"
 )
 
-_MIN_SCORE_BM25_SEM_RERANK = 2.5
-_MIN_SCORE_VETOR_SEM_RERANK = 0.45
+_MIN_SCORE_VETOR_DENSO = 0.50
+_MIN_SCORE_VETOR_HASH = 0.25
+_MIN_SCORE_BM25_HASH = 1.5
+_DIM_EMBEDDER_DENSO = 512
 
 BLOCO_PROTOCOLO_CRISE = (
     "APOIO IMEDIATO E CONFIDENCIAL (PROTOCOLO DE CRISE):\n"
@@ -554,12 +558,14 @@ class EducadorAgent:
     """Agente 6 (Research Agent): recupera trechos oficiais no RAG híbrido e aplica portão."""
 
     @staticmethod
-    def _hit_relevante(hit: Hit, limiar_abstencao: float) -> bool:
+    def _hit_relevante(hit: Hit, limiar_abstencao: float, embedder_dim: int = 0) -> bool:
         if hit.score_rerank is not None:
             return hit.score_rerank >= limiar_abstencao
-        bm25_ok = hit.score_bm25 is not None and hit.score_bm25 >= _MIN_SCORE_BM25_SEM_RERANK
-        vetor_ok = hit.score_vetor is not None and hit.score_vetor >= _MIN_SCORE_VETOR_SEM_RERANK
-        return bm25_ok or vetor_ok
+        if embedder_dim >= _DIM_EMBEDDER_DENSO:
+            return hit.score_vetor is not None and hit.score_vetor >= _MIN_SCORE_VETOR_DENSO
+        vetor_ok = hit.score_vetor is not None and hit.score_vetor >= _MIN_SCORE_VETOR_HASH
+        bm25_ok = hit.score_bm25 is not None and hit.score_bm25 >= _MIN_SCORE_BM25_HASH
+        return vetor_ok and bm25_ok
 
     def executar(
         self,
@@ -577,10 +583,15 @@ class EducadorAgent:
                 queries_brutas.append(consulta_limpa)
         queries = [mascarar(q)[0] for q in queries_brutas]
 
+        embedder_dim = int(getattr(retriever.embedder, "dim", 0) or 0)
         hits_por_id: dict[str, Hit] = {}
         hits_por_query: list[Hit] = []
         for q in queries:
-            resultados_q = [h for h in retriever.buscar(q, k=k) if self._hit_relevante(h, limiar_abstencao)]
+            resultados_q = [
+                h
+                for h in retriever.buscar(q, k=k)
+                if self._hit_relevante(h, limiar_abstencao, embedder_dim)
+            ]
             for h in resultados_q[:1]:
                 if h.registro.id not in hits_por_id:
                     hits_por_id[h.registro.id] = h

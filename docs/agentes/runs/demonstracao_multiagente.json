@@ -8,7 +8,7 @@
         "persona_id": "carla_34",
         "consulta_mascarada": "Recebi R$ 2.850 e minhas despesas básicas são R$ 2.100, mas o rotativo do cartão está em 448% ao ano e a luz está atrasada. Se eu pagar tudo para o banco, falta comida para as crianças. O que eu pago primeiro e qual lei me protege?",
         "modo": "deterministico",
-        "latencia_s": 0.0683,
+        "latencia_s": 0.0598,
         "intencoes_detectadas": [
           "dividas",
           "educacao"
@@ -285,7 +285,7 @@
         "persona_id": "diego_24",
         "consulta_mascarada": "Acabei de perder mais R$ 350 de madrugada tentando recuperar o que apostei ontem depois que o repasse do app caiu. Perdi o dinheiro da parcela da moto de novo e não consigo parar sozinho.",
         "modo": "deterministico",
-        "latencia_s": 0.0206,
+        "latencia_s": 0.0167,
         "intencoes_detectadas": [
           "bets",
           "crise"
@@ -506,7 +506,7 @@
         "persona_id": "julia_31",
         "consulta_mascarada": "Limpei meu nome e quero juntar minha reserva de emergência poupando R$ 500 por mês. Qual ação da Bolsa ou CDB específico de qual banco devo comprar hoje com meus R$ 1.500?",
         "modo": "deterministico",
-        "latencia_s": 0.0205,
+        "latencia_s": 0.0167,
         "intencoes_detectadas": [
           "cvm",
           "educacao"
@@ -693,7 +693,7 @@
         "persona_id": "antonio_67",
         "consulta_mascarada": "Recebi um boleto no WhatsApp de R$ 1.198 dizendo que quita meu consignado, e ontem fiz um Pix de R$ 1.800 pra falsa central. Vê se esse boleto é de verdade e como eu pego meu dinheiro de volta?",
         "modo": "deterministico",
-        "latencia_s": 0.0927,
+        "latencia_s": 0.0555,
         "intencoes_detectadas": [
           "dividas",
           "fraude"

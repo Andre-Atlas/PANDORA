@@ -479,15 +479,16 @@ def sanitizar_documento_nao_confiavel(texto: str) -> tuple[str, bool]:
     corpo_linhas = "\n".join(linhas_limpas).strip()
     norm_global = _normalizar_texto(_RE_TAG_DOC.sub("", texto))
     injection_global = any(p.search(norm_global) for p in _PADROES_INJECTION)
+    injection_residual = any(p.search(_normalizar_texto(corpo_linhas)) for p in _PADROES_INJECTION)
 
-    if injection_global and not injection_linha:
-        # Injeção dividida entre múltiplas linhas: substitui o bloco textual suspeito por marcador único.
+    if (injection_global and not injection_linha) or injection_residual:
+        # Injeção dividida entre múltiplas linhas (isolada ou combinada): bloqueia o bloco textual completo.
         corpo = "[CONTEUDO_BLOQUEADO_INJECTION]"
     else:
         corpo = corpo_linhas
 
     encapsulado = f"<documento_externo_nao_confiavel>\n{corpo}\n</documento_externo_nao_confiavel>"
-    return encapsulado, (injection_linha or injection_global)
+    return encapsulado, (injection_linha or injection_global or injection_residual)
 
 
 def validar_boleto_febraban(

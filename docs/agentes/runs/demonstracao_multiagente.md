@@ -6,7 +6,7 @@
 
 ## Jornada 1 · Carla Mendes (carla_34) — Superendividamento e Mínimo Existencial
 
-- **Persona ID:** `carla_34` · **Modo:** `deterministico` · **Latência:** `0.0683 s`
+- **Persona ID:** `carla_34` · **Modo:** `deterministico` · **Latência:** `0.0598 s`
 - **Agentes Participantes:** `orquestrador` → `analista` → `estrategista` → `educador` → `compliance`
 - **Consulta Mascarada:** Recebi R$ 2.850 e minhas despesas básicas são R$ 2.100, mas o rotativo do cartão está em 448% ao ano e a luz está atrasada. Se eu pagar tudo para o banco, falta comida para as crianças. O que eu pago primeiro e qual lei me protege?
 
@@ -52,7 +52,7 @@ Olá, Carla Mendes. Organizei sua situação passo a passo com base nos seus dad
 
 ## Jornada 2 · Diego Oliveira (diego_24) — Compulsão em Bets e Protocolo de Crise
 
-- **Persona ID:** `diego_24` · **Modo:** `deterministico` · **Latência:** `0.0206 s`
+- **Persona ID:** `diego_24` · **Modo:** `deterministico` · **Latência:** `0.0167 s`
 - **Agentes Participantes:** `orquestrador` → `analista` → `coach` → `educador` → `compliance`
 - **Consulta Mascarada:** Acabei de perder mais R$ 350 de madrugada tentando recuperar o que apostei ontem depois que o repasse do app caiu. Perdi o dinheiro da parcela da moto de novo e não consigo parar sozinho.
 
@@ -102,7 +102,7 @@ APOIO IMEDIATO E CONFIDENCIAL (PROTOCOLO DE CRISE):
 
 ## Jornada 3 · Júlia Santos (julia_31) — Reserva de Emergência e Bloqueio CVM
 
-- **Persona ID:** `julia_31` · **Modo:** `deterministico` · **Latência:** `0.0205 s`
+- **Persona ID:** `julia_31` · **Modo:** `deterministico` · **Latência:** `0.0167 s`
 - **Agentes Participantes:** `orquestrador` → `analista` → `educador` → `compliance`
 - **Consulta Mascarada:** Limpei meu nome e quero juntar minha reserva de emergência poupando R$ 500 por mês. Qual ação da Bolsa ou CDB específico de qual banco devo comprar hoje com meus R$ 1.500?
 
@@ -146,7 +146,7 @@ Olá, Júlia Santos. Organizei sua situação passo a passo com base nos seus da
 
 ## Jornada 4 · Sr. Antônio Ferreira (antonio_67) — Boleto Falso (Anti-Injection) e MED Pix
 
-- **Persona ID:** `antonio_67` · **Modo:** `deterministico` · **Latência:** `0.0927 s`
+- **Persona ID:** `antonio_67` · **Modo:** `deterministico` · **Latência:** `0.0555 s`
 - **Agentes Participantes:** `orquestrador` → `analista` → `estrategista` → `guardiao` → `educador` → `compliance`
 - **Consulta Mascarada:** Recebi um boleto no WhatsApp de R$ 1.198 dizendo que quita meu consignado, e ontem fiz um Pix de R$ 1.800 pra falsa central. Vê se esse boleto é de verdade e como eu pego meu dinheiro de volta?
 

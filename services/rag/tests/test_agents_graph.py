@@ -74,10 +74,15 @@ def test_quatro_jornadas_demo_exercitam_todos_os_7_agentes_e_cumprem_guardrails(
 def test_consulta_fora_de_dominio_ativa_abstencao_segura():
     retr, _ = construir_retriever_padrao(usar_reranker=False, preferir_embutido=True)
     grafo = GrafoPandora(retriever=retr)
-    res = grafo.executar("Qual a melhor receita de bolo de cenoura com cobertura de chocolate?")
-    assert res.evidencias is not None and res.evidencias.abstencao is True
-    assert res.veredito is not None and res.veredito.aprovado is True
-    assert "Não encontrei isso nas fontes oficiais" in res.resposta_final
+    res_off = grafo.executar("Qual a melhor receita de bolo de cenoura com cobertura de chocolate?")
+    assert res_off.evidencias is not None and res_off.evidencias.abstencao is True
+    assert res_off.veredito is not None and res_off.veredito.aprovado is True
+    assert "Não encontrei isso nas fontes oficiais" in res_off.resposta_final
+
+    res_ok = grafo.executar("Como funciona a Lei 14.181 do minimo existencial?")
+    assert res_ok.evidencias is not None and res_ok.evidencias.abstencao is False
+    assert res_ok.evidencias.hits_aprovados >= 1
+    assert "[1]" in res_ok.resposta_final
 
 
 def test_compliance_fail_closed_nao_expoe_rascunho_reprovado(monkeypatch):
