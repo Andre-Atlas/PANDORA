@@ -1,13 +1,22 @@
-"""Grafo de orquestração multiagente do PANDORA e construtor de retriever com fallback."""
+"""Grafo de orquestração multiagente do PANDORA com LangGraph (StateGraph) e Tool Calling."""
 from __future__ import annotations
 
 import logging
 import time
 import zlib
+from typing import Any
 
 import numpy as np
 import psycopg
+from langchain_core.language_models.chat_models import BaseChatModel
+from langgraph.graph import END, START, StateGraph
 
+from pandora_rag.agents.llm_provider import (
+    MODELO_PADRAO_AGENTES,
+    construir_chat_model,
+    ollama_disponivel,
+    resolver_config_modelo,
+)
 from pandora_rag.agents.models import EstadoMultiagente, ResultadoMultiagente
 from pandora_rag.agents.specialists import (
     BLOCO_PROTOCOLO_CRISE,
@@ -33,6 +42,8 @@ from pandora_rag.index.tokenizer import tokenizar
 from pandora_rag.retrieve.hybrid import IndiceBM25, Parametros, Reranker, Retriever
 
 logger = logging.getLogger(__name__)
+
+_ORDEM_ESPECIALISTAS_DOMINIO = ("analista", "estrategista", "coach", "guardiao")
 
 
 def _cache_embeddings_dir_disponivel() -> bool:
@@ -276,7 +287,7 @@ def _resposta_segura_fail_closed(estado: EstadoMultiagente) -> str:
 
 
 class GrafoPandora:
-    """Máquina de estados que coordena os 7 agentes especializados do PANDORA."""
+    """Orquestrador multiagente compilado com LangGraph (StateGraph) e Tool Calling nativo."""
 
     def __init__(
         self,
@@ -304,6 +315,176 @@ class GrafoPandora:
         self.educador = EducadorAgent()
         self.compliance = ComplianceAgent()
 
+        # Contexto da execução atual usado pelos nós do StateGraph
+        self._chat_model_atual: BaseChatModel | None = None
+        self._modelo_id_atual: str = "offline"
+        self._gateway_atual: Gateway | None = None
+        self._llm_chave_atual: str | None = None
+
+        self.state_graph = self._construir_state_graph()
+        self.compiled_graph = self.state_graph.compile()
+
+    def _construir_state_graph(self) -> StateGraph:
+        """Constrói o StateGraph declarativo do LangGraph com os 7 agentes e arestas condicionais."""
+        workflow = StateGraph(EstadoMultiagente)
+
+        def node_orquestrador_planejar(estado: EstadoMultiagente) -> EstadoMultiagente:
+            return self.orquestrador.planejar(
+                estado,
+                chat_model=self._chat_model_atual,
+                modelo_id=self._modelo_id_atual,
+            )
+
+        def node_analista(estado: EstadoMultiagente) -> EstadoMultiagente:
+            return self.analista.executar(
+                estado,
+                chat_model=self._chat_model_atual,
+                modelo_id=self._modelo_id_atual,
+            )
+
+        def node_estrategista(estado: EstadoMultiagente) -> EstadoMultiagente:
+            return self.estrategista.executar(
+                estado,
+                chat_model=self._chat_model_atual,
+                modelo_id=self._modelo_id_atual,
+            )
+
+        def node_coach(estado: EstadoMultiagente) -> EstadoMultiagente:
+            return self.coach.executar(
+                estado,
+                chat_model=self._chat_model_atual,
+                modelo_id=self._modelo_id_atual,
+            )
+
+        def node_guardiao(estado: EstadoMultiagente) -> EstadoMultiagente:
+            return self.guardiao.executar(
+                estado,
+                chat_model=self._chat_model_atual,
+                modelo_id=self._modelo_id_atual,
+            )
+
+        def node_educador(estado: EstadoMultiagente) -> EstadoMultiagente:
+            return self.educador.executar(
+                estado,
+                self.retriever,
+                k=self.k_evidencias,
+                limiar_abstencao=self.limiar_abstencao,
+                chat_model=self._chat_model_atual,
+                modelo_id=self._modelo_id_atual,
+            )
+
+        def node_orquestrador_sintetizar(estado: EstadoMultiagente) -> EstadoMultiagente:
+            modo_revisao = estado.revisoes_realizadas > 0
+            return self.orquestrador.sintetizar(
+                estado,
+                gateway=None if modo_revisao else self._gateway_atual,
+                modelo=None if modo_revisao else self._llm_chave_atual,
+                modo_revisao=modo_revisao,
+                chat_model=None if modo_revisao else self._chat_model_atual,
+                modelo_id=self._modelo_id_atual,
+            )
+
+        def node_compliance(estado: EstadoMultiagente) -> EstadoMultiagente:
+            return self.compliance.validar(
+                estado,
+                chat_model=self._chat_model_atual,
+                modelo_id=self._modelo_id_atual,
+            )
+
+        def node_preparar_revisao(estado: EstadoMultiagente) -> EstadoMultiagente:
+            estado.revisoes_realizadas += 1
+            return estado
+
+        def node_fail_closed(estado: EstadoMultiagente) -> EstadoMultiagente:
+            estado.resposta_final = _resposta_segura_fail_closed(estado)
+            return estado
+
+        workflow.add_node("orquestrador_planejar", node_orquestrador_planejar)
+        workflow.add_node("analista", node_analista)
+        workflow.add_node("estrategista", node_estrategista)
+        workflow.add_node("coach", node_coach)
+        workflow.add_node("guardiao", node_guardiao)
+        workflow.add_node("educador", node_educador)
+        workflow.add_node("orquestrador_sintetizar", node_orquestrador_sintetizar)
+        workflow.add_node("compliance", node_compliance)
+        workflow.add_node("preparar_revisao", node_preparar_revisao)
+        workflow.add_node("fail_closed", node_fail_closed)
+
+        def rotear_apos_planejamento(estado: EstadoMultiagente) -> str:
+            for cand in _ORDEM_ESPECIALISTAS_DOMINIO:
+                if cand in estado.agentes_planejados:
+                    return cand
+            return "educador"
+
+        def _criar_roteador_pos_especialista(atual: str):
+            idx_atual = _ORDEM_ESPECIALISTAS_DOMINIO.index(atual)
+            seguintes = _ORDEM_ESPECIALISTAS_DOMINIO[idx_atual + 1 :]
+
+            def _rotear(estado: EstadoMultiagente) -> str:
+                for cand in seguintes:
+                    if cand in estado.agentes_planejados:
+                        return cand
+                return "educador"
+
+            return _rotear
+
+        def rotear_pos_compliance(estado: EstadoMultiagente) -> str:
+            if estado.veredito is not None and estado.veredito.aprovado and estado.resposta_final:
+                return END
+            if estado.revisoes_realizadas < 1:
+                return "preparar_revisao"
+            return "fail_closed"
+
+        mapa_destinos = {
+            "analista": "analista",
+            "estrategista": "estrategista",
+            "coach": "coach",
+            "guardiao": "guardiao",
+            "educador": "educador",
+        }
+
+        workflow.add_edge(START, "orquestrador_planejar")
+        workflow.add_conditional_edges("orquestrador_planejar", rotear_apos_planejamento, mapa_destinos)
+
+        for esp in _ORDEM_ESPECIALISTAS_DOMINIO:
+            workflow.add_conditional_edges(esp, _criar_roteador_pos_especialista(esp), mapa_destinos)
+
+        workflow.add_edge("educador", "orquestrador_sintetizar")
+        workflow.add_edge("orquestrador_sintetizar", "compliance")
+        workflow.add_conditional_edges(
+            "compliance",
+            rotear_pos_compliance,
+            {
+                "preparar_revisao": "preparar_revisao",
+                "fail_closed": "fail_closed",
+                END: END,
+            },
+        )
+        workflow.add_edge("preparar_revisao", "orquestrador_sintetizar")
+        workflow.add_edge("fail_closed", END)
+
+        return workflow
+
+    def _preparar_llm_execucao(self, llm: str | None) -> tuple[BaseChatModel | None, str, str]:
+        """Resolve ChatOllama / ChatAnthropic para a execução do grafo."""
+        if not llm or llm.strip().lower() in {"offline", "deterministico", "none"}:
+            return None, "offline", "deterministico"
+
+        # Se um Gateway customizado/mock foi injetado explicitamente no construtor
+        if self.gateway is not None and type(self.gateway) is not Gateway:
+            return None, llm, "hibrido_llm"
+
+        info = resolver_config_modelo(llm)
+        if info is None:
+            return None, "offline", "deterministico"
+
+        if info.get("provedor") == "ollama" and not ollama_disponivel():
+            logger.info("Daemon Ollama indisponível em localhost:11434; rodando nós em fallback determinístico.")
+            return None, "offline", "hibrido_llm" if self.gateway else "deterministico"
+
+        chat_model, modelo_id = construir_chat_model(llm)
+        return chat_model, modelo_id, "langgraph_llm"
+
     def executar(
         self,
         consulta: str,
@@ -313,13 +494,24 @@ class GrafoPandora:
         banco_alegado: str | None = None,
         beneficiario_pf: bool = False,
         llm: str | None = None,
+        chat_model: BaseChatModel | None = None,
     ) -> ResultadoMultiagente:
-        """Executa o fluxo completo multiagente e devolve ResultadoMultiagente auditável."""
+        """Executa o StateGraph compilado do LangGraph e devolve ResultadoMultiagente auditável."""
         t0 = time.perf_counter()
-        gw = self.gateway if llm else None
-        modo = "hibrido_llm" if (gw is not None and llm) else "deterministico"
 
-        estado = EstadoMultiagente(
+        if chat_model is not None:
+            self._chat_model_atual = chat_model
+            self._modelo_id_atual = llm or getattr(chat_model, "model", MODELO_PADRAO_AGENTES)
+            modo: Any = "langgraph_llm"
+        else:
+            self._chat_model_atual, self._modelo_id_atual, modo = self._preparar_llm_execucao(llm)
+
+        self._gateway_atual = self.gateway if llm else None
+        self._llm_chave_atual = llm
+        if self._gateway_atual is not None and llm and modo == "deterministico":
+            modo = "hibrido_llm"
+
+        estado_inicial = EstadoMultiagente(
             persona_id=persona_id,
             consulta_usuario=consulta,
             documento_ocr=documento_ocr,
@@ -327,34 +519,16 @@ class GrafoPandora:
             banco_alegado=banco_alegado,
             beneficiario_pf=beneficiario_pf,
             modo=modo,
+            modelo_llm=self._modelo_id_atual if self._chat_model_atual is not None else (llm if self._gateway_atual else "offline"),
         )
 
-        estado = self.orquestrador.planejar(estado)
+        resultado_raw = self.compiled_graph.invoke(estado_inicial)
+        if isinstance(resultado_raw, EstadoMultiagente):
+            estado_final = resultado_raw
+        else:
+            estado_final = EstadoMultiagente.model_validate(resultado_raw)
 
-        if "analista" in estado.agentes_planejados:
-            estado = self.analista.executar(estado)
-        if "estrategista" in estado.agentes_planejados:
-            estado = self.estrategista.executar(estado)
-        if "coach" in estado.agentes_planejados:
-            estado = self.coach.executar(estado)
-        if "guardiao" in estado.agentes_planejados:
-            estado = self.guardiao.executar(estado)
+        if estado_final.veredito is None or not estado_final.veredito.aprovado or not estado_final.resposta_final:
+            estado_final.resposta_final = _resposta_segura_fail_closed(estado_final)
 
-        estado = self.educador.executar(
-            estado,
-            self.retriever,
-            k=self.k_evidencias,
-            limiar_abstencao=self.limiar_abstencao,
-        )
-        estado = self.orquestrador.sintetizar(estado, gateway=gw, modelo=llm, modo_revisao=False)
-        estado = self.compliance.validar(estado)
-
-        if estado.veredito is not None and not estado.veredito.aprovado:
-            estado.revisoes_realizadas += 1
-            estado = self.orquestrador.sintetizar(estado, gateway=None, modelo=None, modo_revisao=True)
-            estado = self.compliance.validar(estado)
-
-        if estado.veredito is None or not estado.veredito.aprovado or not estado.resposta_final:
-            estado.resposta_final = _resposta_segura_fail_closed(estado)
-
-        return ResultadoMultiagente.de_estado(estado, latencia_s=time.perf_counter() - t0)
+        return ResultadoMultiagente.de_estado(estado_final, latencia_s=time.perf_counter() - t0)

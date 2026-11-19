@@ -9,8 +9,8 @@ Branch da entrega: `entrega/prototipo-multiagente-quarto-desafio`
 
 Construímos o **Primeiro Protótipo Multiagente do PANDORA** integrando **7 agentes especializados colaborativos** ao serviço de RAG híbrido (`pandora_rag`), atendendo integralmente aos requisitos do entregável:
 
-- **Agentes Especializados (7 agentes, superando o mínimo de 2):** `orquestrador`, `analista`, `estrategista`, `coach`, `guardiao`, `educador` e `compliance` — cobrindo os papéis de *Research*, *Analysis*, *Validation* e *Communication*.
-- **Orquestração Auditável em Grafo de Estado Tipado (`GrafoPandora`):** cada interação ou handoff entre agentes é gravado em `trace: list[MensagemAgente]` com ordem, origem, destino, tipo e dados-chave.
+- **Agentes Especializados (7 agentes com `System Prompt` próprio e Tool Calling nativo `@tool`):** `orquestrador`, `analista`, `estrategista`, `coach`, `guardiao`, `educador` e `compliance` — cobrindo os papéis de *Research*, *Analysis*, *Validation* e *Communication* com raciocínio via **`qwen2.5:7b` (Ollama local)** por padrão (`langchain-ollama`) e suporte a Anthropic (`langchain-anthropic`).
+- **Orquestração Declarativa com `LangGraph` (`StateGraph(EstadoMultiagente)`):** grafo compilado com nós tipados, arestas condicionais (`add_conditional_edges`) e loop de revisão `compliance -> preparar_revisao -> orquestrador_sintetizar`, gravando cada colaboração e `tool_calls` em `trace: list[MensagemAgente]`.
 - **Segurança e Conformidade por Construção (`RNF01`–`RNF05`):**
   - **LGPD (`RNF01`):** mascaramento automático de PII (CPF, CNPJ, telefone, e-mail, cartão, chave Pix UUID) na entrada, nas consultas RAG, nos trechos citados e antes de chamadas externas.
   - **CVM (`RNF02`):** bloqueio de recomendações específicas de ações/CDBs/ativos com **Recusa Educativa** (Res. CVM 19 e 20/2021) ensinando os 3 critérios objetivos (Liquidez D+0, Tesouro/FGC e Pós-fixado Selic/CDI).
@@ -53,8 +53,8 @@ Construímos o **Primeiro Protótipo Multiagente do PANDORA** integrando **7 age
 | Área | Caminho | Descrição |
 |---|---|---|
 | **Documentação dos Agentes** | [`docs/agentes/README.md`](../../agentes/README.md) | Capítulos dedicados: [01-arquitetura](../../agentes/01-arquitetura.md), [02-responsabilidades](../../agentes/02-responsabilidades.md), [03-fluxo-interacao](../../agentes/03-fluxo-interacao.md), [04-demonstracao](../../agentes/04-demonstracao.md) |
-| **Decisão Arquitetural** | [`docs/adr/0001-arquitetura-multiagente-pandora.md`](../../adr/0001-arquitetura-multiagente-pandora.md) | ADR formal justificando o grafo de estado tipado em `pandora_rag.agents` |
-| **Código dos Agentes** | [`services/rag/src/pandora_rag/agents/`](../../../services/rag/src/pandora_rag/agents/) | `models.py`, `personas_data.py`, `tools.py`, `specialists.py`, `graph.py`, `scenarios.py` |
+| **Decisões Arquiteturais** | [`docs/adr/README.md`](../../adr/README.md) | `ADR-0001` (estado tipado e guardrails) e `ADR-0002` (orquestração `LangGraph` + Tool Calling nativo com `qwen2.5:7b`) |
+| **Código dos Agentes** | [`services/rag/src/pandora_rag/agents/`](../../../services/rag/src/pandora_rag/agents/) | `models.py`, `llm_provider.py`, `langgraph_tools.py`, `personas_data.py`, `tools.py`, `specialists.py`, `graph.py`, `scenarios.py` |
 | **CLI** | [`services/rag/src/pandora_rag/cli.py`](../../../services/rag/src/pandora_rag/cli.py) | Comandos `pandora-rag demo` e `pandora-rag agent` |
 | **Testes Automatizados** | [`services/rag/tests/`](../../../services/rag/tests/) | `test_agents_tools.py`, `test_agents_specialists.py`, `test_agents_graph.py` + suíte RAG |
 

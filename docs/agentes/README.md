@@ -4,7 +4,7 @@
 
 > **Visão executiva do entregável (pasta padronizada):** [`docs/entregas/04-primeiro-prototipo-multiagente/README.md`](../entregas/04-primeiro-prototipo-multiagente/README.md) — explica o que foi feito, como funciona, mapa de pastas, diagramas e evidências executáveis.
 
-> **Estado desta versão (`agents-v0.1.0`):** Grafo de estado tipado em Python/Pydantic (`GrafoPandora`) coordenando **7 agentes especializados** (`orquestrador`, `analista`, `estrategista`, `coach`, `guardiao`, `educador`, `compliance`) integrados diretamente ao RAG híbrido (`BAAI/bge-m3` + `BM25` + `RRF`) e ao mascarador de PII (`RNF01–RNF05`).
+> **Estado desta versão (`agents-v0.2.0`):** `StateGraph(EstadoMultiagente)` compilado com **`LangGraph`** coordenando **7 agentes especializados** (`orquestrador`, `analista`, `estrategista`, `coach`, `guardiao`, `educador`, `compliance`) dotados de `System Prompt` próprio e **Tool Calling nativo (`@tool` + `bind_tools`)** via **`qwen2.5:7b` (Ollama local)** / Anthropic, integrados ao RAG híbrido (`BAAI/bge-m3` + `BM25` + `RRF`) e ao mascarador de PII (`RNF01–RNF05`).
 
 ## Documentos
 

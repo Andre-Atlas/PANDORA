@@ -1,8 +1,13 @@
 {
   "persona_id": null,
   "consulta_mascarada": "Qual a melhor receita de bolo de cenoura com cobertura de chocolate?",
-  "modo": "deterministico",
-  "latencia_s": 0.0246,
+  "modo": "langgraph_llm",
+  "modelo_llm": "qwen2.5:7b",
+  "total_tool_calls": 3,
+  "pareceres_agentes": {
+    "compliance": "O rascunho não contém recomendações, julgamentos morais e respeita a LGPD ao não mencionar dados pessoais."
+  },
+  "latencia_s": 4.3203,
   "intencoes_detectadas": [
     "educacao"
   ],
@@ -50,7 +55,25 @@
         "agentes_planejados": [
           "educador",
           "compliance"
-        ]
+        ],
+        "llm_modelo": "qwen2.5:7b",
+        "tool_calls": [
+          {
+            "tool": "tool_classificar_roteamento",
+            "args": {
+              "agentes_especialistas": [
+                "educador"
+              ],
+              "sinal_crise": false,
+              "inducao_cvm": false,
+              "justificativa_roteiga": "A consulta busca uma receita culinária, indicando a intenção de educação.",
+              "intencoes": [
+                "educacao"
+              ]
+            }
+          }
+        ],
+        "justificativa_llm": ""
       }
     },
     {
@@ -64,7 +87,19 @@
           "Qual a melhor receita de bolo de cenoura com cobertura de chocolate?"
         ],
         "normas": [],
-        "abstencao": true
+        "abstencao": true,
+        "llm_modelo": "qwen2.5:7b",
+        "tool_calls": [
+          {
+            "tool": "tool_buscar_evidencias_rag",
+            "args": {
+              "queries_pesquisa": [
+                "receita bolo cenoura",
+                "cobertura chocolate"
+              ]
+            }
+          }
+        ]
       }
     },
     {
@@ -76,7 +111,9 @@
       "dados_chave": {
         "tom_comunicacao": "acolhedor_simples",
         "modo_revisao": false,
-        "tamanho_caracteres": 291
+        "tamanho_caracteres": 291,
+        "llm_modelo": "qwen2.5:7b",
+        "sintese_llm_gerada": false
       }
     },
     {
@@ -90,7 +127,20 @@
         "crise_acionada": false,
         "bloqueio_cvm_acionado": false,
         "citacoes_validas": true,
-        "precisou_revisao": false
+        "precisou_revisao": false,
+        "llm_modelo": "qwen2.5:7b",
+        "tool_calls": [
+          {
+            "tool": "tool_auditar_invariantes_compliance",
+            "args": {
+              "aprovado_semantico": true,
+              "contem_recomendacao_implicita_cvm": false,
+              "contem_julgamento_moral": false,
+              "observacao_auditoria": "O rascunho não contém recomendações, julgamentos morais e respeita a LGPD ao não mencionar dados pessoais."
+            }
+          }
+        ],
+        "observacao_juiz_llm": "O rascunho não contém recomendações, julgamentos morais e respeita a LGPD ao não mencionar dados pessoais."
       }
     }
   ]

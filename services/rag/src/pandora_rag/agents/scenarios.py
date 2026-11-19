@@ -99,7 +99,11 @@ def formatar_markdown_demonstracao(
             [
                 f"## {cenario.titulo}",
                 "",
-                f"- **Persona ID:** `{cenario.persona_id}` · **Modo:** `{res.modo}` · **Latência:** `{res.latencia_s:.4f} s`",
+                (
+                    f"- **Persona ID:** `{cenario.persona_id}` · **Modo:** `{res.modo}` · "
+                    f"**Modelo LLM:** `{res.modelo_llm}` · **Tool Calls:** `{res.total_tool_calls}` · "
+                    f"**Latência:** `{res.latencia_s:.4f} s`"
+                ),
                 f"- **Agentes Participantes:** {' → '.join(f'`{a}`' for a in res.agentes_acionados)}",
                 f"- **Consulta Mascarada:** {res.consulta_mascarada}",
                 "",

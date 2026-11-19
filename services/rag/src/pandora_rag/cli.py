@@ -102,7 +102,7 @@ def ask(pergunta: str, llm: str = "haiku", k: int = 5, tabela: str = "chunks", r
 def agent(
     pergunta: str,
     persona: str | None = None,
-    llm: str | None = None,
+    llm: str = "qwen25-7b",
     offline: bool = False,
     documento_ocr: str | None = None,
     linha_digitavel: str | None = None,
@@ -110,7 +110,7 @@ def agent(
     beneficiario_pf: bool = False,
     saida_json: bool = False,
 ) -> None:
-    """Executa uma consulta completa no grafo dos 7 agentes especializados."""
+    """Executa uma consulta completa no StateGraph (LangGraph) dos 7 agentes especializados."""
     from pandora_rag.agents.graph import GrafoPandora, construir_retriever_padrao
     from pandora_rag.generate.gateway import Gateway
 
@@ -129,7 +129,10 @@ def agent(
     if saida_json:
         typer.echo(res.model_dump_json(indent=2))
         return
-    typer.echo(f"ORIGEM RAG: {origem} | MODO: {res.modo} | AGENTES: {' -> '.join(res.agentes_acionados)}")
+    typer.echo(
+        f"ORIGEM RAG: {origem} | MODO: {res.modo} | LLM: {res.modelo_llm} | "
+        f"TOOL CALLS: {res.total_tool_calls} | AGENTES: {' -> '.join(res.agentes_acionados)}"
+    )
     typer.echo("\nTRACE DE COLABORAÇÃO:")
     for m in res.trace:
         typer.echo(f"  [{m.ordem}] {m.origem} -> {m.destino} ({m.tipo}): {m.resumo}")
@@ -138,11 +141,11 @@ def agent(
 
 @app.command()
 def demo(
-    llm: str | None = None,
+    llm: str = "qwen25-7b",
     offline: bool = False,
     saida_dir: Path | None = None,
 ) -> None:
-    """Executa as 4 jornadas demonstrativas das personas e exporta o trace completo."""
+    """Executa as 4 jornadas demonstrativas das personas no LangGraph e exporta o trace completo."""
     from pandora_rag.agents.graph import GrafoPandora, construir_retriever_padrao
     from pandora_rag.agents.scenarios import CENARIOS_DEMO, executar_demonstracao
     from pandora_rag.generate.gateway import Gateway
@@ -154,7 +157,10 @@ def demo(
     typer.echo(f"Demonstração concluída ({len(resultados)} jornadas, retriever={origem}):")
     for cen, res in zip(CENARIOS_DEMO, resultados, strict=True):
         typer.echo(f"\n=== {cen.titulo} ===")
-        typer.echo(f"Agentes: {' -> '.join(res.agentes_acionados)} ({len(res.trace)} interações)")
+        typer.echo(
+            f"Agentes: {' -> '.join(res.agentes_acionados)} "
+            f"({len(res.trace)} interações, LLM={res.modelo_llm}, tool_calls={res.total_tool_calls})"
+        )
         typer.echo(res.resposta_final)
     if saida_dir:
         typer.echo(f"\nArtefatos gravados em: {saida_dir}")

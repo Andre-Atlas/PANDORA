@@ -139,3 +139,107 @@ def test_cli_agent_e_demo_executam_com_sucesso(tmp_path):
     assert res_demo.exit_code == 0, res_demo.output
     assert (tmp_path / "demonstracao_multiagente.md").exists()
     assert (tmp_path / "demonstracao_multiagente.json").exists()
+
+
+class _FakeToolCallingChatModel:
+    """ChatModel determinístico compatível com bind_tools para validar Tool Calling nos 7 agentes."""
+
+    model = "qwen2.5:7b-test"
+
+    def __init__(self, bound_tools=None):
+        self._tools = bound_tools or []
+
+    def bind_tools(self, tools):
+        return _FakeToolCallingChatModel(bound_tools=list(tools))
+
+    def invoke(self, messages):
+        from langchain_core.messages import AIMessage
+
+        if not self._tools:
+            return AIMessage(
+                content="Priorize suas despesas vitais do mínimo existencial e renegocie o restante com base na Lei 14.181/2021."
+            )
+        nome_tool = self._tools[0].name
+        mapa_args = {
+            "tool_classificar_roteamento": {
+                "intencoes": ["dividas", "educacao"],
+                "agentes_especialistas": ["analista", "estrategista", "educador", "compliance"],
+                "sinal_crise": False,
+                "inducao_cvm": False,
+                "justificativa_roteamento": "Roteado via Tool Calling para reestruturação de dívidas e mínimo existencial.",
+            },
+            "tool_calcular_raio_x_financeiro": {
+                "foco_analise": "superendividamento_rotativo",
+                "query_normativa_sugerida": "Lei 14.181 minimo existencial",
+            },
+            "tool_simular_reestruturacao_dividas": {
+                "queries_normativas": [
+                    "Lei 14.181 minimo existencial repactuacao",
+                    "Lei 14.690 teto juros rotativo 100%",
+                ],
+                "recomendacao_abertura": "Pague primeiro a conta de luz para evitar corte e use o Método Avalanche.",
+            },
+            "tool_analisar_compulsao_apostas": {
+                "queries_normativas": ["Lei 14.790 apostas quota fixa autoexclusao"],
+                "mensagem_acolhimento_sem_julgamento": "Ative a pausa noturna e o cooling-off de 48h sem culpa.",
+            },
+            "tool_inspecionar_fraude_e_boleto": {
+                "queries_normativas": ["Resolucao BCB 147 MED Pix fraude 80 dias"],
+                "orientacao_emergencial": "Não pague o boleto suspeito e acione o MED no seu banco.",
+            },
+            "tool_buscar_evidencias_rag": {
+                "queries_pesquisa": ["Lei 14.181 minimo existencial repactuacao superendividamento"],
+            },
+            "tool_auditar_invariantes_compliance": {
+                "aprovado_semantico": True,
+                "contem_recomendacao_implicita_cvm": False,
+                "contem_julgamento_moral": False,
+                "observacao_auditoria": "Auditoria LLM-as-a-Judge aprovada em todos os invariantes.",
+            },
+        }
+        args = mapa_args.get(nome_tool, {})
+        return AIMessage(
+            content="",
+            tool_calls=[
+                {
+                    "name": nome_tool,
+                    "args": args,
+                    "id": f"call_{nome_tool}",
+                    "type": "tool_call",
+                }
+            ],
+        )
+
+
+def test_langgraph_state_graph_e_tool_calling_nos_agentes():
+    retr, _ = construir_retriever_padrao(usar_reranker=False, preferir_embutido=True)
+    grafo = GrafoPandora(retriever=retr)
+
+    nos_registrados = set(grafo.state_graph.nodes.keys())
+    assert {
+        "orquestrador_planejar",
+        "analista",
+        "estrategista",
+        "coach",
+        "guardiao",
+        "educador",
+        "orquestrador_sintetizar",
+        "compliance",
+        "preparar_revisao",
+        "fail_closed",
+    }.issubset(nos_registrados)
+
+    fake_llm = _FakeToolCallingChatModel()
+    res = grafo.executar(
+        consulta="Recebi R$ 2.850, a luz atrasou e o rotativo do cartão está em 448% a.a.",
+        persona_id="carla_34",
+        llm="qwen25-7b",
+        chat_model=fake_llm,  # type: ignore[arg-type]
+    )
+    assert res.modo == "langgraph_llm"
+    assert res.total_tool_calls == 5  # orquestrador, analista, estrategista, educador, compliance
+    assert "estrategista" in res.pareceres_agentes
+    assert "compliance" in res.pareceres_agentes
+    assert "SÍNTESE DO COPILOTO" in res.resposta_final
+    assert all("llm_modelo" in m.dados_chave for m in res.trace)
+

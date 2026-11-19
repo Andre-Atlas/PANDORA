@@ -64,7 +64,7 @@ Protótipo gerado pelo [design system](frontend/design-system/README.md): 7 tela
 
 ## Primeiro Protótipo Multiagente (4º Desafio)
 
-O sistema multiagente do PANDORA ([`docs/entregas/04-primeiro-prototipo-multiagente/`](docs/entregas/04-primeiro-prototipo-multiagente/README.md)) implementa um **grafo de estado tipado (`GrafoPandora`)** em Python/Pydantic com **7 agentes especializados colaborativos** integrados ao RAG híbrido (`BAAI/bge-m3` + `BM25` + `RRF`) e às travas de segurança (`RNF01`–`RNF05`):
+O sistema multiagente do PANDORA ([`docs/entregas/04-primeiro-prototipo-multiagente/`](docs/entregas/04-primeiro-prototipo-multiagente/README.md)) implementa um **grafo de estado compilado com `LangGraph` (`StateGraph(EstadoMultiagente)`)** e **Tool Calling nativo (`@tool` + `bind_tools` via `qwen2.5:7b` no Ollama local / Anthropic)** em **7 agentes especializados colaborativos**, integrados ao RAG híbrido (`BAAI/bge-m3` + `BM25` + `RRF`) e às travas de segurança (`RNF01`–`RNF05`):
 
 1. **`OrquestradorAgent`** (*Orchestrator + Communication*): mascara PII (`CPF`, `CNPJ`, telefone, e-mail, cartão, chave Pix UUID), classifica intenções, roteia para os especialistas e adapta o tom da síntese final ao perfil da persona.
 2. **`AnalistaAgent`** (*Analysis — Raio-X*): lê o extrato transacional da persona e calcula de forma determinística a renda, o **Mínimo Existencial**, a folga real e o comparativo com as séries SGS do Banco Central (`22022`, `25467`).
@@ -109,10 +109,10 @@ Pré-requisito: [`uv`](https://docs.astral.sh/uv/) instalado (gerencia automatic
 ```bash
 cd services/rag
 
-# Rodar toda a suíte de testes automatizados (58 testes: agentes + RAG)
+# Rodar toda a suíte de testes automatizados (59 testes: agentes LangGraph + Tool Calling + RAG)
 uv run --extra dev pytest tests/ -v
 
-# Rodar apenas os testes do sistema multiagente (21 testes)
+# Rodar apenas os testes do sistema multiagente (22 testes)
 uv run --extra dev pytest tests/test_agents_tools.py tests/test_agents_specialists.py tests/test_agents_graph.py -v
 
 # Rodar verificação de lint (ruff) nos arquivos do sistema multiagente

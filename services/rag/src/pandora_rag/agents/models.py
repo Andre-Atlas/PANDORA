@@ -210,7 +210,10 @@ class EstadoMultiagente(BaseModel):
     resposta_final: str = ""
     revisoes_realizadas: int = Field(default=0, ge=0)
     trace: list[MensagemAgente] = Field(default_factory=list)
-    modo: Literal["deterministico", "hibrido_llm"] = "deterministico"
+    modo: Literal["deterministico", "hibrido_llm", "langgraph_llm"] = "deterministico"
+    modelo_llm: str | None = None
+    pareceres_agentes: dict[str, str] = Field(default_factory=dict)
+    total_tool_calls: int = Field(default=0, ge=0)
 
     def registrar_mensagem(
         self,
@@ -238,7 +241,10 @@ class ResultadoMultiagente(BaseModel):
 
     persona_id: str | None = None
     consulta_mascarada: str
-    modo: Literal["deterministico", "hibrido_llm"] = "deterministico"
+    modo: Literal["deterministico", "hibrido_llm", "langgraph_llm"] = "deterministico"
+    modelo_llm: str | None = None
+    total_tool_calls: int = Field(default=0, ge=0)
+    pareceres_agentes: dict[str, str] = Field(default_factory=dict)
     latencia_s: float = Field(default=0.0, ge=0.0)
     intencoes_detectadas: list[str] = Field(default_factory=list)
     agentes_acionados: list[AgentRole] = Field(default_factory=list)
@@ -268,6 +274,9 @@ class ResultadoMultiagente(BaseModel):
             persona_id=estado.persona_id,
             consulta_mascarada=estado.consulta_mascarada,
             modo=estado.modo,
+            modelo_llm=estado.modelo_llm,
+            total_tool_calls=estado.total_tool_calls,
+            pareceres_agentes=dict(estado.pareceres_agentes),
             latencia_s=round(latencia_s, 4),
             intencoes_detectadas=list(estado.intencoes_detectadas),
             agentes_acionados=agentes,
