@@ -4,6 +4,7 @@ Formato: versão, data, o que mudou. Versões do corpus, do golden e dos modelos
 
 ## Não lançado
 
+- Inventário das 31 fontes do catálogo (`catalogo` em `fontes.yaml`) e `pandora-rag coletar-catalogo`: coletores de HTML, PDF e API, bruto com data e SHA-256 em `catalogo.lock.json`, `robots.txt`, limite por origem, repetição e falha isolada por fonte. `pandora-rag inventario` mostra a situação de cada item (#54).
 - Serviço HTTP (`pandora-rag servir`, porta 8010): `GET /saude` e `POST /responder`, com `contexto` opcional que orienta o LLM e nunca vira fonte.
 - Variável do banco do RAG passa a ser `PANDORA_RAG_DB_URL`; `PANDORA_DB_URL` ainda vale, com aviso.
 - `pandora-rag gerar-trilha`: gera as 6 lições com explicação citada e perguntas de múltipla escolha. Valida citações, números (no enunciado, na opção certa e no retorno) e fontes com aviso de vigência. A triagem manual (`scripts/triagem_trilha.py`) removeu 4 perguntas e editou 1, cada uma com motivo; conteúdo atual: validação `automatica+triagem`, 7 perguntas.

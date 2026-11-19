@@ -1,0 +1,601 @@
+{
+  "alvos": {
+    "amostra-personas": {
+      "situacao": "manual",
+      "motivo": "Já versionada no repositório (docs/evidencias/datasets/amostra_transacoes_sinteticas_personas.csv); não há o que coletar."
+    },
+    "anbima-raio-x": {
+      "situacao": "manual",
+      "motivo": "Edições do Raio X ficam em página da ANBIMA sem URL estável de arquivo; baixar cada edição à mão."
+    },
+    "aneel-ren-1000": {
+      "situacao": "manual",
+      "motivo": "REN ANEEL 1.000/2021 fora do manifesto; o texto compilado fica no sistema de legislação da ANEEL, sem URL de arquivo estável."
+    },
+    "bcb-147": {
+      "situacao": "coletada",
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20BCB&p2=147",
+      "arquivo": "bcb-147.json",
+      "sha256": "cae09e726de61d15795780a334bff24e87c991b6291aa8cc5e2129a6fd927f3c",
+      "bytes": 32620,
+      "coletado_em": "2026-11-17T14:42:39Z"
+    },
+    "bcb-365": {
+      "situacao": "manual",
+      "motivo": "Resolução BCB 365/2023 fora do manifesto; testar a URL da API de normativos (padrão da Res. BCB 147) e incluir em fontes."
+    },
+    "bcb-caderno": {
+      "situacao": "coletada",
+      "url": "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/caderno_cidadania_financeira.pdf",
+      "arquivo": "bcb-caderno.pdf",
+      "sha256": "e42aa64c16d7e35ccaba4c73b28f604873e442fa1b093f13cfc2ec056db90cc3",
+      "bytes": 8160797,
+      "coletado_em": "2026-11-17T14:42:02Z"
+    },
+    "bcb-cidadania-8": {
+      "situacao": "coletada",
+      "url": "https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/serie_cidadania/serie_cidadania_financeira_8_endividamento_risco_2ed.pdf",
+      "arquivo": "bcb-cidadania-8.pdf",
+      "sha256": "43929be37cdc91e33ad60cc774378e5aa02fa1baef5e96693b7197fd0ff9c67f",
+      "bytes": 1414530,
+      "coletado_em": "2026-11-17T14:42:02Z"
+    },
+    "bcb-ee119": {
+      "situacao": "coletada",
+      "url": "https://www.bcb.gov.br/conteudo/relatorioinflacao/EstudosEspeciais/EE119_Analise_tecnica_sobre_o_mercado_de_apostas_online_no_Brasil_e_o_perfil_dos_apostadores.pdf",
+      "arquivo": "bcb-ee119.pdf",
+      "sha256": "a63d07a8d68154cbbca509bbb525f644c989f004ca4e92cf07b2142f3e45c638",
+      "bytes": 306330,
+      "coletado_em": "2026-11-17T14:42:03Z"
+    },
+    "bcb-ranking-reclamacoes": {
+      "situacao": "manual",
+      "motivo": "Ranking trimestral publicado como planilha em página do BCB sem URL fixa; baixar à mão."
+    },
+    "bcb-rcf-2025": {
+      "situacao": "manual",
+      "motivo": "Relatório de Cidadania Financeira 2025: o catálogo não traz o link do PDF; localizar na página de Cidadania Financeira do BCB e incluir em fontes.yaml."
+    },
+    "bcb-resolucao-conjunta-15": {
+      "situacao": "manual",
+      "motivo": "Resolução Conjunta 15/2025 fora do manifesto; o parâmetro da API de normativos para atos conjuntos não foi confirmado."
+    },
+    "cdc": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/l8078compilado.htm",
+      "arquivo": "cdc.html",
+      "sha256": "3b7914d84c31c24661a2fb71e8d669dbcb2250fc430a6c32dcdd8261470bc1e7",
+      "sha256_texto": "bf109819348aa3532138e319156768e5ae944af590724be3344e9beb818bbae3",
+      "bytes": 170672,
+      "coletado_em": "2026-11-17T14:42:05Z"
+    },
+    "cmn-4558": {
+      "situacao": "coletada",
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o&p2=4558",
+      "arquivo": "cmn-4558.json",
+      "sha256": "2a4e14314e2772e04cae70a558512da274a3efb5940bbb6f403a6c18a949b719",
+      "bytes": 3234,
+      "coletado_em": "2026-11-17T14:42:37Z"
+    },
+    "cmn-4655": {
+      "situacao": "manual",
+      "motivo": "Resolução CMN 4.655/2018 fora do manifesto; testar a URL da API de normativos e incluir em fontes."
+    },
+    "cmn-4881": {
+      "situacao": "coletada",
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=4881",
+      "arquivo": "cmn-4881.json",
+      "sha256": "260590ef0b4bb34d9fd074af06201fff562d5a0159f9cacf779af937f48fc809",
+      "bytes": 16327,
+      "coletado_em": "2026-11-17T14:42:36Z"
+    },
+    "cmn-4882": {
+      "situacao": "coletada",
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=4882",
+      "arquivo": "cmn-4882.json",
+      "sha256": "c3d3c0acaa5c0da3d5fb34432fb3f0bfe555ce69e8055ac285afc5942c29aaf1",
+      "bytes": 11264,
+      "coletado_em": "2026-11-17T14:42:38Z"
+    },
+    "cmn-5057": {
+      "situacao": "coletada",
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=5057",
+      "arquivo": "cmn-5057.json",
+      "sha256": "9c29690ce7acc5d195d77ffed08f738538d545c6c9092b2f3893ae2dbb1ef755",
+      "bytes": 51691,
+      "coletado_em": "2026-11-17T14:42:35Z"
+    },
+    "cmn-5112": {
+      "situacao": "coletada",
+      "url": "https://www.bcb.gov.br/api/conteudo/app/normativos/exibenormativo?p1=Resolu%C3%A7%C3%A3o%20CMN&p2=5112",
+      "arquivo": "cmn-5112.json",
+      "sha256": "0cf2915a78d73994192b66167e3b569ac915c659b477d5a60655dd5d71107300",
+      "bytes": 27682,
+      "coletado_em": "2026-11-17T14:42:34Z"
+    },
+    "cmn-5265": {
+      "situacao": "manual",
+      "motivo": "Resolução CMN 5.265/2025 fora do manifesto; testar a URL da API de normativos do BCB (mesmo padrão da 5.057) e incluir em fontes."
+    },
+    "cnc-peic": {
+      "situacao": "manual",
+      "motivo": "Séries publicadas em páginas e relatórios sem API nem URL estável."
+    },
+    "cnj-cartilha": {
+      "situacao": "coletada",
+      "url": "https://www.cnj.jus.br/wp-content/uploads/2022/08/cartilha-superendividamento.pdf",
+      "arquivo": "cnj-cartilha.pdf",
+      "sha256": "c7a3e03bbadeda98946134a15517ef105c36b25510b801e70bd4a9ae4b664bba",
+      "bytes": 3632925,
+      "coletado_em": "2026-11-17T14:42:15Z"
+    },
+    "cnj-rec-125": {
+      "situacao": "manual",
+      "motivo": "Recomendação 125/2021 (Anexo II, formulário-padrão) está no sistema de atos normativos do CNJ; baixar o PDF à mão."
+    },
+    "codigo-civil": {
+      "situacao": "manual",
+      "motivo": "Código Civil compilado (art. 206, § 5º, I) fora do manifesto; confirmar a URL no Planalto e incluir em fontes. As súmulas 359, 385, 479 e 548 já vêm do PDF do STJ (item 18)."
+    },
+    "consumidor-gov-br": {
+      "situacao": "manual",
+      "motivo": "Base publicada no portal de dados abertos, com um arquivo por período e links que mudam; baixar à mão até haver URL estável."
+    },
+    "cpc": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2015-2018/2015/lei/l13105.htm",
+      "arquivo": "cpc.html",
+      "sha256": "1747061f7e33a65ef8749aa8212394a9d65be9e10c2c91bdd12bcf921ca5a176",
+      "sha256_texto": "4aac912e0d906999485a9e9c31f5e7db41c73e0b09604fb36edde54328643972",
+      "bytes": 1689626,
+      "coletado_em": "2026-11-17T14:42:28Z"
+    },
+    "cvm-19": {
+      "situacao": "coletada",
+      "url": "https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol019.pdf",
+      "arquivo": "cvm-19.pdf",
+      "sha256": "e375ad67291f6456992e65725bcd29ddc6d05ac91b2b9eb56e49ba97114635bb",
+      "bytes": 364469,
+      "coletado_em": "2026-11-17T14:42:39Z"
+    },
+    "cvm-20": {
+      "situacao": "coletada",
+      "url": "https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol020.pdf",
+      "arquivo": "cvm-20.pdf",
+      "sha256": "27edaffb395be314cb417e8e36aecfa0f290ab6000bad5a64a96ab29b50d05a1",
+      "bytes": 293340,
+      "coletado_em": "2026-11-17T14:42:40Z"
+    },
+    "cvm-30": {
+      "situacao": "coletada",
+      "url": "https://conteudo.cvm.gov.br/export/sites/cvm/legislacao/resolucoes/anexos/001/resol030.pdf",
+      "arquivo": "cvm-30.pdf",
+      "sha256": "8d540375deae27f393b90fe6eb67b9b95e693ef6d37eb41cce507d3793c311c1",
+      "bytes": 226974,
+      "coletado_em": "2026-11-17T14:42:41Z"
+    },
+    "cvm-vieses-1": {
+      "situacao": "manual",
+      "motivo": "Volume 1 (Vieses do Investidor) ainda não tem URL confirmada no manifesto; os volumes 2 e 3 já são coletados."
+    },
+    "cvm-vieses-2": {
+      "situacao": "coletada",
+      "url": "https://www.gov.br/investidor/pt-br/educacional/publicacoes-educacionais/cvm-comportamental/volume-2-vieses-do-poupador.pdf/@@display-file/file",
+      "arquivo": "cvm-vieses-2.pdf",
+      "sha256": "28625b0b45085dd62faed818730be33e7c06a363bb85f1fe40022a46b8a27e73",
+      "bytes": 827636,
+      "coletado_em": "2026-11-17T14:42:03Z"
+    },
+    "cvm-vieses-3": {
+      "situacao": "coletada",
+      "url": "https://www.gov.br/investidor/pt-br/educacional/publicacoes-educacionais/cvm-comportamental/volume-3-vieses-do-consumidor.pdf/@@display-file/file",
+      "arquivo": "cvm-vieses-3.pdf",
+      "sha256": "96682e27793c16bb8199661c90f0d37904c14077145b9ff40eecf8f112639f5d",
+      "bytes": 934368,
+      "coletado_em": "2026-11-17T14:42:03Z"
+    },
+    "decreto-11150": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2022/decreto/d11150.htm",
+      "arquivo": "decreto-11150.html",
+      "sha256": "a50b8e142b43922bec2ec798b75654b96713480ae8f67c937ce71da2fd237d69",
+      "sha256_texto": "59e52f6cd6f15fcbeca0b3bfc72698777ae7c1b2521e2730beedd0ac560f0aa4",
+      "bytes": 28188,
+      "coletado_em": "2026-11-17T14:42:06Z"
+    },
+    "decreto-11567": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/decreto/d11567.htm",
+      "arquivo": "decreto-11567.html",
+      "sha256": "5b47a1512869e1e2c35eeb29ad5501f414df279e900b109df553d891e923247c",
+      "sha256_texto": "7ff8dc33382dc68e0ca1a1acd3df3090f1f1065d999f734fddf550c08c3cd3e5",
+      "bytes": 16840,
+      "coletado_em": "2026-11-17T14:42:07Z"
+    },
+    "defensorias-cartilhas": {
+      "situacao": "manual",
+      "motivo": "Cartilhas de DPDF, DPRJ, DPES e MPCE vêm de quatro sites diferentes, cada um com seu link; baixar à mão."
+    },
+    "dl-911": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/decreto-lei/1965-1988/del0911compilado.htm",
+      "arquivo": "dl-911.html",
+      "sha256": "0c564f4906c465dcd40930245855c9dd5f6169ffb71f525cc83dc7c5966247f6",
+      "sha256_texto": "19a7549427f74167167efbe5668a759dde3a69ba1131748ce39455fed8559308",
+      "bytes": 58033,
+      "coletado_em": "2026-11-17T14:42:25Z"
+    },
+    "escalas-psicometricas": {
+      "situacao": "manual",
+      "motivo": "Instrumentos publicados em artigos e normas; não há feed. Os itens das escalas são transcritos à mão para o esquema do formulário."
+    },
+    "febraban-guia-isfb": {
+      "situacao": "manual",
+      "motivo": "Guia e acervo ficam em páginas da Febraban sem URL de arquivo estável; baixar o PDF à mão e registrar o hash."
+    },
+    "hf-cfpb-consumer-complaints": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/vivekkopthsd/cfpb-consumer-complaints",
+      "arquivo": "catalogo/hf-cfpb-consumer-complaints.json",
+      "sha256": "526e045603cd616f8898217c499837158c5bc475139612b5e48cbe68b365ff7e",
+      "bytes": 1663,
+      "coletado_em": "2026-11-17T14:43:08Z"
+    },
+    "hf-en-convfinqa": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/TheFinAI/en-convfinqa",
+      "arquivo": "catalogo/hf-en-convfinqa.json",
+      "sha256": "4e8fa6c7ce998a3ad12efa51d65317d7c2c64c5c5f15b6038e12551b95d3f0d8",
+      "bytes": 3105,
+      "coletado_em": "2026-11-17T14:43:15Z"
+    },
+    "hf-finqa": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/ibm-research/finqa",
+      "arquivo": "catalogo/hf-finqa.json",
+      "sha256": "1814c402f76ab4aa68110833e7b2075b1c934985f4b52df9e26531edebc1ff76",
+      "bytes": 1270,
+      "coletado_em": "2026-11-17T14:43:13Z"
+    },
+    "hf-fiqa-personal-finance": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/bilalRahib/fiqa-personal-finance-dataset",
+      "arquivo": "catalogo/hf-fiqa-personal-finance.json",
+      "sha256": "9c37b790ae8de939aa0f6fb41fb4ecc24d597b9e3584ebb07cda63d5b8c143a2",
+      "bytes": 1288,
+      "coletado_em": "2026-11-17T14:43:09Z"
+    },
+    "hf-juris-tcu": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/ufca-llms/juris-tcu",
+      "arquivo": "catalogo/hf-juris-tcu.json",
+      "sha256": "20c85beca9becb90b7139d9bc074b1655846492a048add2531ee001b13b85e2a",
+      "bytes": 2328,
+      "coletado_em": "2026-11-17T14:43:11Z"
+    },
+    "hf-normas-tcu": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/ufca-llms/normas-tcu",
+      "arquivo": "catalogo/hf-normas-tcu.json",
+      "sha256": "23f3517681ceb9b5612f6a3c992b90e0ce82045a5e9aaeb68c2c0351c03da705",
+      "bytes": 2319,
+      "coletado_em": "2026-11-17T14:43:12Z"
+    },
+    "hf-personal-finance-advice-qa": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/flamiinngo/personal-finance-advice-qa",
+      "arquivo": "catalogo/hf-personal-finance-advice-qa.json",
+      "sha256": "79f0c5254fd3d78fe6410a407efd7245a62998ae2bbbdddd5c31340e8e6a633a",
+      "bytes": 1912,
+      "coletado_em": "2026-11-17T14:43:07Z"
+    },
+    "hf-personal-finance-queries": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/Akhil-Theerthala/Personal-Finance-Queries",
+      "arquivo": "catalogo/hf-personal-finance-queries.json",
+      "sha256": "91266effd7cde71d5ccd801404065d29fc60c65a14bf19622b7aed637c109047",
+      "bytes": 1733,
+      "coletado_em": "2026-11-17T14:43:06Z"
+    },
+    "hf-reclamacao-agua-saneamento": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/dnacx/reclamacao-agua-e-saneamento",
+      "arquivo": "catalogo/hf-reclamacao-agua-saneamento.json",
+      "sha256": "d7fab3b26e058115a3eed8279015fcfce4c654688f56c2e8ad0181a3b7e9a73b",
+      "bytes": 1703,
+      "coletado_em": "2026-11-17T14:43:10Z"
+    },
+    "hf-tat-qa": {
+      "situacao": "coletada",
+      "url": "https://huggingface.co/api/datasets/next-tat/TAT-QA",
+      "arquivo": "catalogo/hf-tat-qa.json",
+      "sha256": "3c86a4a059ad61c8c5fc8ad31049db8d7a0e116aadc047339b2ecc184fd1b69e",
+      "bytes": 1586,
+      "coletado_em": "2026-11-17T14:43:14Z"
+    },
+    "kaggle-brazilian-real-bank": {
+      "situacao": "manual",
+      "motivo": "Kaggle exige login e chave de API; baixar à mão."
+    },
+    "kaggle-paysim": {
+      "situacao": "manual",
+      "motivo": "Kaggle exige login e chave de API; baixar à mão."
+    },
+    "kaggle-relatos-consumidor-gov-br": {
+      "situacao": "manual",
+      "motivo": "Kaggle exige login e chave de API; baixar à mão."
+    },
+    "lei-14015": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2020/lei/l14015.htm",
+      "arquivo": "lei-14015.html",
+      "sha256": "1baf3eb68b9588731b742406ea2b5c95fc5d8c6c435f8c305894b3cefa49a0da",
+      "sha256_texto": "9ffa0730efa323d1641b701e8a16c7530c6722de214f01eb4ce90c9b6870397d",
+      "bytes": 7946,
+      "coletado_em": "2026-11-17T14:42:29Z"
+    },
+    "lei-14181": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2019-2022/2021/lei/l14181.htm",
+      "arquivo": "lei-14181.html",
+      "sha256": "3eee842a86eeac154f7fd99ca445a90e0cbc91a312494cf2bbdd40a3980cc3b8",
+      "sha256_texto": "254f44f68eb1a60267c5e9bef7ddecd00ae3edce374e7e3d408fbf6e1eb45e59",
+      "bytes": 50803,
+      "coletado_em": "2026-11-17T14:42:04Z"
+    },
+    "lei-14690": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14690.htm",
+      "arquivo": "lei-14690.html",
+      "sha256": "ce29336707913f377c0cded26f9f271c4de1e18474c622150f3595a8d50fd863",
+      "sha256_texto": "e4cb100d90de6d576638c2f1964ce59f4dc5badc49f6dd73f85b030bebb82c05",
+      "bytes": 130080,
+      "coletado_em": "2026-11-17T14:42:30Z"
+    },
+    "lei-14711": {
+      "situacao": "manual",
+      "motivo": "Lei 14.711/2023 ainda fora do manifesto do corpus; confirmar a URL no Planalto e incluir em fontes."
+    },
+    "lei-14790": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14790.htm",
+      "arquivo": "lei-14790.html",
+      "sha256": "8b85ca1ef230689fa05edbf87ec10d538f9c6215f5153ca638a4dbf7ce7c8e46",
+      "sha256_texto": "dfa1cbcc07c1e3b069545d0482c19feb68ab26990e718b431b4928a301a2854f",
+      "bytes": 302801,
+      "coletado_em": "2026-11-17T14:43:05Z"
+    },
+    "lei-8009": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/l8009.htm",
+      "arquivo": "lei-8009.html",
+      "sha256": "833d119911633d828e2b68093c10ad0ffe09ddc4c82aebce92f7171f8a54cad9",
+      "sha256_texto": "88628bb1d382221dfb03839cf1a64fa4c40134b8bd485b00900aaded3c95afd1",
+      "bytes": 12320,
+      "coletado_em": "2026-11-17T14:42:27Z"
+    },
+    "lei-9514": {
+      "situacao": "coletada",
+      "url": "https://www.planalto.gov.br/ccivil_03/leis/l9514.htm",
+      "arquivo": "lei-9514.html",
+      "sha256": "1e2ba646df67dcf84c297621964de7958e32c7c1f47041252e45cddf6e632fa3",
+      "sha256_texto": "d097b986d017c428cabccee3091ddfc0ca0b0f553e331b7658d3d16a2cb589e3",
+      "bytes": 172479,
+      "coletado_em": "2026-11-17T14:42:26Z"
+    },
+    "lgpd": {
+      "situacao": "manual",
+      "motivo": "Lei 13.709/2018 fora do manifesto do corpus; confirmar a URL no Planalto e incluir em fontes."
+    },
+    "livro-top-cvm-planejar": {
+      "situacao": "manual",
+      "motivo": "Livro com direitos autorais e distribuição por cadastro; usar só o capítulo autorizado, obtido à mão."
+    },
+    "mpf-adpf-1005": {
+      "situacao": "coletada",
+      "url": "https://www.mpf.mp.br/o-mpf/unidades/procuradoria-geral-da-republica-pgr/noticias/valor-do-minimo-existencial-deve-assegurar-dignidade-da-pessoa-humana-decide-stf",
+      "arquivo": "mpf-adpf-1005.html",
+      "sha256": "08507b63fea23c8786537f4ca3915ed99a9fe9c8315570b5b59edeac70b510b5",
+      "sha256_texto": "d6b1a6ecfc858c52d3b1ec069a5a7016c436f2d17480bbaa723425c59806db66",
+      "bytes": 611922,
+      "coletado_em": "2026-11-17T14:42:14Z"
+    },
+    "olinda-taxas-juros-mensal": {
+      "situacao": "coletada",
+      "url": "https://olinda.bcb.gov.br/olinda/servico/taxaJuros/versao/v2/odata/TaxasJurosMensalPorMes?$top=100&$orderby=Mes%20desc&$format=json",
+      "arquivo": "catalogo/olinda-taxas-juros-mensal.json",
+      "sha256": "cf993c74de6ce635053e724a2908f2e724228bf89391146627a2a46d29be0418",
+      "bytes": 25458,
+      "coletado_em": "2026-11-17T14:42:45Z"
+    },
+    "procon-jf": {
+      "situacao": "coletada",
+      "url": "https://www.pjf.mg.gov.br/administracao_indireta/procon/material_grafico/cartilhas/arquivos/superendividamento.pdf",
+      "arquivo": "procon-jf.pdf",
+      "sha256": "e3c615e636436f40568ba767062b66a5fa38fba46715d6aaa397d5b97cc4eadb",
+      "bytes": 2288052,
+      "coletado_em": "2026-11-17T14:42:24Z"
+    },
+    "procon-pas": {
+      "situacao": "coletada",
+      "url": "https://www.procon.sp.gov.br/wp-content/uploads/files/como_participar_pas.pdf",
+      "arquivo": "procon-pas.pdf",
+      "sha256": "1a4c410893c4d60456ccc30bb4c634ff951d2acfce22409c5b4b7b4d875801dd",
+      "bytes": 1945783,
+      "coletado_em": "2026-11-17T14:42:20Z"
+    },
+    "scr-data": {
+      "situacao": "manual",
+      "motivo": "Arquivos CSV/ZIP mensais de grande volume (mais de 700 mil séries); a carga em DuckDB/Parquet é tarefa do pipeline analítico, não da coleta bruta."
+    },
+    "senacon-manual": {
+      "situacao": "coletada",
+      "url": "https://www.gov.br/mj/pt-br/assuntos/seus-direitos/consumidor/escola-nacional-endc/biblioteca/manuais/prevencao-e-tratamento-do-superendividamento.pdf",
+      "arquivo": "senacon-manual.pdf",
+      "sha256": "7dce3379857f34b0dfe59397bfae93c07f93d11e0a14fcf89452c225c1ae27f1",
+      "bytes": 4021869,
+      "coletado_em": "2026-11-17T14:42:25Z"
+    },
+    "senacon-pnud-produto-2": {
+      "situacao": "manual",
+      "motivo": "Produto 2 (SENACON/PNUD) sem URL confirmada no catálogo; localizar e baixar à mão."
+    },
+    "serasa-mapa-inadimplencia": {
+      "situacao": "manual",
+      "motivo": "Mapa publicado em página institucional, sem API nem URL estável."
+    },
+    "sgs-12": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.12/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-12.json",
+      "sha256": "3eae04e6a43f49ee13929a8abc52467dfc153b77e02ed2482d9ab44de505b6dc",
+      "bytes": 411,
+      "coletado_em": "2026-11-17T14:42:48Z"
+    },
+    "sgs-1619": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.1619/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-1619.json",
+      "sha256": "036a876978daf53f42bba365daa395d469d2b236b0fea6348270a86420a0be4d",
+      "bytes": 401,
+      "coletado_em": "2026-11-17T14:42:55Z"
+    },
+    "sgs-21085": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.21085/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-21085.json",
+      "sha256": "4b03958580e859ac2aafb0398ee777ccc9b4d60cec57b9f89ad7324cd3d1249b",
+      "bytes": 371,
+      "coletado_em": "2026-11-17T14:42:57Z"
+    },
+    "sgs-25463": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.25463/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-25463.json",
+      "sha256": "c09c5061383f35c3b6b3489e0f6d05bde4a9bed3a3ebfd75f7d592ec38a86cef",
+      "bytes": 371,
+      "coletado_em": "2026-11-17T14:42:58Z"
+    },
+    "sgs-25464": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.25464/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-25464.json",
+      "sha256": "b8494f022f3e3f6e6053431179ff679145aee1d062f9a5abeef844efe9453884",
+      "bytes": 371,
+      "coletado_em": "2026-11-17T14:42:59Z"
+    },
+    "sgs-25467": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.25467/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-25467.json",
+      "sha256": "3d0bcb8350d38931d3dfefed86b2d17cb6784b94e5402d4cd8c01f81d63c34c2",
+      "bytes": 371,
+      "coletado_em": "2026-11-17T14:43:00Z"
+    },
+    "sgs-25477": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.25477/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-25477.json",
+      "sha256": "66420b28fcd3989c07a459b8d8830f184d45f240b7f11e2bc2b5c42761a62b31",
+      "bytes": 381,
+      "coletado_em": "2026-11-17T14:43:01Z"
+    },
+    "sgs-29033": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.29033/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-29033.json",
+      "sha256": "d3b3d2a6d7c94907bd0acf594df9861c346c963a88e9b54920ca2fd04fb23510",
+      "bytes": 381,
+      "coletado_em": "2026-11-17T14:43:05Z"
+    },
+    "sgs-29034": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.29034/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-29034.json",
+      "sha256": "3ec1a367ab52f6e542c2c9a85c6a57c9b97e222ea4ebfb3f7e88d51e214e13f4",
+      "bytes": 381,
+      "coletado_em": "2026-11-17T14:43:02Z"
+    },
+    "sgs-29037": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.29037/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-29037.json",
+      "sha256": "72d6220a205813ff8e5c42df84e8d01e7e344d6ff63a067db2a252a40e5fc919",
+      "bytes": 381,
+      "coletado_em": "2026-11-17T14:43:02Z"
+    },
+    "sgs-29038": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.29038/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-29038.json",
+      "sha256": "23608946d6021c510ff7f11a79712592221daab3402bf59802dbe62f584863bf",
+      "bytes": 381,
+      "coletado_em": "2026-11-17T14:43:04Z"
+    },
+    "sgs-432": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.432/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-432.json",
+      "sha256": "0c80bd21e806baaf3c5f8869f9c98c9d212ec138d9a0d3b9121b9ce632d46a46",
+      "bytes": 381,
+      "coletado_em": "2026-11-17T14:42:48Z"
+    },
+    "sgs-433": {
+      "situacao": "coletada",
+      "url": "https://api.bcb.gov.br/dados/serie/bcdata.sgs.433/dados/ultimos/10?formato=json",
+      "arquivo": "catalogo/sgs-433.json",
+      "sha256": "35024cb7cc8907e01208a51559c3832e9313aa23b6f0012c7841fe7066d4e5af",
+      "bytes": 372,
+      "coletado_em": "2026-11-17T14:44:08Z"
+    },
+    "spa-lista-bets": {
+      "situacao": "manual",
+      "motivo": "Lista em página do Ministério da Fazenda, sem URL de arquivo confirmada; a normalização é a issue #59 (modelos auxiliares)."
+    },
+    "stf-acordao-adpfs": {
+      "situacao": "manual",
+      "motivo": "Acórdão ainda não coletado: o portal do STF exige consulta por número do processo; acompanhar a publicação e incluir o PDF."
+    },
+    "stf-adpf-1005": {
+      "situacao": "coletada",
+      "url": "https://noticias.stf.jus.br/?p=162192",
+      "arquivo": "stf-adpf-1005.html",
+      "sha256": "59370c19262d23f025d05e24bfc1d8a51c081338571670f5c734a0a5675b8860",
+      "sha256_texto": "065a2a482dac83ec21137ee70d826d2cd5b550f7470ecf15f70a660988f58031",
+      "bytes": 114728,
+      "coletado_em": "2026-11-17T14:42:14Z"
+    },
+    "stf-sumula-596": {
+      "situacao": "manual",
+      "motivo": "Súmula 596/STF é consultada por número no portal do STF, sem URL de arquivo estável."
+    },
+    "stj-sumulas": {
+      "situacao": "coletada",
+      "url": "https://scon.stj.jus.br/docs_internet/VerbetesSTJ.pdf",
+      "arquivo": "stj-sumulas.pdf",
+      "sha256": "2629d66c53ef7e4defbc3682109185f0a93a8ba7c180c30abb0beedfd61224fc",
+      "bytes": 396908,
+      "coletado_em": "2026-11-17T14:42:38Z"
+    },
+    "stj-tema-1264": {
+      "situacao": "manual",
+      "motivo": "Tema 1.264 é consultado por número no portal de repetitivos do STJ, sem URL de arquivo estável."
+    },
+    "stj-tema-27": {
+      "situacao": "manual",
+      "motivo": "Tema 27 (REsp 1.061.530/RS) é consultado por número no portal de repetitivos do STJ, sem URL de arquivo estável."
+    },
+    "tjsp-manual": {
+      "situacao": "coletada",
+      "url": "https://www.tjsp.jus.br/Download/Conciliacao/Manual-Superindividamento.pdf",
+      "arquivo": "tjsp-manual.pdf",
+      "sha256": "fb223cf030a52be9d1e1e70724b2b5a577114488ed48a77527d3c59b009f62eb",
+      "bytes": 4335923,
+      "coletado_em": "2026-11-17T14:42:16Z"
+    },
+    "ulb-credit-card-fraud": {
+      "situacao": "manual",
+      "motivo": "Distribuído no Kaggle e no OpenML, com login; baixar à mão."
+    }
+  }
+}

@@ -22,6 +22,34 @@ def coletar() -> None:
         typer.echo(f"{fonte:18} {situacao}")
 
 
+@app.command("coletar-catalogo")
+def coletar_catalogo_cmd(alvo: Optional[list[str]] = typer.Option(None, "--alvo", help="Coleta só estes ids de alvo")) -> None:
+    """Coleta os alvos dos 31 itens do catálogo (HTML, PDF, API) e atualiza catalogo.lock.json."""
+    from pandora_rag.coleta.executor import coletar_catalogo
+
+    logging.basicConfig(level=logging.WARNING)
+    for id_alvo, situacao in coletar_catalogo(apenas=set(alvo) if alvo else None).items():
+        typer.echo(f"{id_alvo:34} {situacao}")
+
+
+@app.command()
+def inventario(md: Optional[str] = typer.Option(None, "--md", help="Grava a tabela em Markdown neste caminho")) -> None:
+    """Mostra os 31 itens com formato, frequência e situação (coletada, manual, mista, falha, pendente)."""
+    from pathlib import Path
+
+    from pandora_rag.coleta.catalogo import carregar_catalogo
+    from pandora_rag.coleta.executor import ler_lock, situacao_do_item
+    from pandora_rag.coleta.inventario import markdown, resumo
+
+    itens, lock = carregar_catalogo(), ler_lock()
+    if md:
+        Path(md).write_text(markdown(itens, lock), encoding="utf-8")
+        typer.echo(f"inventário gravado em {md}")
+    for item in itens:
+        typer.echo(f"{item.numero:2} {situacao_do_item(item, lock):9} {item.frequencia:10} {','.join(item.formatos):12} {item.nome[:70]}")
+    typer.echo(f"\n{len(itens)} itens: {resumo(itens, lock)}")
+
+
 @app.command()
 def extrair() -> None:
     """Extrai o texto limpo de data/raw para data/text."""

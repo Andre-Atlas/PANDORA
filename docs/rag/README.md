@@ -15,6 +15,7 @@
 | [07-metricas-e-resultados](07-metricas-e-resultados.md) | Métricas e resultados |
 | [08-treinamento](08-treinamento.md) | Ablação, ajuste fino e abstenção |
 | [09-decisao-llm](09-decisao-llm.md) | Escolha do LLM (#53) |
+| [10-inventario-fontes](10-inventario-fontes.md) | Inventário e coleta das 31 fontes do catálogo (#54) |
 | [CHANGELOG](CHANGELOG.md) | Versões do corpus, do golden e dos modelos |
 
 Execuções reproduzíveis ficam em `evals/runs/`, e o histórico de rodadas do teste em `evals/test_log.md`.

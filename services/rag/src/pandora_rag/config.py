@@ -10,6 +10,7 @@ ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = ROOT.parents[1]
 FONTES_PATH = ROOT / "fontes.yaml"
 LOCK_PATH = ROOT / "corpus.lock"
+CATALOGO_LOCK_PATH = ROOT / "catalogo.lock.json"
 DATA_DIR = Path(os.environ.get("PANDORA_DATA_DIR", ROOT / "data"))
 RAW_DIR = DATA_DIR / "raw"
 TEXT_DIR = DATA_DIR / "text"
