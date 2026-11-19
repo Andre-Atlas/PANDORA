@@ -1,6 +1,8 @@
 # Sistema Multiagente do PANDORA: documentação
 
-Índice da documentação do **Primeiro Protótipo Multiagente** do projeto PANDORA (Entregável **RES IA ELD UNB — Turma 2**), implementado em [`services/rag/src/pandora_rag/agents/`](../../services/rag/src/pandora_rag/agents/).
+Índice da documentação técnica do **Primeiro Protótipo Multiagente** do projeto PANDORA (Entregável **RES IA ELD UNB — Turma 2**), implementado em [`services/rag/src/pandora_rag/agents/`](../../services/rag/src/pandora_rag/agents/).
+
+> **Visão executiva do entregável (pasta padronizada):** [`docs/entregas/04-primeiro-prototipo-multiagente/README.md`](../entregas/04-primeiro-prototipo-multiagente/README.md) — explica o que foi feito, como funciona, mapa de pastas, diagramas e evidências executáveis.
 
 > **Estado desta versão (`agents-v0.1.0`):** Grafo de estado tipado em Python/Pydantic (`GrafoPandora`) coordenando **7 agentes especializados** (`orquestrador`, `analista`, `estrategista`, `coach`, `guardiao`, `educador`, `compliance`) integrados diretamente ao RAG híbrido (`BAAI/bge-m3` + `BM25` + `RRF`) e ao mascarador de PII (`RNF01–RNF05`).
 
@@ -28,9 +30,9 @@ uv run pandora-rag agent \
   --persona antonio_67 \
   --linha-digitavel "34191.09008 61207.951301 70001.234560 8 99990000119800"
 
-# 3. Rodar a suíte automatizada de testes (54 testes passando) e lint
+# 3. Rodar a suíte automatizada de testes (58 testes passando) e lint
 uv run --extra dev pytest tests/ -v
-uv run --extra dev ruff check src/pandora_rag/agents/ src/pandora_rag/config.py tests/test_agents_*.py
+uv run --extra dev ruff check src/pandora_rag/agents/ src/pandora_rag/cli.py src/pandora_rag/config.py src/pandora_rag/generate/pii.py src/pandora_rag/index/store.py tests/test_agents_*.py
 ```
 
 Os artefatos gerados pela demonstração oficial estão versionados em [`runs/demonstracao_multiagente.md`](runs/demonstracao_multiagente.md) e [`runs/demonstracao_multiagente.json`](runs/demonstracao_multiagente.json).

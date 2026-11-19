@@ -1,0 +1,21 @@
+flowchart TD
+    IN["Entrada do Usuário<br/>(Consulta + Persona ID + Documento OCR / Linha Digitável)"] --> O1["1. OrquestradorAgent<br/>(Mascara PII · Classifica Intenções · Define Rota)"]
+
+    O1 -->|"sempre que há persona_id"| AN["2. AnalistaAgent<br/>(Raio-X Financeiro · Mínimo Existencial · SGS BCB)"]
+
+    AN -->|"intenção: dividas"| ES["3a. EstrategistaAgent<br/>(Avalanche vs. Bola de Neve · Lei 14.690/2023)"]
+    AN -->|"intenção: bets"| CO["3b. CoachAgent<br/>(Perda Líquida · Madrugada · Cooling-off)"]
+    AN -->|"intenção: fraude"| GU["3c. GuardiaoAgent<br/>(Anti-Injection · FEBRABAN · MED Pix)"]
+
+    O1 -.->|"consulta educacional / CVM sem especialista analítico"| ED
+    AN -->|"sem especialista de dívida/bet/fraude"| ED
+
+    ES -->|"solicita Lei 14.181 / 14.690 / CPC 833"| ED["4. EducadorAgent (Research Agent)<br/>(Busca Híbrida BGE-M3 + BM25 + RRF + Portão RNF04)"]
+    CO -->|"solicita Lei 14.790 / Autoexclusão"| ED
+    GU -->|"solicita Res. BCB 147 (MED Pix 80 dias)"| ED
+
+    ED -->|"evidências numeradas [1]..[k]"| O2["5. OrquestradorAgent (Síntese)<br/>(Adapta Tom à Persona + Compila Rascunho)"]
+    O2 --> CG["6. ComplianceAgent (Validation Agent)<br/>(Crise CVV 188 · Trava CVM · Citações · Zero PII)"]
+
+    CG -->|"REPROVADO: ciclo de revisão (máx. 1)"| O2
+    CG -->|"APROVADO (ou fail-closed seguro)"| OUT["ResultadoMultiagente<br/>(Resposta Final + Fontes + Trace Completo)"]

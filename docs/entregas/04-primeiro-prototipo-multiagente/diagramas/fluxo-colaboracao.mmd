@@ -1,0 +1,26 @@
+sequenceDiagram
+    actor U as Usuário (Persona PANDORA)
+    participant O as OrquestradorAgent
+    participant AN as AnalistaAgent
+    participant SP as Especialistas (Estrategista / Coach / Guardião)
+    participant ED as EducadorAgent (RAG)
+    participant CG as ComplianceAgent
+
+    U->>O: Consulta + contexto / documento OCR
+    O->>O: mascarar() PII + classificar intenções
+    O->>AN: [roteamento] sequência planejada + consulta mascarada
+    AN->>AN: calcular_raio_x() + comparativo SGS BCB
+    AN->>SP: [analise] DiagnosticoFinanceiro
+    SP->>SP: Cálculos determinísticos (Avalanche / Bets / FEBRABAN & Anti-Injection)
+    SP->>ED: [solicitacao_pesquisa] Queries normativas específicas
+    ED->>ED: Busca híbrida (BGE-M3 + BM25 + RRF) + Portão RNF04
+    ED->>O: [evidencia] Citações oficiais [1]..[k] (ou abstenção)
+    O->>O: sintetizar() adaptando tom à persona
+    O->>CG: [sintese] rascunho_resposta
+    alt Rascunho viola CVM, Crise, Citações ou PII
+        CG-->>O: [validacao] REPROVADO + motivo_revisao
+        O->>O: sintetizar(modo_revisao=True)
+        O->>CG: [revisao] rascunho corrigido
+    end
+    CG-->>O: [entrega] APROVADO (ou fallback fail-closed)
+    O-->>U: Resposta final empática, exata e citada
