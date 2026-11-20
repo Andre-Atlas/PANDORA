@@ -6,7 +6,7 @@ Guia para uma pessoa revisar o comportamento dos 7 agentes do protótipo (`agent
 - **Legenda:** `[x]` ok · `[!]` problema · `[?]` precisa de julgamento humano.
 - **Código revisado:** [`services/rag/src/pandora_rag/agents/`](../../services/rag/src/pandora_rag/agents/) (inclui os novos `llm_provider.py` e `langgraph_tools.py`) · **Saída revisada:** [`runs/demonstracao_multiagente.md`](runs/demonstracao_multiagente.md) (gerada com `qwen2.5:7b`).
 
-> **Estado deste documento:** pré-preenchido em 19/11/2026 no commit `c7874b9` e **atualizado em 20/11/2026 sobre `b68dbcc`**, a migração para LangGraph com Tool Calling ([ADR-0002](../adr/0002-orquestracao-langgraph-tool-calling.md)). As decisões e respostas já registradas foram mantidas. Onde a migração mudou um fato, há uma nota **Atualização (`b68dbcc`)**. Ainda em 20/11, o corpus foi coletado e extraído nesta máquina e as verificações foram refeitas sobre ele; essas notas aparecem como **Atualização (corpus extraído)**. Os itens 1.8 a 1.14 e a seção 4.1 são novos. Também em 20/11, cada item passou por uma revisão dupla: as decisões de 19/11 foram reconfirmadas (a de 1.3 foi reescrita e a dos tons, em 2.1, ajustada), e as sugestões aceitas viraram **decisão (20/11)**. As notas da Parte 3 foram sugeridas a partir dessas decisões. Nenhum item ficou em aberto; só o 1.6 depende do grupo.
+> **Estado deste documento:** pré-preenchido em 19/11/2026 no commit `c7874b9` e **atualizado em 20/11/2026 sobre `b68dbcc`**, a migração para LangGraph com Tool Calling ([ADR-0002](../adr/0002-orquestracao-langgraph-tool-calling.md)). As decisões e respostas já registradas foram mantidas. Onde a migração mudou um fato, há uma nota **Atualização (`b68dbcc`)**. Ainda em 20/11, o corpus foi coletado e extraído nesta máquina e as verificações foram refeitas sobre ele; essas notas aparecem como **Atualização (corpus extraído)**. Os itens 1.8 a 1.14 e a seção 4.1 são novos. Também em 20/11, cada item passou por uma revisão dupla, e o documento guarda só as decisões marcadas nela: as de 19/11 reconfirmadas e, como **decisão (20/11)**, as sugestões aceitas e as respostas novas. As notas da Parte 3 foram sugeridas a partir dessas decisões. Nenhum item ficou em aberto; só o 1.6 depende do grupo.
 >
 > **Ressalva da execução (19/11):** a máquina usada não tinha o corpus extraído (`services/rag/data/`) nem Postgres, então o retriever caiu no `corpus_embutido_oficial` (8 trechos escritos à mão). Roteamento, números, crise, CVM e antifraude não dependem disso; **as citações sim**. As observações sobre citações da Parte 2.6 foram feitas sobre o run versionado (`corpus_local_bge_m3`).
 >
@@ -83,11 +83,6 @@ O detector [`_PADROES_CRISE`](../../services/rag/src/pandora_rag/agents/tools.py
 - **decisão( Ideias de melhora ):** 
     - Incluir as frases que encontramos como padrões e como testes de regressão: sumir, não acordar, acabar com isso, não vejo motivo/sentido, ninguém ia sentir falta, melhor sem mim.
     - Preferir errar para o lado do falso positivo. Mostrar o CVV 188 para quem não precisava quase não custa nada; deixar de mostrar para quem precisava é a pior falha possível do produto.
-    - Quando a crise for acionada, não mostrar números do orçamento nem "procure o Procon".
-    - Registrar como limite conhecido: "lista de frases nunca será completa; um classificador fica para trabalho futuro".
-- **decisão (20/11), complementar à de 19/11:** tratar a intenção `crise` vinda do LLM como suficiente para mostrar o bloco e para o Compliance exigir o protocolo, e citar ideação suicida no prompt do roteador. O classificador do trabalho futuro já está no grafo. Valem as duas ideias da decisão acima:
-    - Preferir errar para o lado do falso positivo. Mostrar o CVV 188 para quem não precisava quase não custa nada; deixar de mostrar para quem precisava é a pior falha possível do produto.
-    - Incluir as frases que encontramos como padrões e como testes de regressão: sumir, não acordar, acabar com isso, não vejo motivo/sentido, ninguém ia sentir falta, melhor sem mim. A lista continua necessária, porque o LLM pode estar desligado.
 
 ### 1.2 · Alto: classificação de intenção por substring gera roteamento errado
 
@@ -140,11 +135,8 @@ Um rascunho com "O Tesouro Selic é a melhor opção para você" **junto** com o
 - **Atualização (`b68dbcc`): aconteceu no run versionado.** Na jornada da Júlia gerada com `qwen2.5:7b`, a síntese do LLM diz *"sugiro abrir uma conta poupança ou CDB com uma boa liquidez, como o CDB da Caixa Econômica Federal, que oferece segurança e juros competitivos"*. A frase aparece logo acima da Recusa Educativa, que diz "não faço recomendação específica de ação, fundo ou CDB de um banco determinado". O Compliance aprovou com `Trava CVM: True`. A frase está em 4 arquivos versionados: [`runs/demonstracao_multiagente.md`](runs/demonstracao_multiagente.md), `runs/demonstracao_multiagente.json` e as duas cópias em [`docs/entregas/04-primeiro-prototipo-multiagente/demo/`](../entregas/04-primeiro-prototipo-multiagente/demo/demonstracao_multiagente.md).
   - O texto do LLM entra na resposta por 5 caminhos (a síntese e os 4 pareceres), todos filtrados só pela regex acima, que não pega essa frase. Com o LLM roteirizado escrevendo as 3 frases da tabela que a regex não pega e a frase do run real, **as 4 foram aprovadas**, mesmo com o juiz LLM reprovando (4.1, B3; ver 1.8).
   - O roteador LLM pode marcar `inducao_cvm=True`, mas isso não aciona a Recusa Educativa. "Qual a melhor corretora…" e "Me fala um CDB bom…" com `inducao_cvm=True` saíram sem o bloco CVM e com `cvm=False` no veredito, porque o bloco só olha a regex de entrada ([`specialists.py:485`](../../services/rag/src/pandora_rag/agents/specialists.py#L485)) (4.1, B4).
-- **decisão (20/11):** gravidade sobe de Médio para Crítico e o item vira bloqueante. A saída "aceitar 1.4 se o modo LLM não for demonstrado" (Parte 5) deixou de valer: o LLM agora é o padrão e está na demo.
-- **Opções registradas em 19/11 (como corrigir):** 
-    - Não chamar o LLM quando o bloco CVM estiver ativo, do mesmo jeito que já não se chama durante uma crise. É mais confiável do que adicionar mais regex.
-    - Adicionar um mais Regex.
-- **decisão (20/11), como corrigir:** a primeira opção, cobrindo a síntese **e** os pareceres, e com a trava considerando também a intenção `cvm` vinda do LLM. Regex sozinha não pegaria "como o CDB da Caixa Econômica Federal". Antes da entrega, regenerar ou corrigir os 4 arquivos da demo.
+- **decisão (20/11):** gravidade sobe de Médio para Crítico e o item vira bloqueante. A saída "aceitar 1.4 se o modo LLM não for demonstrado" deixou de valer: o LLM agora é o padrão e está na demo.
+- **decisão (20/11), como corrigir:** não chamar o LLM quando o bloco CVM estiver ativo, do mesmo jeito que já não se chama durante uma crise, cobrindo a síntese **e** os pareceres, e com a trava considerando também a intenção `cvm` vinda do LLM. Regex sozinha não pegaria "como o CDB da Caixa Econômica Federal". Antes da entrega, regenerar ou corrigir os 4 arquivos da demo.
 
 ### 1.5 · Médio: valores fixos apresentados como dado da pessoa
 
@@ -195,7 +187,6 @@ Também não existe checagem determinística de julgamento moral, então a últi
 
 - [!] **Confirmado.**
 - **decisão (20/11): (a)**, fazer o veto do juiz contar: qualquer sinal de problema reprova e leva à revisão, que já remove os pareceres do LLM (`modo_revisao`). O caminho de revisão já existe e volta ao texto determinístico; o custo é a resposta perder a síntese quando o juiz reprovar à toa.
-    - Opção descartada: (b) tirar a afirmação "LLM-as-a-Judge" da ADR-0002, da spec e do README.
 
 ### 1.9 · Alto (novo em `b68dbcc`): o LLM escreve na resposta durante uma crise
 
@@ -205,7 +196,7 @@ Na 2.1 ficou registrado, e aceito, que o LLM não é chamado quando há crise. I
 - Com o LLM roteirizado e a crise detectada pela regex ("não consigo parar sozinho"), a síntese e o parecer do Coach saem na resposta e o Compliance aprova (4.1, B6).
 
 - [!] **Confirmado.**
-- **decisão (20/11):** quando `crise_ativa`, não gerar a síntese do LLM nem incluir pareceres, como acontecia antes. Combina com a decisão de 1.1 ("quando a crise for acionada, não mostrar números do orçamento nem 'procure o Procon'").
+- **decisão (20/11):** quando `crise_ativa`, não gerar a síntese do LLM nem incluir pareceres, como acontecia antes.
 
 ### 1.10 · Alto (novo em `b68dbcc`): plano de dívidas para quem não tem dívidas
 
@@ -246,7 +237,7 @@ Cada especialista com LLM acrescenta consultas, e o limite de citações é `max
 Ponto positivo: no Antônio, a citação `[1]` agora é o Art. 39-B da Res. BCB 147 (bloqueio cautelar no Pix), que tem relação com o MED.
 
 - [!] **Confirmado** no run versionado.
-- **decisão (20/11):** limitar a `k`, ou a uma citação por especialista acionado (o argumento da decisão em 2.6), e aplicar o filtro de trechos de título e cabeçalho já decidido em 2.6.
+- **decisão (20/11):** limitar a `k`, ou a uma citação por especialista acionado, e aplicar o filtro de trechos de título e cabeçalho já decidido em 2.6.
 
 ### 1.13 · Baixo (novo em `b68dbcc`): documentação e rótulos desatualizados
 
@@ -273,7 +264,6 @@ Todas foram aprovadas: o Compliance só confere se os marcadores `[n]` apontam p
 - Os dois testes de abstenção (`test_consulta_fora_de_dominio_ativa_abstencao_segura` e `test_educador_abstem_fora_de_dominio_e_rejeita_homonimo_apenas_bm25`) usam corpus pequenos, escritos no próprio teste, e por isso não pegam o problema.
 - **Não verificado** no `corpus_local_bge_m3`, o caminho do run versionado, que usa outro limiar (vetor denso ≥ 0,50).
 - **decisão (20/11): (a)**, calibrar os limiares do caminho sem reranker no corpus real e acrescentar um teste de abstenção que rode sobre o corpus extraído (pulado quando não houver corpus, como o `test_corpus.py`). Antes da entrega, rodar os testes #3, #4, #5 e #8 no `corpus_local_bge_m3` para saber se o caminho da demo também falha.
-    - Opção descartada: (b) sem o cache de embeddings, não usar o `corpus_local_bm25_hash` (cair no corpus embutido ou exigir o reranker).
 
 ---
 
@@ -288,7 +278,6 @@ Todas foram aprovadas: o Compliance só confere se os marcadores `[n]` apontam p
   - **A preencher:** isso é aceitável para um provedor externo? aceitável com dados sintéticos. Pela LGPD, dado financeiro é dado pessoal, então em produção é preciso usar o modelo local (Ollama) ou ter um contrato de tratamento de dados com o provedor.
   - **Atualização (`b68dbcc`):** no caminho novo, os prompts levam o id da persona (`carla_34`), não o nome. Renda, valores e nomes de credores continuam indo para o modelo. O padrão agora é o `qwen2.5:7b` local, o que atende à resposta acima; `--llm haiku` ou `sonnet` (Anthropic) continua disponível e envia esses dados para fora.
 - [!] O LLM **não** é chamado quando há crise (linha 530).
-  - **A preencher:** concorda com essa escolha? concordo.
   - **Atualização (`b68dbcc`):** deixou de ser verdade no caminho padrão. Ver 1.9.
   - **decisão (20/11):** restaurar esse comportamento no caminho novo (1.9).
 - [!] Tons de comunicação vs. saudações ([`_saudacao_por_tom`](../../services/rag/src/pandora_rag/agents/specialists.py#L239)).
@@ -360,13 +349,12 @@ Todas foram aprovadas: o Compliance só confere se os marcadores `[n]` apontam p
   - **Atualização (corpus extraído):** com o `corpus_local_bm25_hash`, a Júlia recebe a Res. CVM 19/2021, Art. 20 (equipe de consultores PJ), Art. 15 (relatório anual à CVM) e Art. 2 (consultoria é atividade privativa). Só o Art. 2 sustenta a recusa, o mesmo padrão da tabela acima.
 - [?] O número de citações pode passar de `k`.
   - **Resultado:** confirmado: 4 queries → 4 citações com `k=3` (agora em [`langgraph_tools.py:246`](../../services/rag/src/pandora_rag/agents/langgraph_tools.py#L246), `max(k, len(queries))`).
-  - **A preencher:** é intencional? Aceitável: garante uma citação por especialista acionado. Atualizar a documentação para dizer "até `max(k, nº de consultas)` citações".
   - **Atualização (`b68dbcc`):** com LLM são 11–12 citações para 3 ou 4 especialistas.
   - **decisão (20/11):** o argumento "uma citação por especialista" deixou de valer; revisitar em 1.12.
 - [!] Os limiares de relevância ([`langgraph_tools.py:30-32`](../../services/rag/src/pandora_rag/agents/langgraph_tools.py#L30-L32); antes em `specialists.py`, linhas 45-47) foram calibrados com que dados?
   - **Resultado:** o limiar `0.02` do reranker está documentado em [`training/abstencao/limiar.json`](../../training/abstencao/limiar.json) (escolhido em `dev.v1`). Os valores `0.50`, `0.25` e `1.5` (usados **sem** reranker, que é o caso padrão do grafo) não têm fonte documentada.
   - **Atualização (`b68dbcc`):** os valores não mudaram, mas agora existem duas cópias, e só a de `langgraph_tools.py` tem efeito (1.13).
-  - **Atualização (corpus extraído):** no corpus real, os limiares do caminho sem reranker e sem bge-m3 (0,25 e 1,5) deixam passar perguntas fora de domínio. A decisão está em 1.14.
+  - **Atualização (corpus extraído):** no corpus real, os limiares do caminho sem reranker e sem bge-m3 (0,25 e 1,5) deixam passar perguntas fora de domínio. Ver 1.14.
 
 ### 2.7 `ComplianceAgent`: [`specialists.py:1039`](../../services/rag/src/pandora_rag/agents/specialists.py#L1039)
 - [!] Rascunhos que **passam** e **não deveriam**.
@@ -480,11 +468,10 @@ Executadas com o *chat model* roteirizado (ver a ressalva no topo). A coluna "LL
 - **Commit revisado:** `c7874b9` (pré-preenchimento, 19/11) · `b68dbcc` (atualização após a migração para LangGraph, 20/11)
 - **Veredito:** [ ] Aprovado · [ ] Aprovado com ressalvas · [x] Reprovado
   - **decisão (20/11):** **Reprovado** enquanto 1.1 e 1.4 não forem corrigidos. **Aprovado com ressalvas** depois disso, desde que 1.8 a 1.10 sejam corrigidos ou o LLM seja desligado nesses pontos.
-  - **Por quê:** o 1.1 é uma falha de segurança justamente no cenário para o qual o produto existe, e o 1.4 já está no artefato da entrega (a demo versionada recomenda um CDB).
 - **Itens bloqueantes:** 1.1 (Protocolo de Crise) · 1.4 (recomendação de CDB na demo versionada, incluído em 20/11).
 - **Ordem de trabalho (decidida em 20/11; uma issue por item):**
   1. **Antes da entrega:** 1.1, 1.4 (incluindo regenerar a demo), 1.8, 1.9, 1.10, 1.14 (pelo menos testar a abstenção no `corpus_local_bge_m3`), 1.2, 1.3, formatação dos números (1.7) e saudação sem persona (#5).
   2. **Se der tempo:** 1.11, citações (1.12 e 2.6), 1.5 e os textos do 2.3, 2.5 e 2.7.
-  3. **Aceitar e documentar:** limiares do Coach (2.4). Saíram desta lista o "1.4 se o modo LLM não for demonstrado" (o LLM agora é o padrão) e o "mais de `k` citações" (volta para 1.12).
+  3. **Aceitar e documentar:** limiares do Coach (2.4).
   4. **Decisão do grupo:** 1.6 (MP nº 1.394/2026). Lembrar que uma MP perde a validade depois de 60+60 dias se não for convertida em lei.
   5. **Documentação:** 1.13 (docs 01–04, ADR-0002, rótulo do fallback e limiares duplicados) e os hashes do `corpus.lock` (Seção 0).
