@@ -259,3 +259,32 @@ def test_estado_multiagente_e_perfis_personas():
     perfil_julia = perfil_persona("julia_31")
     assert perfil_julia["renda_mensal"] == pytest.approx(4500.00)
     assert perfil_julia["minimo_existencial"] == pytest.approx(2800.00)
+
+
+def test_detectores_crise_indireta_cvm_ampliado_e_formatacao_ptbr():
+    for frase_crise in (
+        "Às vezes penso que seria melhor não acordar",
+        "Tenho vontade de sumir, ninguém ia sentir falta",
+        "Penso em acabar com isso, não vejo motivo pra continuar",
+        "Acho que tudo ficaria melhor sem mim",
+    ):
+        assert detectar_sinais_crise(frase_crise) is True, frase_crise
+
+    for frase_cvm in (
+        "Qual a melhor corretora pra abrir conta?",
+        "Me fala um CDB bom pra eu colocar meu dinheiro",
+        "Onde devo deixar meus 1000 reais guardados?",
+    ):
+        assert detectar_inducao_cvm(frase_cvm) is True, frase_cvm
+
+    assert detectar_inducao_cvm("O que é o Tesouro Selic?") is False
+    assert detectar_inducao_cvm("Quais os critérios para avaliar um CDB?") is False
+
+    txs = carregar_transacoes_persona("diego_24")
+    bets_diego = analisar_compulsao_bets(txs, renda_mensal=1120.0, parcela_referencia=450.0)
+    assert "R$ 700,00" in bets_diego.custo_oportunidade
+    assert "R$ 450,00" in bets_diego.custo_oportunidade
+
+    bets_sem_parcela = analisar_compulsao_bets(txs, renda_mensal=1120.0, parcela_referencia=None)
+    assert "R$ 700,00" in bets_sem_parcela.custo_oportunidade
+    assert "450" not in bets_sem_parcela.custo_oportunidade

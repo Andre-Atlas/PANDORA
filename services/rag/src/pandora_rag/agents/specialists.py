@@ -26,6 +26,7 @@ from pandora_rag.agents.models import (
     EstadoMultiagente,
     VereditoCompliance,
 )
+from pandora_rag.agents.personas_data import PERFIS_PERSONAS
 from pandora_rag.agents.tools import (
     SERIES_SGS_BCB,
     _normalizar_texto,
@@ -36,28 +37,34 @@ from pandora_rag.agents.tools import (
     detectar_sinais_crise,
     inspecionar_fraudes,
     perfil_persona,
-    sanitizar_documento_nao_confiavel,
     simular_estrategias_divida,
 )
 from pandora_rag.generate.answer import MENSAGEM_ABSTENCAO, RE_CITACAO
 from pandora_rag.generate.gateway import Gateway, OrcamentoExcedido
 from pandora_rag.generate.pii import mascarar
-from pandora_rag.retrieve.hybrid import Hit, Retriever
+from pandora_rag.retrieve.hybrid import Retriever
 
 logger = logging.getLogger(__name__)
 
+_ATIVOS_CVM = (
+    r"(?:cdb|lci|lca|coe|cri|cra|debenture|tesouro(?:\s+(?:selic|ipca|prefixado|direto))?|"
+    r"acao|acoes|fundo(?:\s+di)?|fiis?|etf|bdr|corretora|"
+    r"cripto\w*|bitcoin|[a-z]{4}(?:3|4|5|6|11|34|35|39)|banco\s+\w+|caixa\s+economica|itau|nubank|bradesco|santander)"
+)
 _RE_RECOMENDACAO_DIRETA_CVM = re.compile(
-    r"\b(?:compre|invista|aplique|escolha|recomendo|sugiro|indico|vale\s+a\s+pena)"
-    r"(?:\s+(?:comprar|investir|aplicar|escolher|colocar))?"
-    r"(?:\s+(?:em|um|uma|o|a|no|na|os|as)){0,3}\s+"
-    r"(?:cdb|lci|lca|coe|cri|cra|debenture|tesouro|acao|acoes|fundo|fiis?|etf|bdr|"
-    r"cripto\w*|bitcoin|[a-z]{4}(?:3|4|5|6|11|34|35|39)|banco\s+\w+|itau|nubank|bradesco|santander)\b"
+    rf"(?:\b(?:compre|invista|aplique|escolha|recomendo|sugiro|indico|coloque|vale\s+a\s+pena|abrir\s+(?:uma\s+)?conta)"
+    rf"(?:\s+(?:comprar|investir|aplicar|escolher|colocar))?"
+    rf"(?:\s+(?:em|um|uma|o|a|no|na|os|as|tudo\s+no|tudo\s+na|tudo\s+em|conta\s+poupanca\s+ou)){{0,4}}\s+{_ATIVOS_CVM}\b|"
+    rf"\b{_ATIVOS_CVM}\b.{{0,45}}\b(?:melhor\s+opcao|ideal\s+para\s+voce|melhor\s+escolha|mais\s+rentavel\s+para\s+voce)\b|"
+    rf"\b(?:minha\s+dica|o\s+ideal\s+e|como\s+o)\b.{{0,60}}\b{_ATIVOS_CVM}\b)"
+)
+_RE_JULGAMENTO_MORAL = re.compile(
+    r"\b(?:irresponsavel|deveria\s+ter\s+vergonha|que\s+vergonha|culpa\s+sua|falta\s+de\s+vergonha)\b"
 )
 
-_MIN_SCORE_VETOR_DENSO = 0.50
-_MIN_SCORE_VETOR_HASH = 0.25
-_MIN_SCORE_BM25_HASH = 1.5
-_DIM_EMBEDDER_DENSO = 512
+_RE_IDIOMA_INGLES = re.compile(
+    r"\b(?:i'm|i\s+am|what\s+should|credit\s+card|in\s+debt|pay\s+first|how\s+do\s+i|help\s+me)\b"
+)
 
 BLOCO_PROTOCOLO_CRISE = (
     "APOIO IMEDIATO E CONFIDENCIAL (PROTOCOLO DE CRISE):\n"
@@ -73,8 +80,8 @@ SYSTEM_PROMPT_ORQUESTRADOR_ROTEAMENTO = (
     "OBRIGATORIAMENTE invocar a ferramenta `tool_classificar_roteamento` definindo:\n"
     "- `intencoes`: lista com as intenções aplicáveis entre ['dividas', 'bets', 'fraude', 'cvm', 'crise', 'educacao'];\n"
     "- `agentes_especialistas`: lista ordenada de especialistas necessários entre ['analista', 'estrategista', 'coach', 'guardiao', 'educador', 'compliance'];\n"
-    "- `sinal_crise`: True se houver desespero emocional, compulsão descontrolada ou frase como 'não consigo parar' / 'perdi tudo';\n"
-    "- `inducao_cvm`: True se o usuário pedir recomendação específica de ação, ativo, cripto ou qual CDB/banco escolher;\n"
+    "- `sinal_crise`: True se houver desespero emocional, ideação suicida direta ou indireta (ex.: 'vontade de sumir', 'melhor não acordar', 'acabar com isso', 'não vejo motivo'), compulsão descontrolada ou frase como 'não consigo parar' / 'perdi tudo';\n"
+    "- `inducao_cvm`: True se o usuário pedir recomendação específica de ação, ativo, cripto, corretora ou qual CDB/banco escolher;\n"
     "- `justificativa_roteamento`: frase curta explicando por que esses especialistas foram escalados."
 )
 
@@ -103,8 +110,8 @@ SYSTEM_PROMPT_ESTRATEGISTA = (
 SYSTEM_PROMPT_COACH = (
     "Você é o Agente Coach Comportamental do PANDORA, especialista em psicologia econômica e redução de danos em apostas de quota fixa (Lei 14.790/2023).\n"
     "Atue sempre com empatia radical e ZERO julgamento moral. Invocar OBRIGATORIAMENTE a ferramenta `tool_analisar_compulsao_apostas` informando:\n"
-    "1. `queries_normativas`: consultas sobre a Lei 14.790/2023, jogo responsável, limites e autoexclusão;\n"
-    "2. `mensagem_acolhimento_sem_julgamento`: orientação acolhedora propondo fricção positiva (Pausa Noturna e cooling-off de 48h)."
+    "1. `queries_normativas`: consultas sobre a Lei 14.790/2023, jogo responsável e limites bancários de proteção;\n"
+    "2. `mensagem_acolhimento_sem_julgamento`: orientação acolhedora em linguagem simples propondo Pausa Noturna e uma pausa de 48h."
 )
 
 SYSTEM_PROMPT_GUARDIAO = (
@@ -131,19 +138,49 @@ SYSTEM_PROMPT_COMPLIANCE = (
 )
 
 
-def bloco_recusa_educativa_cvm(perfil: dict | None = None) -> str:
+def _formatar_brl(valor: float) -> str:
+    inteiro, dec = f"{valor:,.2f}".split(".")
+    return f"R$ {inteiro.replace(',', '.')},{dec}"
+
+
+def _formatar_pct(valor: float, casas: int = 1) -> str:
+    return f"{valor:.{casas}f}".replace(".", ",")
+
+
+def bloco_recusa_educativa_cvm(perfil: dict | None = None, corretora: bool = False) -> str:
     """Bloco determinístico de Recusa Educativa conforme Resoluções CVM 19 e 20/2021."""
-    selic = SERIES_SGS_BCB["432"]["valor_referencia"]
-    cdi = SERIES_SGS_BCB["12"]["valor_referencia"]
-    ipca = SERIES_SGS_BCB["433"]["valor_referencia"]
+    selic_info = SERIES_SGS_BCB["432"]
+    cdi_info = SERIES_SGS_BCB["12"]
+    ipca_info = SERIES_SGS_BCB["433"]
+    selic = selic_info["valor_referencia"]
+    cdi = cdi_info["valor_referencia"]
+    ipca = ipca_info["valor_referencia"]
+    ref = selic_info.get("referencia", "fev/2026")
     linhas = [
         "EDUCAÇÃO FINANCEIRA SOB CONFORMIDADE CVM (RECUSA EDUCATIVA):",
-        "- Pelas regras da CVM (Resoluções CVM 19 e 20/2021), eu sou um copiloto educacional e não faço recomendação específica de ação, fundo ou CDB de um banco determinado.",
-        "- Em vez de indicar um produto único, use estes 3 critérios objetivos para avaliar qualquer opção de Reserva de Emergência com segurança:",
-        "  1. Liquidez Diária (D+0): poder resgatar no mesmo dia se surgir um imprevisto.",
-        "  2. Baixo Risco de Crédito: títulos públicos federais (Tesouro Nacional) ou instituições cobertas pelo FGC (até R$ 250 mil por CPF/instituição).",
-        f"  3. Rendimento Pós-Fixado: acompanhar 100% da Selic ({selic:.2f}% a.a.) ou do CDI ({cdi:.2f}% a.a.) para superar a inflação (IPCA {ipca:.2f}% a.m.) sem risco de marcação a mercado.",
+        "- Pelas regras da CVM (Resoluções CVM 19 e 20/2021), eu sou um copiloto educacional e não faço recomendação específica de ação, fundo, corretora ou CDB de um banco determinado.",
     ]
+    if corretora:
+        linhas.extend(
+            [
+                "- Em vez de indicar uma corretora única, use estes 3 critérios objetivos para comparar instituições com segurança:",
+                "  1. Autorização Oficial: conferir se a instituição é autorizada pelo Banco Central (BCB) e pela CVM.",
+                "  2. Proteção e Custódia: verificar cobertura do FGC (até R$ 250 mil por CPF/instituição) na renda fixa e segregação patrimonial no Tesouro Direto.",
+                f"  3. Custos e Rendimento: priorizar taxa zero de manutenção/custódia e produtos pós-fixados (Selic {_formatar_pct(selic, 2)}% a.a. / CDI {_formatar_pct(cdi, 2)}% a.a., ref. {ref}) com Liquidez Diária (D+0).",
+            ]
+        )
+    else:
+        linhas.extend(
+            [
+                "- Em vez de indicar um produto único, use estes 3 critérios objetivos para avaliar qualquer opção de Reserva de Emergência com segurança:",
+                "  1. Liquidez Diária (D+0): poder resgatar no mesmo dia se surgir um imprevisto.",
+                "  2. Baixo Risco de Crédito: títulos públicos federais (Tesouro Nacional) ou instituições cobertas pelo FGC (até R$ 250 mil por CPF/instituição).",
+                (
+                    f"  3. Rendimento Pós-Fixado (ref. {ref}): acompanhar 100% da Selic ({_formatar_pct(selic, 2)}% a.a.) "
+                    f"ou do CDI ({_formatar_pct(cdi, 2)}% a.a.) para superar a inflação (IPCA {_formatar_pct(ipca, 2)}% a.m.) sem risco de marcação a mercado."
+                ),
+            ]
+        )
     if perfil:
         meta_6m = perfil.get("meta_reserva_6_meses", 0.0)
         poupanca = perfil.get("capacidade_poupanca", 0.0)
@@ -154,9 +191,9 @@ def bloco_recusa_educativa_cvm(perfil: dict | None = None) -> str:
     return "\n".join(linhas)
 
 
-def _formatar_brl(valor: float) -> str:
-    inteiro, dec = f"{valor:,.2f}".split(".")
-    return f"R$ {inteiro.replace(',', '.')},{dec}"
+def _eh_consulta_outro_idioma(texto: str) -> bool:
+    norm = _normalizar_texto(texto)
+    return bool(_RE_IDIOMA_INGLES.search(norm))
 
 
 def _proximo_agente(estado: EstadoMultiagente, atual: AgentRole) -> AgentRole:
@@ -169,41 +206,33 @@ def _proximo_agente(estado: EstadoMultiagente, atual: AgentRole) -> AgentRole:
 
 
 def _classificar_intencoes_guardrail(estado: EstadoMultiagente, texto_limpo: str) -> list[str]:
-    """Sensores determinísticos de segurança (defense-in-depth) que complementam o roteamento do LLM."""
+    """Sensores determinísticos de segurança (defense-in-depth) com regex de fronteira de palavra."""
     norm = _normalizar_texto(texto_limpo)
     intencoes: list[str] = []
 
-    if any(
-        kw in norm
-        for kw in (
-            "divida",
-            "rotativo",
-            "cartao",
-            "fatura",
-            "emprestimo",
-            "consignado",
-            "atrasad",
-            "superendividamento",
-            "priorizar",
-            "pagar primeiro",
-            "juros",
-            "luz",
-        )
+    if re.search(
+        r"\b(?:dividas?|rotativo|cart(?:ao|oes)|faturas?|emprestimos?|consignados?|atrasad[oa]s?|"
+        r"superendividamento|superendividad[oa]|priorizar|pagar\s+primeiro|juros|luz\s+atrasada|"
+        r"conta\s+de\s+luz)\b",
+        norm,
     ):
         intencoes.append("dividas")
 
-    if any(
-        kw in norm
-        for kw in ("aposta", "bet", "cassino", "jogo", "madrugada", "repasse")
-    ):
+    tem_termo_aposta = bool(
+        re.search(
+            r"\b(?:apostas?|apostar|apostei|bets?|cassinos?|jogos?\s+online|tigrinho|bet\.br)\b",
+            norm,
+        )
+    )
+    if tem_termo_aposta:
         intencoes.append("bets")
 
     if (
         estado.documento_ocr
         or estado.linha_digitavel
-        or any(
-            kw in norm
-            for kw in ("golpe", "fraude", "boleto", "falsa central", "med", "pix")
+        or re.search(
+            r"\b(?:golpes?|fraudes?|boletos?|falsa\s+central|med|pix)\b",
+            norm,
         )
     ):
         intencoes.append("fraude")
@@ -214,29 +243,21 @@ def _classificar_intencoes_guardrail(estado: EstadoMultiagente, texto_limpo: str
     if detectar_sinais_crise(texto_limpo):
         intencoes.append("crise")
 
-    if any(
-        kw in norm
-        for kw in (
-            "lei",
-            "direito",
-            "reserva",
-            "selic",
-            "cdi",
-            "ipca",
-            "invest",
-            "educa",
-            "cvm",
-            "tesouro",
-            "cdb",
-            "poupanca",
+    if (
+        re.search(
+            r"\b(?:leis?|direitos?|reservas?|selic|cdi|ipca|invest\w*|educa\w*|cvm|tesouro|cdb|lci|lca|poupanca|corretora)\b",
+            norm,
         )
-    ) or not intencoes:
+        or not intencoes
+    ):
         intencoes.append("educacao")
 
     return intencoes
 
 
-def _saudacao_por_tom(nome: str, tom: str) -> str:
+def _saudacao_por_tom(nome: str, tom: str, persona_id: str | None) -> str:
+    if not persona_id:
+        return "Olá! Organizei as informações abaixo com base nas normas e fontes oficiais:"
     if tom == "acessivel_idoso":
         return f"Olá, {nome}. Analisei com calma e cuidado o que você enviou para proteger seu dinheiro:"
     if tom == "parceiro_sem_julgamento":
@@ -249,64 +270,119 @@ def _montar_blocos_sintese(
     perfil: dict,
     cvm_ativo: bool,
     incluir_pareceres_llm: bool = True,
+    corretora_cvm: bool = False,
 ) -> list[str]:
     """Monta os blocos determinísticos com numeração sequencial consistente e pareceres dos especialistas."""
     secoes: list[tuple[str, str]] = []
+    persona_desconhecida = bool(
+        estado.persona_id
+        and estado.persona_id not in PERFIS_PERSONAS
+        and not estado.transacoes
+    )
 
     if estado.diagnostico is not None:
         d = estado.diagnostico
-        linhas_diag = [
-            f"- Renda apurada no recorte: {_formatar_brl(d.renda_mensal)}",
-            f"- Mínimo Existencial (moradia, alimentação e itens vitais): {_formatar_brl(d.minimo_existencial)}",
-            f"- Folga real disponível após despesas vitais: {_formatar_brl(d.folga_disponivel)}",
-        ]
-        if "22022" in d.comparativos_sgs:
-            comp = d.comparativos_sgs["22022"]
-            linhas_diag.append(
-                f"- Comparativo Banco Central (SGS 22022): seu rotativo está em {comp['cet_usuario_pct_aa']:.1f}% a.a. "
-                f"contra a média oficial de {comp['media_bcb_pct_aa']:.1f}% a.a."
+        if persona_desconhecida and d.renda_mensal == 0.0 and d.minimo_existencial == 0.0:
+            secoes.append(
+                (
+                    "RAIO-X DO ORÇAMENTO",
+                    f"- Não encontrei dados cadastrados nem transações para o perfil '{estado.persona_id}'.",
+                )
             )
-        parecer_ana = estado.pareceres_agentes.get("analista", "").strip()
-        if incluir_pareceres_llm and parecer_ana and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(parecer_ana)):
-            linhas_diag.append(f"- Parecer do Analista: {parecer_ana}")
-        secoes.append(("RAIO-X DO ORÇAMENTO", "\n".join(linhas_diag)))
+        else:
+            linhas_diag = [
+                f"- Renda apurada no recorte: {_formatar_brl(d.renda_mensal)}",
+                f"- Despesas vitais estimadas (moradia, alimentação, saúde e transporte — critério distinto do mínimo existencial legal de R$ 600,00 do Decreto 11.567/2023): {_formatar_brl(d.minimo_existencial)}",
+                f"- Folga real disponível após despesas vitais: {_formatar_brl(d.folga_disponivel)}",
+            ]
+            if "22022" in d.comparativos_sgs:
+                comp = d.comparativos_sgs["22022"]
+                ref_sgs = SERIES_SGS_BCB["22022"].get("referencia", "fev/2026")
+                linhas_diag.append(
+                    f"- Comparativo Banco Central (SGS 22022, ref. {ref_sgs}): seu rotativo está em "
+                    f"{_formatar_pct(comp['cet_usuario_pct_aa'], 1)}% a.a. contra a média oficial de "
+                    f"{_formatar_pct(comp['media_bcb_pct_aa'], 1)}% a.a."
+                )
+            parecer_ana = estado.pareceres_agentes.get("analista", "").strip()
+            if (
+                incluir_pareceres_llm
+                and parecer_ana
+                and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(parecer_ana))
+                and not _RE_JULGAMENTO_MORAL.search(_normalizar_texto(parecer_ana))
+            ):
+                linhas_diag.append(f"- Parecer do Analista: {parecer_ana}")
+            secoes.append(("RAIO-X DO ORÇAMENTO", "\n".join(linhas_diag)))
 
     if estado.plano_dividas is not None:
         p = estado.plano_dividas
-        linhas_plano = [
-            f"- Valor intocável para família/casa: {_formatar_brl(p.minimo_existencial_blindado)}",
-            f"- Folga mensal segura para acordos: {_formatar_brl(p.folga_para_acordos)}",
-            f"- Ordem recomendada (Método Avalanche — maior juro primeiro): {' -> '.join(p.avalanche.ordem_credores)}",
-            f"- Alternativa Bola de Neve (menor saldo): {' -> '.join(p.bola_de_neve.ordem_credores)}",
-        ]
-        if p.economia_estimada_juros > 0:
-            linhas_plano.append(
-                f"- Economia estimada em juros em 12 meses no Avalanche: {_formatar_brl(p.economia_estimada_juros)}"
+        if p.avalanche.ordem_credores:
+            linhas_plano = [
+                f"- Valor intocável para família/casa: {_formatar_brl(p.minimo_existencial_blindado)}",
+                f"- Folga mensal segura para acordos: {_formatar_brl(p.folga_para_acordos)}",
+            ]
+            if p.avalanche.ordem_credores == p.bola_de_neve.ordem_credores:
+                linhas_plano.append(
+                    "- Ordem recomendada (serviços essenciais primeiro, depois maior juro — Avalanche e Bola de Neve coincidem): "
+                    + " -> ".join(p.avalanche.ordem_credores)
+                )
+            else:
+                linhas_plano.extend(
+                    [
+                        f"- Ordem recomendada (serviços essenciais primeiro, depois maior juro — Avalanche): {' -> '.join(p.avalanche.ordem_credores)}",
+                        f"- Alternativa Bola de Neve (essenciais primeiro, depois menor saldo): {' -> '.join(p.bola_de_neve.ordem_credores)}",
+                    ]
+                )
+            if p.economia_estimada_juros > 0:
+                linhas_plano.append(
+                    f"- Economia estimada em juros em 12 meses no Avalanche: {_formatar_brl(p.economia_estimada_juros)}"
+                )
+            if p.alerta_teto_rotativo_lei_14690:
+                linhas_plano.append(
+                    "- Proteção contra juros abusivos: verifique o teto legal de 100% sobre a dívida original do rotativo (Lei 14.690/2023)."
+                )
+            if p.requer_repactuacao_lei_14181:
+                linhas_plano.append(
+                    "- Como as parcelas atuais ultrapassam sua folga, você pode pedir a repactuação global preservando suas despesas vitais (Lei 14.181/2021) via Procon ou Defensoria Pública."
+                )
+            parecer_est = estado.pareceres_agentes.get("estrategista", "").strip()
+            if (
+                incluir_pareceres_llm
+                and parecer_est
+                and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(parecer_est))
+                and not _RE_JULGAMENTO_MORAL.search(_normalizar_texto(parecer_est))
+            ):
+                linhas_plano.append(f"- Orientação do Estrategista: {parecer_est}")
+            secoes.append(("PRIORIDADE DE PAGAMENTOS (MÍNIMO EXISTENCIAL BLINDADO)", "\n".join(linhas_plano)))
+        elif estado.diagnostico is not None and estado.diagnostico.gasto_dividas_mensal > 0:
+            secoes.append(
+                (
+                    "DÍVIDAS IDENTIFICADAS NO EXTRATO (SEM DETALHAMENTO DE CONTRATO)",
+                    (
+                        f"- Pagamento mensal de juros/dívidas identificado no extrato: {_formatar_brl(estado.diagnostico.gasto_dividas_mensal)}.\n"
+                        f"- Despesas vitais preservadas: {_formatar_brl(p.minimo_existencial_blindado)} | Folga para acordos: {_formatar_brl(p.folga_para_acordos)}.\n"
+                        "- Não foi possível comparar Avalanche vs. Bola de Neve porque as taxas/contratos individuais não constam no cadastro."
+                    ),
+                )
             )
-        if p.alerta_teto_rotativo_lei_14690:
-            linhas_plano.append(
-                "- Proteção contra juros abusivos: verifique o teto legal de 100% sobre a dívida original do rotativo (Lei 14.690/2023)."
-            )
-        if p.requer_repactuacao_lei_14181:
-            linhas_plano.append(
-                "- Como as parcelas atuais ultrapassam sua folga, você tem direito à audiência de repactuação preservando o Mínimo Existencial (Lei 14.181/2021) via Procon ou Defensoria Pública."
-            )
-        parecer_est = estado.pareceres_agentes.get("estrategista", "").strip()
-        if incluir_pareceres_llm and parecer_est and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(parecer_est)):
-            linhas_plano.append(f"- Orientação do Estrategista: {parecer_est}")
-        secoes.append(("PRIORIDADE DE PAGAMENTOS (MÍNIMO EXISTENCIAL BLINDADO)", "\n".join(linhas_plano)))
 
-    if estado.analise_compulsao is not None:
+    if estado.analise_compulsao is not None and (
+        estado.analise_compulsao.total_apostado > 0 or estado.analise_compulsao.perda_liquida > 0
+    ):
         c = estado.analise_compulsao
         linhas_bets = [
             f"- Total enviado para apostas no recorte: {_formatar_brl(c.total_apostado)} (prêmios recebidos: {_formatar_brl(c.premios_recebidos)})",
-            f"- Perda líquida real: {_formatar_brl(c.perda_liquida)} ({c.pct_renda_comprometida:.1f}% do repasse/renda analisada)",
-            f"- Concentração de risco: {c.aposta_madrugada_qtd} aposta(s) de madrugada (23h–06h); pós-repasse: {'sim' if c.aposta_pos_salario else 'não'}",
+            f"- Perda líquida real: {_formatar_brl(c.perda_liquida)} ({_formatar_pct(c.pct_renda_comprometida, 1)}% do repasse/renda analisada)",
+            f"- Apostas de madrugada (23h–06h): {c.aposta_madrugada_qtd} aposta(s); pós-repasse: {'sim' if c.aposta_pos_salario else 'não'}",
             f"- Impacto real no seu trabalho: {c.custo_oportunidade}",
-            f"- Sugestão prática: ativar Pausa Noturna (22h–07h) e janela de resfriamento (cooling-off) de {c.sugestao_cooling_off_horas}h + autoexclusão nas plataformas .bet.br.",
+            f"- Sugestão prática: ativar Pausa Noturna (22h–07h), pausa de {c.sugestao_cooling_off_horas}h antes de apostar de novo e bloqueio/limites no aplicativo do banco e nas plataformas.",
         ]
         parecer_coach = estado.pareceres_agentes.get("coach", "").strip()
-        if incluir_pareceres_llm and parecer_coach and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(parecer_coach)):
+        if (
+            incluir_pareceres_llm
+            and parecer_coach
+            and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(parecer_coach))
+            and not _RE_JULGAMENTO_MORAL.search(_normalizar_texto(parecer_coach))
+        ):
             linhas_bets.append(f"- Apoio do Coach: {parecer_coach}")
         secoes.append(("RETRATO OBJETIVO DAS APOSTAS (SEM JULGAMENTO)", "\n".join(linhas_bets)))
 
@@ -325,21 +401,30 @@ def _montar_blocos_sintese(
                 )
             else:
                 linhas_fraude.append(
-                    "- Linha digitável estruturalmente válida; ainda assim confirme o CNPJ recebedor no app do banco."
+                    "- O formato da linha digitável está correto, mas isso não prova que o boleto é verdadeiro; confirme o CNPJ recebedor no app do banco antes de pagar."
                 )
         if f.roteiro_med_pix:
-            linhas_fraude.append(
-                "- Como tentar recuperar o Pix já enviado (MED — prazo legal de até 80 dias):"
+            titulo_med = (
+                "- Vimos no seu histórico um Pix com indício de golpe — como tentar recuperar (MED — prazo legal de até 80 dias):"
+                if (f.transacoes_suspeitas and (f.boleto is None or not f.boleto.suspeito))
+                else "- Como tentar recuperar o Pix já enviado (MED — prazo legal de até 80 dias):"
             )
+            linhas_fraude.append(titulo_med)
             linhas_fraude.extend(f"  {passo}" for passo in f.roteiro_med_pix)
         parecer_gua = estado.pareceres_agentes.get("guardiao", "").strip()
-        if incluir_pareceres_llm and parecer_gua and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(parecer_gua)):
+        if (
+            incluir_pareceres_llm
+            and not f.fraude_detectada
+            and parecer_gua
+            and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(parecer_gua))
+            and not _RE_JULGAMENTO_MORAL.search(_normalizar_texto(parecer_gua))
+        ):
             linhas_fraude.append(f"- Parecer do Guardião: {parecer_gua}")
         if linhas_fraude:
             secoes.append(("ALERTA DE SEGURANÇA E GOLPE (GUARDIÃO)", "\n".join(linhas_fraude)))
 
     if cvm_ativo:
-        bloco_cvm = bloco_recusa_educativa_cvm(perfil)
+        bloco_cvm = bloco_recusa_educativa_cvm(perfil, corretora=corretora_cvm)
         titulo_cvm, _, corpo_cvm = bloco_cvm.partition("\n")
         secoes.append((titulo_cvm.rstrip(":"), corpo_cvm))
 
@@ -347,7 +432,7 @@ def _montar_blocos_sintese(
 
     if estado.evidencias is not None:
         ev = estado.evidencias
-        if ev.abstencao and not (cvm_ativo or estado.plano_dividas or estado.analise_compulsao or estado.inspecao_fraude):
+        if ev.abstencao and not (cvm_ativo or (estado.plano_dividas and estado.plano_dividas.avalanche.ordem_credores) or estado.analise_compulsao or estado.inspecao_fraude):
             blocos_numerados.append(MENSAGEM_ABSTENCAO)
         elif ev.citacoes:
             linhas_ev: list[str] = []
@@ -376,6 +461,24 @@ class OrquestradorAgent:
         consulta_limpa, pii = mascarar(estado.consulta_usuario)
         estado.consulta_mascarada = consulta_limpa
         estado.pii_contagem = pii
+
+        if _eh_consulta_outro_idioma(consulta_limpa):
+            estado.intencoes_detectadas = ["educacao"]
+            estado.agentes_planejados = ["educador", "compliance"]
+            estado.registrar_mensagem(
+                origem="orquestrador",
+                destino="educador",
+                tipo="roteamento",
+                resumo="Consulta detectada em outro idioma; encaminhando para resposta padrão em português.",
+                dados_chave={
+                    "pii_contagem": pii,
+                    "intencoes": ["educacao"],
+                    "agentes_planejados": ["educador", "compliance"],
+                    "llm_modelo": "offline",
+                    "tool_calls": [],
+                },
+            )
+            return estado
 
         # Sensores determinísticos de segurança (defense-in-depth)
         intencoes_guardrail = _classificar_intencoes_guardrail(estado, consulta_limpa)
@@ -412,10 +515,20 @@ class OrquestradorAgent:
         if justificativa_llm:
             estado.pareceres_agentes["orquestrador_roteamento"] = justificativa_llm
 
+        tem_dividas_no_perfil = bool(estado.persona_id and perfil_persona(estado.persona_id).get("dividas"))
+        intencoes_llm_filtradas = [
+            i
+            for i in intencoes_llm
+            if (i != "dividas" or tem_dividas_no_perfil or "dividas" in intencoes_guardrail)
+            and (i != "bets" or "bets" in intencoes_guardrail)
+        ]
+
         # União segura: preserva intenções semânticas do LLM sem permitir que um guardrail (crise, CVM, boleto) seja ignorado
         se_so_educacao_no_guardrail = intencoes_guardrail == ["educacao"]
-        if intencoes_llm:
-            combinadas = list(dict.fromkeys([*intencoes_llm, *(i for i in intencoes_guardrail if not se_so_educacao_no_guardrail)]))
+        if intencoes_llm_filtradas:
+            combinadas = list(
+                dict.fromkeys([*intencoes_llm_filtradas, *(i for i in intencoes_guardrail if not se_so_educacao_no_guardrail)])
+            )
             if not combinadas:
                 combinadas = ["educacao"]
             intencoes = combinadas
@@ -431,7 +544,7 @@ class OrquestradorAgent:
         planejados: list[AgentRole] = []
         if estado.persona_id:
             planejados.append("analista")
-        if "dividas" in intencoes:
+        if "dividas" in intencoes and (tem_dividas_no_perfil or "dividas" in intencoes_guardrail):
             planejados.append("estrategista")
         if "bets" in intencoes:
             planejados.append("coach")
@@ -475,34 +588,51 @@ class OrquestradorAgent:
         tom = perfil["tom_comunicacao"]
         consulta_base = estado.consulta_mascarada or mascarar(estado.consulta_usuario)[0]
 
-        crise_ativa = detectar_sinais_crise(consulta_base) or (
-            estado.veredito is not None and estado.veredito.crise_acionada
-        ) or (
-            estado.analise_compulsao is not None
-            and estado.analise_compulsao.risco_compulsao == "critico"
-            and "crise" in estado.intencoes_detectadas
-        )
-        cvm_ativo = detectar_inducao_cvm(consulta_base) or (
-            estado.veredito is not None and estado.veredito.bloqueio_cvm_acionado
-        )
+        if _eh_consulta_outro_idioma(consulta_base):
+            estado.rascunho_resposta = (
+                "No momento respondo apenas em português. Por favor, envie sua dúvida sobre finanças, "
+                "dívidas ou direitos do consumidor em português."
+            )
+            estado.registrar_mensagem(
+                origem="orquestrador",
+                destino="compliance",
+                tipo="sintese",
+                resumo="Aviso de idioma padrão em português compilado para validação final.",
+                dados_chave={"tom_comunicacao": tom, "modo_revisao": modo_revisao, "llm_modelo": modelo_id},
+            )
+            return estado
 
-        # Em modo_revisao, remove pareceres livres do LLM para eliminar qualquer recomendação implícita reprovada pelo Compliance
+        crise_ativa = (
+            detectar_sinais_crise(consulta_base)
+            or ("crise" in estado.intencoes_detectadas)
+            or (estado.veredito is not None and estado.veredito.crise_acionada)
+        )
+        cvm_ativo = (
+            detectar_inducao_cvm(consulta_base)
+            or ("cvm" in estado.intencoes_detectadas)
+            or (estado.veredito is not None and estado.veredito.bloqueio_cvm_acionado)
+        )
+        corretora_cvm = bool(re.search(r"\bcorretora\b", _normalizar_texto(consulta_base)))
+
+        # Em crise, trava CVM ou revisão, não inclui pareceres livres do LLM
+        incluir_pareceres = not (modo_revisao or crise_ativa or cvm_ativo)
         secoes = _montar_blocos_sintese(
             estado,
             perfil,
             cvm_ativo=cvm_ativo,
-            incluir_pareceres_llm=not modo_revisao,
+            incluir_pareceres_llm=incluir_pareceres,
+            corretora_cvm=corretora_cvm,
         )
-        blocos: list[str] = [_saudacao_por_tom(nome, tom)]
+        blocos: list[str] = [_saudacao_por_tom(nome, tom, estado.persona_id)]
         if crise_ativa:
             blocos.append(BLOCO_PROTOCOLO_CRISE)
 
-        # Se chat_model está ativo e não é modo_revisao nem abstenção pura, gera síntese executiva do Orquestrador via LLM
+        # Não chama o LLM de síntese em modo_revisao, abstenção pura, crise ou trava CVM
         abstev = estado.evidencias is not None and estado.evidencias.abstencao and not (
-            cvm_ativo or estado.plano_dividas or estado.analise_compulsao or estado.inspecao_fraude
+            cvm_ativo or (estado.plano_dividas and estado.plano_dividas.avalanche.ordem_credores) or estado.analise_compulsao or estado.inspecao_fraude
         )
         resumo_orq_llm = ""
-        if chat_model is not None and not modo_revisao and not abstev:
+        if chat_model is not None and not modo_revisao and not abstev and not crise_ativa and not cvm_ativo:
             contexto_sintese = (
                 f"Tom da persona: {tom}\n"
                 f"Consulta: {consulta_base}\n"
@@ -517,11 +647,15 @@ class OrquestradorAgent:
                 tools=[],
             )
             candidato = res_sint.parecer_llm.strip()
-            if candidato and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(candidato)):
+            if (
+                candidato
+                and not _RE_RECOMENDACAO_DIRETA_CVM.search(_normalizar_texto(candidato))
+                and not _RE_JULGAMENTO_MORAL.search(_normalizar_texto(candidato))
+            ):
                 resumo_orq_llm = candidato
                 estado.pareceres_agentes["orquestrador_sintese"] = resumo_orq_llm
 
-        if resumo_orq_llm and not modo_revisao:
+        if resumo_orq_llm and incluir_pareceres:
             blocos.append(f"SÍNTESE DO COPILOTO ({modelo_id}):\n{resumo_orq_llm}")
 
         blocos.extend(secoes)
@@ -675,21 +809,15 @@ class EstrategistaAgent:
         assert diag is not None
 
         dividas: list[DividaItem] = list(diag.dividas_identificadas)
-        if not dividas and diag.gasto_dividas_mensal > 0:
-            dividas = [
-                DividaItem(
-                    credor="Dívidas identificadas no extrato",
-                    modalidade="rotativo_cartao",
-                    saldo=diag.total_dividas,
-                    cet_anual_pct=435.9,
-                    parcela_mensal=diag.gasto_dividas_mensal,
-                )
-            ]
 
         tool_estrategista = criar_tool_estrategista(diag, dividas)
-        resumo_dividas = ", ".join(
-            f"{d.credor} ({d.modalidade}, saldo R$ {d.saldo:.2f}, CET {d.cet_anual_pct:.1f}% a.a., essencial={d.essencial})"
-            for d in dividas
+        resumo_dividas = (
+            ", ".join(
+                f"{d.credor} ({d.modalidade}, saldo R$ {d.saldo:.2f}, CET {d.cet_anual_pct:.1f}% a.a., essencial={d.essencial})"
+                for d in dividas
+            )
+            if dividas
+            else "sem contratos detalhados no cadastro"
         )
         prompt_usr = (
             f"Consulta do usuário: {estado.consulta_mascarada or estado.consulta_usuario}\n"
@@ -761,7 +889,7 @@ class EstrategistaAgent:
 
 
 class CoachAgent:
-    """Agente 4: invoca @tool de auditoria de bets via Tool Calling e propõe fricção positiva sem julgamento."""
+    """Agente 4: invoca @tool de auditoria de bets via Tool Calling e propõe pausa protetiva sem julgamento."""
 
     def executar(
         self,
@@ -772,8 +900,17 @@ class CoachAgent:
         if estado.diagnostico is None:
             estado = AnalistaAgent().executar(estado, chat_model=chat_model, modelo_id=modelo_id)
         renda = estado.diagnostico.renda_mensal if estado.diagnostico else 0.0
+        parcela_ref = (
+            perfil_persona(estado.persona_id).get("parcela_referencia")
+            if estado.persona_id
+            else None
+        )
 
-        tool_coach = criar_tool_coach(estado.transacoes, renda_mensal=renda)
+        tool_coach = criar_tool_coach(
+            estado.transacoes,
+            renda_mensal=renda,
+            parcela_referencia=parcela_ref,
+        )
         prompt_usr = (
             f"Consulta do usuário: {estado.consulta_mascarada or estado.consulta_usuario}\n"
             f"Renda mensal apurada: R$ {renda:.2f} | Total de transações: {len(estado.transacoes)}\n"
@@ -801,7 +938,11 @@ class CoachAgent:
                 msg_acolhimento = str(tc.output.get("mensagem_acolhimento_sem_julgamento") or "")
 
         if analise is None:
-            analise = analisar_compulsao_bets(estado.transacoes, renda_mensal=renda)
+            analise = analisar_compulsao_bets(
+                estado.transacoes,
+                renda_mensal=renda,
+                parcela_referencia=parcela_ref,
+            )
 
         estado.analise_compulsao = analise
         estado.total_tool_calls += len(tool_calls_log)
@@ -854,11 +995,8 @@ class GuardiaoAgent:
             except FileNotFoundError:
                 estado.transacoes = []
 
-        # IMPORTANTE (RNF05): Sanitiza documento_ocr ANTES de montar qualquer prompt para o LLM
-        ocr_sanitizado_preview = ""
-        if estado.documento_ocr:
-            ocr_sanitizado_preview, _ = sanitizar_documento_nao_confiavel(estado.documento_ocr)
-
+        # IMPORTANTE (RNF05): O texto cru/sanitizado do OCR NÃO entra no prompt do LLM;
+        # a tool inspecionar_fraudes recebe e isola o documento diretamente fora do contexto LLM.
         tool_guardiao = criar_tool_guardiao(
             estado.transacoes,
             documento_ocr=estado.documento_ocr,
@@ -868,10 +1006,10 @@ class GuardiaoAgent:
         )
         prompt_usr = (
             f"Consulta do usuário: {estado.consulta_mascarada or estado.consulta_usuario}\n"
-            f"Linha digitável enviada: {estado.linha_digitavel or 'nenhuma'}\n"
+            f"Linha digitável enviada: {bool(estado.linha_digitavel)}\n"
+            f"Possui documento OCR anexado: {bool(estado.documento_ocr)}\n"
             f"Banco alegado: {estado.banco_alegado or 'não informado'} | Beneficiário PF: {estado.beneficiario_pf}\n"
-            f"Documento externo já sanitizado: {ocr_sanitizado_preview[:300] if ocr_sanitizado_preview else 'nenhum'}\n"
-            "Invoque `tool_inspecionar_fraude_e_boleto` informando queries sobre a Resolução BCB 147/2021 (MED Pix) e sua orientação emergencial."
+            "Invoque `tool_inspecionar_fraude_e_boleto` informando queries sobre a Resolução BCB 147/2021 (MED Pix) e orientação protetiva."
         )
         res_llm = executar_agente_com_tools(
             agente="guardiao",
@@ -942,16 +1080,6 @@ class GuardiaoAgent:
 class EducadorAgent:
     """Agente 6 (Research Agent): recupera trechos oficiais no RAG híbrido via Tool Calling e aplica portão RNF04."""
 
-    @staticmethod
-    def _hit_relevante(hit: Hit, limiar_abstencao: float, embedder_dim: int = 0) -> bool:
-        if hit.score_rerank is not None:
-            return hit.score_rerank >= limiar_abstencao
-        if embedder_dim >= _DIM_EMBEDDER_DENSO:
-            return hit.score_vetor is not None and hit.score_vetor >= _MIN_SCORE_VETOR_DENSO
-        vetor_ok = hit.score_vetor is not None and hit.score_vetor >= _MIN_SCORE_VETOR_HASH
-        bm25_ok = hit.score_bm25 is not None and hit.score_bm25 >= _MIN_SCORE_BM25_HASH
-        return vetor_ok and bm25_ok
-
     def executar(
         self,
         estado: EstadoMultiagente,
@@ -963,6 +1091,25 @@ class EducadorAgent:
     ) -> EstadoMultiagente:
         consulta_limpa, _ = mascarar(estado.consulta_mascarada or estado.consulta_usuario)
         queries_acumuladas = list(estado.queries_normativas)
+
+        if _eh_consulta_outro_idioma(consulta_limpa):
+            from pandora_rag.agents.models import EvidenciaNormativa
+
+            estado.evidencias = EvidenciaNormativa(
+                queries_executadas=[consulta_limpa],
+                hits_aprovados=0,
+                abstencao=True,
+                citacoes=[],
+                motivo_abstencao="Consulta em idioma diferente do português.",
+            )
+            estado.registrar_mensagem(
+                origem="educador",
+                destino="orquestrador",
+                tipo="evidencia",
+                resumo="Consulta fora do idioma suportado; abstenção aplicada (0 citações).",
+                dados_chave={"queries": [consulta_limpa], "normas": [], "abstencao": True, "llm_modelo": "offline", "tool_calls": []},
+            )
+            return estado
 
         tool_educador = criar_tool_educador(
             retriever=retriever,
@@ -996,16 +1143,20 @@ class EducadorAgent:
 
         if evidencias is None:
             queries_brutas = list(queries_acumuladas)
+            tem_cvm = detectar_inducao_cvm(consulta_limpa) or "cvm" in estado.intencoes_detectadas
+            if tem_cvm:
+                q_cvm = "Resolucao CVM 19 20 consultoria valores mobiliarios suitability 30"
+                if q_cvm not in queries_brutas:
+                    queries_brutas.insert(0, q_cvm)
+            consulta_livre = not queries_brutas and not tem_cvm
             if not queries_brutas:
-                if detectar_inducao_cvm(consulta_limpa) or "cvm" in estado.intencoes_detectadas:
-                    queries_brutas.append("Resolucao CVM 19 20 consultoria valores mobiliarios suitability 30")
-                else:
-                    queries_brutas.append(consulta_limpa)
+                queries_brutas.append(consulta_limpa)
             evidencias = executar_busca_evidencias_rag(
                 queries_brutas,
                 retriever=retriever,
                 k=k,
                 limiar_abstencao=limiar_abstencao,
+                consulta_livre=consulta_livre,
             )
 
         estado.evidencias = evidencias
@@ -1090,22 +1241,35 @@ class ComplianceAgent:
 
         tool_calls_log: list[dict[str, Any]] = []
         obs_juiz = res_llm.parecer_llm
+        aprovado_juiz = True
+        rec_cvm_juiz = False
+        julgamento_juiz = False
+
         for tc in res_llm.tool_calls:
             tool_calls_log.append({"tool": tc.name, "args": tc.args})
             if isinstance(tc.output, dict):
                 obs_juiz = str(tc.output.get("observacao_auditoria") or obs_juiz)
+                aprovado_juiz = bool(tc.output.get("aprovado_semantico", True))
+                rec_cvm_juiz = bool(tc.output.get("contem_recomendacao_implicita_cvm", False))
+                julgamento_juiz = bool(tc.output.get("contem_julgamento_moral", False))
 
         estado.total_tool_calls += len(tool_calls_log)
         if obs_juiz:
             estado.pareceres_agentes["compliance"] = obs_juiz
 
-        crise_necessaria = detectar_sinais_crise(consulta) or (
-            estado.analise_compulsao is not None
-            and estado.analise_compulsao.risco_compulsao == "critico"
-            and ("crise" in estado.intencoes_detectadas or "nao consigo" in _normalizar_texto(consulta))
+        crise_necessaria = (
+            detectar_sinais_crise(consulta)
+            or ("crise" in estado.intencoes_detectadas)
+            or (
+                estado.analise_compulsao is not None
+                and estado.analise_compulsao.risco_compulsao == "critico"
+                and "nao consigo" in _normalizar_texto(consulta)
+            )
         )
-        cvm_necessario = detectar_inducao_cvm(consulta) or bool(
-            _RE_RECOMENDACAO_DIRETA_CVM.search(norm_rascunho)
+        cvm_necessario = (
+            detectar_inducao_cvm(consulta)
+            or ("cvm" in estado.intencoes_detectadas)
+            or bool(_RE_RECOMENDACAO_DIRETA_CVM.search(norm_rascunho))
         )
         _, pii_achada = mascarar(rascunho)
         pii_detectada = bool(pii_achada)
@@ -1133,7 +1297,7 @@ class ComplianceAgent:
             alertas.append("Trava CVM (Res. 19/20) acionada: vedada recomendação específica de ativos.")
             tem_recusa_educativa = (
                 "cvm" in norm_rascunho
-                and "liquidez" in norm_rascunho
+                and ("liquidez" in norm_rascunho or "custodia" in norm_rascunho)
                 and ("fgc" in norm_rascunho or "tesouro" in norm_rascunho)
                 and ("selic" in norm_rascunho or "cdi" in norm_rascunho)
             )
@@ -1146,11 +1310,31 @@ class ComplianceAgent:
         if (
             estado.inspecao_fraude is not None
             and estado.inspecao_fraude.fraude_detectada
-            and not any(termo in norm_rascunho for termo in ("pare", "nao pague", "med"))
+            and not any(
+                frase in norm_rascunho
+                for frase in (
+                    "nao pague",
+                    "med do pix",
+                    "mecanismo especial de devolucao",
+                    "prazo legal de ate 80 dias",
+                )
+            )
         ):
             motivos_reprovacao.append(
                 "Rascunho omitiu alerta antifraude obrigatório para golpe/boleto suspeito."
             )
+
+        if _RE_JULGAMENTO_MORAL.search(norm_rascunho):
+            motivos_reprovacao.append("Rascunho contém linguagem moralizante ou culpabilizante.")
+
+        # Na 1ª passagem, o veto do juiz LLM força revisão (que desliga texto livre do LLM)
+        if estado.revisoes_realizadas == 0 and (not aprovado_juiz or rec_cvm_juiz or julgamento_juiz):
+            detalhe_juiz = obs_juiz or "veto semântico do auditor LLM"
+            if rec_cvm_juiz:
+                detalhe_juiz = f"recomendação implícita CVM detectada pelo juiz ({detalhe_juiz})"
+            elif julgamento_juiz:
+                detalhe_juiz = f"julgamento moral detectado pelo juiz ({detalhe_juiz})"
+            motivos_reprovacao.append(f"Compliance Judge (LLM): {detalhe_juiz}.")
 
         if pii_detectada:
             alertas.append(f"PII detectada na resposta gerada: {pii_achada}.")

@@ -59,8 +59,11 @@ _PADROES_CRISE: list[re.Pattern[str]] = [
     re.compile(r"\bperdi\s+tudo\b"),
     re.compile(
         r"\b(?:me\s+mat(?:ar|o)|suicid\w*|quero\s+morrer|vontade\s+de\s+morrer|"
-        r"tirar\s+(?:a\s+)?minha\s+vida|acabar\s+com\s+(?:tudo|a\s+minha\s+vida)|"
-        r"nao\s+quero\s+(?:mais\s+)?viver|desistir\s+da\s+vida)\b"
+        r"tirar\s+(?:a\s+)?minha\s+vida|acabar\s+com\s+(?:tudo|isso|a\s+minha\s+vida)|"
+        r"nao\s+quero\s+(?:mais\s+)?viver|desistir\s+da\s+vida|"
+        r"(?:tenho\s+|da\s+)?vontade\s+de\s+sumir|queria\s+sumir|"
+        r"melhor\s+(?:eu\s+)?nao\s+acordar|nao\s+vejo\s+(?:mais\s+)?(?:motivo|sentido)(?:\s+(?:pra|para)\s+continuar)?|"
+        r"ninguem\s+(?:ia|vai)\s+sentir\s+(?:a\s+minha\s+|minha\s+)?falta|melhor\s+sem\s+mim)\b"
     ),
     re.compile(r"\b(?:sem\s+saida|nao\s+aguento\s+mais|desespero\s+total)\b"),
 ]
@@ -71,20 +74,21 @@ _ATIVOS_REGULADOS = (
 )
 _VERBOS_CVM = (
     r"(?:comprar|vender|investir|aplicar|escolher|manter|colocar|"
-    r"compro|invisto|aplico|coloco|recomenda\w*|recomende|indica\w*|indique|suger\w*|sugira|vale\s+a\s+pena)"
+    r"compro|invisto|aplico|coloco|deixar|guardar|abrir\s+conta|"
+    r"recomenda\w*|recomende|indica\w*|indique|suger\w*|sugira|vale\s+a\s+pena)"
 )
 
 _PADROES_CVM: list[re.Pattern[str]] = [
-    re.compile(rf"\b(?:qual|quais)\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco)\b.{{0,120}}\b{_VERBOS_CVM}\b"),
-    re.compile(rf"\b(?:qual|quais)\b.{{0,120}}\b{_VERBOS_CVM}\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco)\b"),
-    re.compile(rf"\b(?:qual|quais)\s+(?:o\s+|a\s+)?melhor\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco|investimento)\b"),
+    re.compile(rf"\b(?:qual|quais)\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco|corretora)\b.{{0,120}}\b{_VERBOS_CVM}\b"),
+    re.compile(rf"\b(?:qual|quais)\b.{{0,120}}\b{_VERBOS_CVM}\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco|corretora)\b"),
+    re.compile(rf"\b(?:qual|quais)\s+(?:o\s+|a\s+)?melhor\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco|corretora|investimento)\b"),
     re.compile(
-        rf"\b(?:devo|posso|vale\s+a\s+pena|onde|em\s+qual(?:\s+banco)?)\s+{_VERBOS_CVM}\b"
-        rf".{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco|corretora|dinheiro|reserva)\b"
+        rf"\b(?:devo|posso|vale\s+a\s+pena|onde(?:\s+devo|\s+posso)?|em\s+qual(?:\s+banco|\s+corretora)?)\s+{_VERBOS_CVM}\b"
+        rf".{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco|corretora|dinheiro|reserva|reais|guardad[oa]s?)\b"
     ),
     re.compile(
-        rf"\b(?:recomenda\w*|recomende|indica\w*|indique|suger\w*|sugira|me\s+diz\s+qual|diga\s+qual)\b"
-        rf".{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco)\b"
+        rf"\b(?:recomenda\w*|recomende|indica\w*|indique|suger\w*|sugira|me\s+diz\s+qual|diga\s+qual|"
+        rf"me\s+fala|fala\s+um|me\s+da)\b.{{0,120}}\b(?:{_ATIVOS_REGULADOS}|banco|corretora)\b"
     ),
     re.compile(
         rf"\b(?:[a-z]{{4}}(?:3|4|5|6|11|34|35|39)\b.{{0,120}}\b{_VERBOS_CVM}|{_VERBOS_CVM}\b.{{0,120}}\b[a-z]{{4}}(?:3|4|5|6|11|34|35|39))\b"
@@ -263,7 +267,7 @@ def calcular_raio_x(
             }
             if d.cet_anual_pct > ref:
                 alertas.append(
-                    f"CET do rotativo ({d.cet_anual_pct:.1f}% a.a.) supera a média oficial BCB SGS 22022 ({ref:.1f}% a.a.)."
+                    f"CET do rotativo ({_fmt_num(d.cet_anual_pct, 1)}% a.a.) supera a média oficial BCB SGS 22022 ({_fmt_num(ref, 1)}% a.a.)."
                 )
         elif "consignado" in d.modalidade:
             ref = SERIES_SGS_BCB["25467"]["valor_referencia"]
@@ -281,7 +285,7 @@ def calcular_raio_x(
 
     if comprometimento_pct > 50.0:
         alertas.append(
-            f"Comprometimento mensal com dívidas ({comprometimento_pct:.1f}% da renda) ameaça o Mínimo Existencial."
+            f"Comprometimento mensal com dívidas ({_fmt_num(comprometimento_pct, 1)}% da renda) ameaça o Mínimo Existencial."
         )
     if minimo_existencial >= renda_mensal > 0:
         alertas.append(
@@ -355,11 +359,11 @@ def simular_estrategias_divida(
     alertas: list[str] = []
     if deficit_vital > 0:
         alertas.append(
-            f"Déficit vital de R$ {deficit_vital:.2f}: preservar 100% do Mínimo Existencial e buscar repactuação global (Lei 14.181/2021)."
+            f"Déficit vital de {_fmt_brl(deficit_vital)}: preservar 100% do Mínimo Existencial e buscar repactuação global (Lei 14.181/2021)."
         )
     elif requer_repactuacao:
         alertas.append(
-            f"Parcelas atuais (R$ {soma_parcelas:.2f}) excedem a folga real (R$ {folga_acordos:.2f}); elegível à conciliação da Lei 14.181/2021."
+            f"Parcelas atuais ({_fmt_brl(soma_parcelas)}) excedem a folga real ({_fmt_brl(folga_acordos)}); elegível à conciliação da Lei 14.181/2021."
         )
     if alerta_rotativo:
         alertas.append(
@@ -380,9 +384,19 @@ def simular_estrategias_divida(
     )
 
 
+def _fmt_brl(valor: float) -> str:
+    inteiro, dec = f"{valor:,.2f}".split(".")
+    return f"R$ {inteiro.replace(',', '.')},{dec}"
+
+
+def _fmt_num(valor: float, casas: int = 1) -> str:
+    return f"{valor:.{casas}f}".replace(".", ",")
+
+
 def analisar_compulsao_bets(
     transacoes: list[TransacaoPersona],
     renda_mensal: float,
+    parcela_referencia: float | None = 450.0,
 ) -> AnaliseCompulsao:
     """Apura perda líquida real em apostas, madrugada (23h–06h) e gatilho pós-salário."""
     apostas = [tx for tx in transacoes if _eh_aposta(tx)]
@@ -423,12 +437,17 @@ def analisar_compulsao_bets(
     )
 
     tanques_combustivel = int(perda_liquida // 65.0)
-    custo_oportunidade = (
-        f"R$ {perda_liquida:.2f} equivale a cerca de {tanques_combustivel} tanques de gasolina (R$ 65/tanque) "
-        f"ou {perda_liquida / 450.0:.1f}x uma parcela mensal de R$ 450,00."
-        if perda_liquida > 0
-        else "Nenhuma perda líquida em apostas detectada no recorte."
-    )
+    if perda_liquida > 0:
+        custo_oportunidade = (
+            f"{_fmt_brl(perda_liquida)} equivale a cerca de {tanques_combustivel} tanques de gasolina (R$ 65/tanque)"
+        )
+        if parcela_referencia is not None and parcela_referencia > 0:
+            mult = _fmt_num(perda_liquida / parcela_referencia, 1)
+            custo_oportunidade += f" ou {mult}x uma parcela mensal de {_fmt_brl(parcela_referencia)}."
+        else:
+            custo_oportunidade += "."
+    else:
+        custo_oportunidade = "Nenhuma perda líquida em apostas detectada no recorte."
 
     if pct_renda >= 30.0 or (madrugada_qtd >= 2 and pos_salario):
         risco = "critico"
@@ -445,7 +464,7 @@ def analisar_compulsao_bets(
     if pos_salario:
         alertas.append("Aposta realizada nas primeiras 24h após recebimento de renda/repasse.")
     if perda_liquida > 0:
-        alertas.append(f"Perda líquida real de R$ {perda_liquida:.2f} ({pct_renda:.1f}% da renda analisada).")
+        alertas.append(f"Perda líquida real de {_fmt_brl(perda_liquida)} ({_fmt_num(pct_renda, 1)}% da renda analisada).")
 
     return AnaliseCompulsao(
         total_apostado=total_apostado,

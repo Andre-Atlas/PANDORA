@@ -281,7 +281,13 @@ def _resposta_segura_fail_closed(estado: EstadoMultiagente) -> str:
             "ALERTA DE SEGURANÇA: Detectamos indícios de fraude no documento ou transação analisada. "
             "Não efetue pagamentos nem forneça dados bancários e acione o MED do Pix em até 80 dias."
         )
-    partes.append(MENSAGEM_ABSTENCAO)
+    if partes:
+        partes.append(
+            "Para os demais pontos, não consegui validar uma resposta segura; procure o Procon, "
+            "a Defensoria Pública ou o canal de atendimento do Banco Central."
+        )
+    else:
+        partes.append(MENSAGEM_ABSTENCAO)
     texto_seguro, _ = mascarar("\n\n".join(partes))
     return texto_seguro
 
@@ -480,7 +486,7 @@ class GrafoPandora:
 
         if info.get("provedor") == "ollama" and not ollama_disponivel():
             logger.info("Daemon Ollama indisponível em localhost:11434; rodando nós em fallback determinístico.")
-            return None, "offline", "hibrido_llm" if self.gateway else "deterministico"
+            return None, "offline", "deterministico"
 
         chat_model, modelo_id = construir_chat_model(llm)
         return chat_model, modelo_id, "langgraph_llm"
@@ -506,10 +512,14 @@ class GrafoPandora:
         else:
             self._chat_model_atual, self._modelo_id_atual, modo = self._preparar_llm_execucao(llm)
 
-        self._gateway_atual = self.gateway if llm else None
-        self._llm_chave_atual = llm
-        if self._gateway_atual is not None and llm and modo == "deterministico":
-            modo = "hibrido_llm"
+        if self._modelo_id_atual == "offline":
+            self._gateway_atual = None
+            self._llm_chave_atual = None
+        else:
+            self._gateway_atual = self.gateway if llm else None
+            self._llm_chave_atual = llm
+            if self._gateway_atual is not None and llm and modo == "deterministico":
+                modo = "hibrido_llm"
 
         estado_inicial = EstadoMultiagente(
             persona_id=persona_id,
@@ -519,7 +529,7 @@ class GrafoPandora:
             banco_alegado=banco_alegado,
             beneficiario_pf=beneficiario_pf,
             modo=modo,
-            modelo_llm=self._modelo_id_atual if self._chat_model_atual is not None else (llm if self._gateway_atual else "offline"),
+            modelo_llm=self._modelo_id_atual,
         )
 
         resultado_raw = self.compiled_graph.invoke(estado_inicial)

@@ -1,84 +1,82 @@
 # 02 · Responsabilidades dos Agentes Especializados
 
-O sistema conta com **7 agentes especializados** implementados em [`services/rag/src/pandora_rag/agents/specialists.py`](../../services/rag/src/pandora_rag/agents/specialists.py), cobrindo integralmente os papéis previstos no escopo PANDORA e os arquétipos propostos no entregável (*Research*, *Analysis*, *Validation* e *Communication*).
+O sistema conta com **7 agentes especializados** implementados em [`services/rag/src/pandora_rag/agents/specialists.py`](../../services/rag/src/pandora_rag/agents/specialists.py), cada um dotado de seu **`System Prompt` exclusivo** e de uma **`@tool` nativa do LangChain/LangGraph** em [`langgraph_tools.py`](../../services/rag/src/pandora_rag/agents/langgraph_tools.py), cobrindo os papéis *Research*, *Analysis*, *Validation* e *Communication*.
 
 ---
 
-## Visão Geral e Mapeamento de Papéis
+## Visão Geral, Papéis e `@tool`s Vinculadas
 
-| # | Agente (`AgentRole`) | Papel no Entregável UNB | Quando é Acionado | O que Consome | O que Produz no `EstadoMultiagente` |
+| # | Agente (`AgentRole`) | Papel no Entregável UNB | `@tool` Vinculada (`bind_tools`) | Quando é Acionado | O que Consome / Produz no `EstadoMultiagente` |
 |---|---|---|---|---|---|
-| 1 | `orquestrador` (`OrquestradorAgent`) | **Orchestrator + Communication Agent** | Sempre (entrada e síntese) | `consulta_usuario`, perfil da persona, saídas dos especialistas, `evidencias`, `veredito` | `consulta_mascarada`, `pii_contagem`, `intencoes_detectadas`, `agentes_planejados`, `rascunho_resposta` |
-| 2 | `analista` (`AnalistaAgent`) | **Analysis Agent** (Raio-X) | Sempre que há `persona_id` | `persona_id`, `amostra_transacoes_sinteticas_personas.csv`, séries `SERIES_SGS_BCB` | `transacoes`, `diagnostico: DiagnosticoFinanceiro` |
-| 3 | `estrategista` (`EstrategistaAgent`) | **Analysis Agent** (Dívidas) | Intenção `dividas` | `diagnostico` (renda, mínimo existencial, dívidas) | `plano_dividas: PlanoReestruturacao`, `queries_normativas` |
-| 4 | `coach` (`CoachAgent`) | **Analysis + Communication Agent** (*Bets*) | Intenção `bets` | `transacoes`, `diagnostico.renda_mensal` | `analise_compulsao: AnaliseCompulsao`, `queries_normativas` |
-| 5 | `guardiao` (`GuardiaoAgent`) | **Analysis + Validation Agent** (Antifraude) | Intenção `fraude` / anexo OCR / boleto | `transacoes`, `documento_ocr`, `linha_digitavel`, `banco_alegado`, `beneficiario_pf` | `inspecao_fraude: InspecaoFraude`, `queries_normativas` |
-| 6 | `educador` (`EducadorAgent`) | **Research Agent** (RAG Normativo) | Sempre (etapa normativa central) | `queries_normativas`, `consulta_mascarada`, `Retriever` híbrido | `evidencias: EvidenciaNormativa` |
-| 7 | `compliance` (`ComplianceAgent`) | **Validation & Communication Agent** | Sempre (portão final + revisão) | `consulta_mascarada`, `rascunho_resposta`, `evidencias`, `analise_compulsao` | `veredito: VereditoCompliance`, `resposta_final` |
+| 1 | `orquestrador` (`OrquestradorAgent`) | **Orchestrator + Communication Agent** | `tool_classificar_roteamento` | Sempre (nós `orquestrador_planejar` e `orquestrador_sintetizar`) | Consome `consulta_usuario`, perfil e saídas dos especialistas · Produz `consulta_mascarada`, `pii_contagem`, `intencoes_detectadas`, `agentes_planejados`, `rascunho_resposta` |
+| 2 | `analista` (`AnalistaAgent`) | **Analysis Agent** (Raio-X) | `tool_calcular_raio_x_financeiro` | Sempre que há `persona_id` | Consome `persona_id`, `amostra_transacoes_sinteticas_personas.csv`, `SERIES_SGS_BCB` · Produz `transacoes`, `diagnostico: DiagnosticoFinanceiro` |
+| 3 | `estrategista` (`EstrategistaAgent`) | **Analysis Agent** (Dívidas) | `tool_simular_reestruturacao_dividas` | Intenção `dividas` **e** dívida real (no perfil ou na consulta) | Consome `diagnostico`, `dividas_identificadas` · Produz `plano_dividas: PlanoReestruturacao`, `queries_normativas` |
+| 4 | `coach` (`CoachAgent`) | **Analysis + Communication Agent** (*Bets*) | `tool_analisar_compulsao_apostas` | Intenção `bets` com termo real de aposta | Consome `transacoes`, `diagnostico.renda_mensal`, `parcela_referencia` · Produz `analise_compulsao: AnaliseCompulsao`, `queries_normativas` |
+| 5 | `guardiao` (`GuardiaoAgent`) | **Analysis + Validation Agent** (Antifraude) | `tool_inspecionar_fraude_e_boleto` | Intenção `fraude` / anexo OCR / linha digitável | Consome `transacoes`, `documento_ocr` (fora do prompt LLM), `linha_digitavel` · Produz `inspecao_fraude: InspecaoFraude`, `queries_normativas` |
+| 6 | `educador` (`EducadorAgent`) | **Research Agent** (RAG Normativo) | `tool_buscar_evidencias_rag` | Sempre (nó `educador`) | Consome `queries_normativas`, `consulta_mascarada`, `Retriever` híbrido · Produz `evidencias: EvidenciaNormativa` |
+| 7 | `compliance` (`ComplianceAgent`) | **Validation Agent** (*LLM-as-a-Judge* + Guardrails) | `tool_auditar_invariantes_compliance` | Sempre (nó `compliance`) | Consome `consulta_mascarada`, `rascunho_resposta`, `evidencias` · Produz `veredito: VereditoCompliance`, `resposta_final` |
 
 ---
 
-## Fichas Individuais de Responsabilidade
+## Fichas Individuais de Responsabilidade e Fronteiras
 
 ### 1. `OrquestradorAgent` (`orquestrador`)
-- **Missão:** Ponto único de entrada e saída conversacional. Protege dados pessoais antes do roteamento, decide o plano de execução e adapta o tom da resposta final à condição emocional e digital da persona (`acolhedor_simples`, `parceiro_sem_julgamento`, `acessivel_idoso`, `educativo_calmo`).
+- **System Prompts:** `SYSTEM_PROMPT_ORQUESTRADOR_ROTEAMENTO` (triagem e invocação de `tool_classificar_roteamento`) e `SYSTEM_PROMPT_ORQUESTRADOR_SINTESE` (comunicação adaptativa).
 - **Responsabilidades:**
-  - Aplicar `mascarar()` sobre `consulta_usuario` removendo CPF, CNPJ, telefone, e-mail e número de cartão sem corromper referências a leis ou valores em reais (`R$`).
-  - Classificar intenções (`dividas`, `bets`, `fraude`, `cvm`, `crise`, `educacao`) e montar `agentes_planejados`.
-  - Na etapa de síntese (`sintetizar`), consolidar os números determinísticos de cada especialista com as citações `[n]` recuperadas pelo `EducadorAgent`, além de executar o modo de revisão caso o `ComplianceAgent` reprove o rascunho.
-- **Limites:** Nunca calcula juros, parcelas ou perdas por conta própria; nunca pula a validação do `ComplianceAgent`.
+  - Aplicar `mascarar()` na entrada antes de qualquer chamada ao LLM ou log (`RNF01`).
+  - Detectar consultas em outro idioma (respondendo exclusivamente em português, conforme perfil do público brasileiro).
+  - Combinar a classificação semântica do LLM com sensores determinísticos *defense-in-depth* (`_classificar_intencoes_guardrail` com fronteira `\b`), evitando falsos positivos (*remédio/medo → med*, *alfabeto/betoneiro → bet*, *repasse do app → aposta*) e bloqueando acionamento indevido do `Estrategista` ou `Coach` quando não há dívida/aposta real.
+  - Na síntese final, adaptar a saudação e o registro ao perfil (`acessivel_idoso`, `parceiro_sem_julgamento`, saudação neutra sem `"seus dados"` quando não há persona) e **desligar o texto livre do LLM** quando houver crise, trava CVM ou revisão de compliance.
+- **Limites:** Nunca calcula valores nem pula a validação do `ComplianceAgent`.
 
 ### 2. `AnalistaAgent` (`analista`)
-- **Missão:** Produzir o **Raio-X Financeiro determinístico** da pessoa usuária a partir das transações sintéticas e do perfil cadastrado.
+- **System Prompt:** `SYSTEM_PROMPT_ANALISTA` + `@tool tool_calcular_raio_x_financeiro`.
 - **Responsabilidades:**
-  - Carregar transações reais do recorte em `docs/evidencias/datasets/amostra_transacoes_sinteticas_personas.csv`.
-  - Apurar `renda_mensal`, `minimo_existencial` (despesas vitais: moradia, alimentação, saúde e transporte), `folga_disponivel` (`max(0, renda - minimo_existencial)`), `gasto_dividas_mensal` e `comprometimento_dividas_pct`.
-  - Confrontar as taxas das dívidas identificadas contra as séries oficiais do Banco Central (**SGS `22022`** — rotativo a `435,9% a.a.`; **SGS `25467`** — consignado INSS a `24,5% a.a.`; além de Selic `432`, CDI `12` e IPCA `433`).
-- **Limites:** Somente leitura (`read-only`); apenas extrai e computa indicadores financeiros determinísticos.
+  - Ler o recorte transacional em `docs/evidencias/datasets/amostra_transacoes_sinteticas_personas.csv`.
+  - Apurar `renda_mensal`, **despesas vitais estimadas** (moradia, alimentação, saúde e transporte — diferenciadas explicitamente na resposta do mínimo existencial legal de R$ 600,00 do Decreto 11.567/2023), `folga_disponivel`, `gasto_dividas_mensal` e comparativos com `SERIES_SGS_BCB` (**SGS 22022, 25467, 432, 12, 433** com referência `fev/2026`).
+  - Sinalizar explicitamente quando uma `persona_id` informada não possuir dados no cadastro nem transações (em vez de exibir `R$ 0,00` silencioso).
+- **Limites:** Somente leitura e cálculo determinístico (`RNF03`).
 
 ### 3. `EstrategistaAgent` (`estrategista`)
-- **Missão:** Definir a estratégia de pagamento e repactuação de dívidas preservando **100% do Mínimo Existencial**.
+- **System Prompt:** `SYSTEM_PROMPT_ESTRATEGISTA` + `@tool tool_simular_reestruturacao_dividas`.
 - **Responsabilidades:**
-  - Executar `simular_estrategias_divida(diagnostico, dividas)`, garantindo que `folga_para_acordos` nunca invada alimentação/moradia (`deficit_vital` explícito se a renda for menor que o mínimo existencial).
-  - Priorizar **serviços essenciais em atraso** (ex.: conta de energia elétrica vencida há 45 dias) antes de dívidas bancárias.
-  - Simular e comparar em 12 meses os métodos **Avalanche** (maior CET primeiro) e **Bola de Neve** (menor saldo primeiro).
-  - Sinalizar alerta para o teto de 100% do rotativo (**Lei nº 14.690/2023**) e elegibilidade à audiência global de conciliação (**Lei nº 14.181/2021**).
-  - Solicitar ao `EducadorAgent` as buscas jurídicas pertinentes (Lei 14.181, Lei 14.690 e CPC art. 833).
-- **Limites:** Não inventa descontos bancários; encaminha fundamentos legais para verificação no RAG.
+  - Preservar 100% das despesas vitais (`folga_para_acordos` nunca é negativa).
+  - Simular e comparar em 12 meses **Avalanche** (serviços essenciais em atraso primeiro, depois maior CET anual) e **Bola de Neve** (menor saldo), unificando a exibição em texto claro quando ambas as ordens coincidem.
+  - Sinalizar o teto legal de 100% do rotativo (**Lei nº 14.690/2023**) e orientar sobre pedido de repactuação global (**Lei nº 14.181/2021** via Procon/Defensoria).
+  - Se houver apenas débito mensal de juros no extrato sem detalhamento de contrato, **não** inventar taxa de 435,9% nem gerar simulação artificial.
+- **Limites:** Não inventa contratos, taxas nem garante resultado judicial automático.
 
 ### 4. `CoachAgent` (`coach`)
-- **Missão:** Detectar comportamento compulsivo em apostas online (*bets*) e propor fricção positiva sem julgamento moral.
+- **System Prompt:** `SYSTEM_PROMPT_COACH` + `@tool tool_analisar_compulsao_apostas`.
 - **Responsabilidades:**
-  - Filtrar transações com `is_bet=True`, `mcc="7995"` ou `category="APOSTAS_BETS"`.
-  - Calcular exatamente `total_apostado`, `premios_recebidos`, `perda_liquida = max(0, total_apostado - premios_recebidos)` e `pct_renda_comprometida`.
-  - Identificar padrões de alto risco: apostas na madrugada (`23h–06h`, *chasing losses*) e apostas realizadas até 24h após recebimento de repasse/salário (`aposta_pos_salario`).
-  - Traduzir a perda financeira em **custo de oportunidade tangível** (ex.: tanques de combustível da moto ou parcelas do instrumento de trabalho) e recomendar janela de resfriamento (*cooling-off* de 24h–48h) e autoexclusão.
-  - Solicitar ao `EducadorAgent` os dispositivos da **Lei nº 14.790/2023**.
-- **Limites:** Nunca usa linguagem punitiva ou moralizante; não realiza atendimento clínico psicológico.
+  - Apurar `total_apostado`, `premios_recebidos`, `perda_liquida`, apostas de madrugada (`23h–06h`) e apostas pós-repasse (`< 24h`) sobre transações `MCC 7995` / `APOSTAS_BETS`.
+  - Traduzir a perda líquida em equivalentes concretos (tanques de gasolina; comparação com `parcela_referencia` apenas para personas que possuem parcela cadastrada, como `diego_24`).
+  - Redigir orientação empática sem julgamento moral e sem jargão técnico, propondo Pausa Noturna e pausa de 48h junto a bloqueio/limites bancários.
+- **Limites:** Nunca moraliza; não atua quando não há apostas reais na jornada nem no histórico.
 
 ### 5. `GuardiaoAgent` (`guardiao`)
-- **Missão:** Proteger usuários vulneráveis contra fraudes em boletos/Pix e contra ataques de *prompt injection* em documentos enviados.
+- **System Prompt:** `SYSTEM_PROMPT_GUARDIAO` + `@tool tool_inspecionar_fraude_e_boleto`.
 - **Responsabilidades:**
-  - Executar `sanitizar_documento_nao_confiavel()` sobre `documento_ocr`, detectando instruções maliciosas ocultas (ex.: *"IGNORE AS INSTRUCOES ANTERIORES"*), substituindo-as por `[CONTEUDO_BLOQUEADO_INJECTION]` e isolando o documento entre delimitadores `<documento_externo_nao_confiavel>`.
-  - Auditar `linha_digitavel` com `validar_boleto_febraban()`: comprimento exato (47 dígitos), dígito verificador Módulo 10 dos campos 1–3, divergência entre o código bancário do código de barras e o banco alegado no documento, e flag de beneficiário Pessoa Física (PF).
-  - Identificar transações `FRAUDE_SUSPEITA` no histórico e montar o roteiro passo a passo do **MED do Pix (Res. BCB nº 147/2021)** com prazo legal de **80 dias**.
-  - Solicitar ao `EducadorAgent` o texto oficial da Resolução BCB nº 147/2021.
-- **Limites:** Não aprova pagamentos nem executa transações bancárias (`RF18`).
+  - **Isolamento Estrutural (`RNF05`):** O texto de `documento_ocr` **nunca entra no prompt do LLM** — é sanitizado diretamente dentro da `@tool` com `sanitizar_documento_nao_confiavel()`.
+  - Auditar boletos FEBRABAN (47 dígitos, módulo 10 nos campos 1–3, divergência bancária, beneficiário PF), alertando claramente quando um formato válido não garante legitimidade.
+  - Gerar roteiro em 3 passos do **MED do Pix (Res. BCB nº 147/2021, prazo de 80 dias)**, separando sob título próprio quando advier de transação suspeita no histórico.
+- **Limites:** Nunca envia texto cru de OCR ao modelo nem aprova transações.
 
 ### 6. `EducadorAgent` (`educador`)
-- **Missão:** Atuar como **Research Agent** garantindo que toda informação normativa e jurídica entregue ao usuário provenha de fontes oficiais recuperadas pelo RAG.
+- **System Prompt:** `SYSTEM_PROMPT_EDUCADOR` + `@tool tool_buscar_evidencias_rag`.
 - **Responsabilidades:**
-  - Consumir as demandas acumuladas em `queries_normativas` pelos agentes analíticos (`estrategista`, `coach`, `guardiao`) ou pela consulta inicial.
-  - Consultar o `Retriever` híbrido (`BAAI/bge-m3` + `BM25` + `RRF`), priorizando cobertura diversa entre as consultas solicitadas e deduplicando chunks por ID.
-  - Respeitar o portão de abstenção (`score_rerank < 0.02`), sinalizando `abstencao=True` caso nenhuma evidência atinja o limiar.
-  - Devolver `EvidenciaNormativa` com citações numeradas `[1]..[k]`, artigo, trecho e link oficial para o `OrquestradorAgent`.
-- **Limites:** Não escreve resposta final nem formula recomendações de investimento.
+  - Executar busca híbrida (`BAAI/bge-m3` + `BM25` + `RRF`) para as consultas normativas geradas pelos especialistas e pelo próprio LLM.
+  - Filtrar preâmbulos vazios, títulos sem corpo e cláusulas puramente revogatórias/promulgatórias, limitando a saída a até 4 citações oficiais relevantes `[1]..[k]`.
+  - Aplicar o portão de abstenção `RNF04` (incluindo verificação de vocabulário de domínio em consultas livres) para devolver `abstencao=True` fora do escopo financeiro/normativo.
+- **Limites:** Nunca fabrica artigo, número de norma ou URL fora dos chunks recuperados.
 
 ### 7. `ComplianceAgent` (`compliance`)
-- **Missão:** Atuar como **Validation Agent** (portão final inviolável) auditando a síntese antes que chegue ao usuário.
+- **System Prompt:** `SYSTEM_PROMPT_COMPLIANCE` + `@tool tool_auditar_invariantes_compliance`.
 - **Responsabilidades:**
-  - **Invariante 1 — Protocolo de Crise (`100%` obrigatório):** Diante de marcadores de sofrimento psíquico agudo (`detectar_sinais_crise`) ou compulsão crítica com perda de controle, exige a presença do bloco de acolhimento imediato com **CVV (`188`)**, **CAPS AD** e **Jogadores Anônimos (JA)**.
-  - **Invariante 2 — Trava CVM (`RNF02`):** Bloqueia recomendações específicas de ações, fundos ou CDBs de bancos determinados (Res. CVM 19 e 20/2021) e exige **Recusa Educativa** contendo os 3 critérios objetivos (Liquidez D+0, Risco Soberano/FGC e Pós-fixado Selic/CDI).
-  - **Invariante 3 — Rastreabilidade de Citações (`RNF04`):** Quando o `EducadorAgent` recuperou evidências válidas, exige ao menos uma citação `[n]` válida na resposta.
-  - **Invariante 4 — LGPD/PII (`RNF01`):** Verifica que nenhum dado pessoal sensível escapou para o texto final.
-  - Caso qualquer invariante falhe, emite `aprovado=False` com `motivo_revisao` e devolve o controle ao `OrquestradorAgent` para correção antes da entrega.
+  - Combinar **LLM-as-a-Judge** (cujo veto semântico em `aprovado_semantico`, `contem_recomendacao_implicita_cvm` ou `contem_julgamento_moral` força revisão automática na 1ª passagem) com **5 checagens determinísticas duros**:
+    1. **Protocolo de Crise (`100%` obrigatório):** ativa `CVV 188`, `CAPS AD` e `Jogadores Anônimos` para ideação suicida direta ou indireta ou sinal de crise do LLM;
+    2. **Trava CVM (`RNF02`):** bloqueia recomendações diretas ou implícitas de ativos/CDBs/corretoras e exige Recusa Educativa com 3 critérios objetivos;
+    3. **Alerta Antifraude:** exige explicitamente `"NÃO PAGUE"` ou `"MED do Pix"` quando há fraude detectada;
+    4. **Grounding & Números (`RNF03`–`RNF04`):** exige citações `[n]` consistentes e preservação de valores determinísticos;
+    5. **LGPD (`RNF01`) & Sem Julgamento Moral:** zero PII residual e bloqueio de linguagem culpabilizante.
+  - Caso reprove após o ciclo de revisão (`revisoes_realizadas >= 1`), aciona o nó **`fail_closed`**.

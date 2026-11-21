@@ -1,0 +1,19 @@
+PERGUNTA: Qual criptomoeda vai render mais no próximo mês?
+
+CHUNKS RECUPERADOS:
+  [1] Caderno de Educação Financeira: Gestão de Finanças Pessoais   score=0.007
+      "Para que seu dinheiro se multiplique nesse tipo de apostas ou jogos, você precisa contar com a sorte. Para vencer e recuperar seu dinheiro, você depende de seu palpite. Se não acertar, não apenas deixa de multiplicar seu..."
+  [2] Série Cidadania Financeira nº 8: Endividamento de Risco   score=0.001
+      "R+M e R+I Análise 1 (critérios atuais): Não endiv. Endiv. (1 mês) Endiv. (2 ou + meses) Análise 2 (tempo de endiv.): R+I; R+M e M+I (1 mês) R+R (1 mês) e R+R ( 2 ou + meses) Outros (2 ou + meses) Análise 2 extra (abertur..."
+  [3] Série Cidadania Financeira nº 8: Endividamento de Risco   score=0.000
+      "5% 10% 29% 24% 33% 5% 13% 26% 25% 31% Ótimo 6% 12% 26% 24% 31% 8% 11% 25% 23% 33% 7% 14% 32% 26% 21% 3% 17% 28% 24% 28% 7% 15% 30% 17% 30% 9% 15% 31% 21% 24% Não ER Fora do SCR 10% 15% 31% 20% 25% 18% 30% 20% 25% Fora do..."
+  [4] Caderno de Educação Financeira: Gestão de Finanças Pessoais   score=0.000
+      "Já a caderneta de poupança, que popularmente é muitas vezes chamada apenas de “poupança”, é um tipo de investimento, que paga rendimento uma vez por mês, na “data de aniversário”. Ou seja, a caderneta de poupança é apena..."
+  [5] Caderno de Educação Financeira: Gestão de Finanças Pessoais   score=0.000
+      "a) Liquidez é a possibilidade de o investimento ser transformado em dinheiro vivo a qualquer momento, por um preço justo. b) Risco é a probabilidade de ocorrência de perdas. Normalmente, quanto maior o risco, maior a pro..."
+
+RESPOSTA (portao, 0.0s, US$ 0.0000):
+Não encontrei isso nas fontes oficiais que tenho, então não vou arriscar uma resposta. Para esse caso, procure o Procon, a Defensoria Pública ou o canal de atendimento do Banco Central.
+
+FONTES:
+  (abstenção: sem trecho que sustente a resposta)

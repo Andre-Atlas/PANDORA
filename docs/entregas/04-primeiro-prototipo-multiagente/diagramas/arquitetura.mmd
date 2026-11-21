@@ -1,21 +1,22 @@
 flowchart TD
-    IN["Entrada do Usuário<br/>(Consulta + Persona ID + Documento OCR / Linha Digitável)"] --> O1["1. OrquestradorAgent<br/>(Mascara PII · Classifica Intenções · Define Rota)"]
+    IN["Entrada do Usuário<br/>(Consulta + Persona ID + OCR / Linha Digitável)"] --> O1["1. Nó orquestrador_planejar<br/>ChatOllama qwen2.5:7b + @tool tool_classificar_roteamento<br/>Mascara PII (RNF01) · Sensores Crise/CVM (defense-in-depth)"]
 
-    O1 -->|"sempre que há persona_id"| AN["2. AnalistaAgent<br/>(Raio-X Financeiro · Mínimo Existencial · SGS BCB)"]
+    O1 -->|"add_conditional_edges (se há persona_id)"| AN["2. Nó analista<br/>LLM + @tool tool_calcular_raio_x_financeiro<br/>Despesas Vitais · Folga Real · SGS BCB (ref. fev/2026)"]
 
-    AN -->|"intenção: dividas"| ES["3a. EstrategistaAgent<br/>(Avalanche vs. Bola de Neve · Lei 14.690/2023)"]
-    AN -->|"intenção: bets"| CO["3b. CoachAgent<br/>(Perda Líquida · Madrugada · Cooling-off)"]
-    AN -->|"intenção: fraude"| GU["3c. GuardiaoAgent<br/>(Anti-Injection · FEBRABAN · MED Pix)"]
+    AN -->|"intenção dividas + dívida real"| ES["3a. Nó estrategista<br/>LLM + @tool tool_simular_reestruturacao_dividas<br/>Avalanche vs. Bola de Neve · Lei 14.690/2023"]
+    AN -->|"intenção bets + termos de aposta"| CO["3b. Nó coach<br/>LLM + @tool tool_analisar_compulsao_apostas<br/>Perda Líquida · Madrugada · Pausa 48h"]
+    AN -->|"intenção fraude / OCR / boleto"| GU["3c. Nó guardiao<br/>LLM + @tool tool_inspecionar_fraude_e_boleto<br/>OCR isolado fora do prompt · FEBRABAN Mod 10 · MED Pix"]
 
-    O1 -.->|"consulta educacional / CVM sem especialista analítico"| ED
-    AN -->|"sem especialista de dívida/bet/fraude"| ED
+    O1 -.->|"consulta educacional / CVM / outro idioma"| ED
+    AN -->|"sem especialista analítico adicional"| ED
 
-    ES -->|"solicita Lei 14.181 / 14.690 / CPC 833"| ED["4. EducadorAgent (Research Agent)<br/>(Busca Híbrida BGE-M3 + BM25 + RRF + Portão RNF04)"]
-    CO -->|"solicita Lei 14.790 / Autoexclusão"| ED
-    GU -->|"solicita Res. BCB 147 (MED Pix 80 dias)"| ED
+    ES --> ED["4. Nó educador (Research Agent)<br/>LLM + @tool tool_buscar_evidencias_rag<br/>RAG Híbrido BGE-M3 + BM25 + RRF + Portão RNF04"]
+    CO --> ED
+    GU --> ED
 
-    ED -->|"evidências numeradas [1]..[k]"| O2["5. OrquestradorAgent (Síntese)<br/>(Adapta Tom à Persona + Compila Rascunho)"]
-    O2 --> CG["6. ComplianceAgent (Validation Agent)<br/>(Crise CVV 188 · Trava CVM · Citações · Zero PII)"]
+    ED -->|"até 4 citações oficiais [1]..[k] ou abstenção"| O2["5. Nó orquestrador_sintetizar<br/>Compila números exatos + tom da persona<br/>(LLM bloqueado em crise, CVM e revisão)"]
+    O2 --> CG["6. Nó compliance (Validation Agent / Judge)<br/>LLM + @tool tool_auditar_invariantes_compliance<br/>Veto semântico + CVV 188 + CVM + Antifraude + Citações + Zero PII"]
 
-    CG -->|"REPROVADO: ciclo de revisão (máx. 1)"| O2
-    CG -->|"APROVADO (ou fail-closed seguro)"| OUT["ResultadoMultiagente<br/>(Resposta Final + Fontes + Trace Completo)"]
+    CG -->|"REPROVADO e revisoes < 1"| REV["preparar_revisao"] --> O2
+    CG -->|"REPROVADO após revisão"| FC["fail_closed (contenção segura)"] --> OUT
+    CG -->|"APROVADO"| OUT["ResultadoMultiagente<br/>(Resposta Final + Fontes + Trace + Tool Calls)"]

@@ -1,7 +1,7 @@
 # ADR-0002: Migração para Orquestração `LangGraph` com Tool Calling Nativo (`qwen2.5:7b` / Ollama + Anthropic)
 
-- **Status:** Proposto (Gate 1)
-- **Data:** 2026-11-19
+- **Status:** Aceito
+- **Data:** 2026-11-19 (revisado em 2026-11-21)
 - **Decisores:** Equipe PANDORA (RES IA ELD UNB — Turma 2)
 - **Substitui parcialmente:** ADR-0001 (evolui o motor do grafo manual para `langgraph.graph.StateGraph` e adiciona Tool Calling nativo em todos os 7 agentes)
 - **Contexto Relacionado:** RF01–RF09, RNF01–RNF06 (`docs/escopo/04-requisitos-4-graus.md`)
@@ -53,9 +53,9 @@ Adotar a **Alternativa C**:
 ## 4. Consequências
 
 - **Positivas:**
-  - Elimina o comportamento hardcoded de roteamento, geração de *queries* RAG, interpretação de ferramentas e síntese;
+  - Combina *Tool Calling* nativo (`qwen2.5:7b`) para raciocínio semântico, geração dinâmica de *queries* normativas, interpretação de ferramentas e *LLM-as-a-Judge* com sensores determinísticos *defense-in-depth* (fronteira `\b`, verificação contra cadastro/extrato, isolamento de OCR e bloqueio do LLM durante crise e trava CVM);
   - Mantém total determinismo matemático nas contas (`tools.py`) e *guardrails* regulatórios *fail-closed* (`RNF01–RNF05`);
   - Preserva retrocompatibilidade com a CLI (`pandora-rag agent`, `pandora-rag demo`) e com a suíte de testes `pytest`.
 - **Riscos e Mitigações:**
-  - *Latência maior em execução com LLM local (7 chamadas a `qwen2.5:7b`):* mitigado usando `temperature=0`, `num_predict` enxuto por nó especialista e permitindo injeção de modelo/modo rápido nos testes unitários que validam invariantes de borda.
-  - *Indisponibilidade do Ollama em ambiente de CI:* se o endpoint Ollama estiver inacessível ou `llm="offline"`, o nó registra o fallback e executa a `@tool` determinística mantendo o contrato do `EstadoMultiagente`.
+  - *Latência maior em execução com LLM local (chamadas a `qwen2.5:7b`):* mitigado usando `temperature=0`, `num_predict` enxuto por nó especialista e modo `--offline` para CI e execução instantânea determinística.
+  - *Indisponibilidade do Ollama em ambiente de CI:* se o endpoint Ollama estiver inacessível ou `llm="offline"`, o nó registra `modo="deterministico"` / `modelo_llm="offline"` com transparência e executa as funções determinísticas mantendo o contrato do `EstadoMultiagente`.

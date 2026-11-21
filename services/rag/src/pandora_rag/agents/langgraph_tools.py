@@ -1,6 +1,7 @@
 """Ferramentas (@tool) nativas do LangChain/LangGraph para os 7 agentes do PANDORA."""
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from langchain_core.tools import BaseTool, tool
@@ -16,6 +17,7 @@ from pandora_rag.agents.models import (
     TransacaoPersona,
 )
 from pandora_rag.agents.tools import (
+    _normalizar_texto,
     analisar_compulsao_bets,
     calcular_raio_x,
     carregar_transacoes_persona,
@@ -25,12 +27,124 @@ from pandora_rag.agents.tools import (
     simular_estrategias_divida,
 )
 from pandora_rag.generate.pii import mascarar
+from pandora_rag.index.tokenizer import tokenizar
 from pandora_rag.retrieve.hybrid import Hit, Retriever
 
 _MIN_SCORE_VETOR_DENSO = 0.50
 _MIN_SCORE_VETOR_HASH = 0.25
 _MIN_SCORE_BM25_HASH = 1.5
 _DIM_EMBEDDER_DENSO = 512
+
+# Vocabulário normativo/financeiro em português para bloquear falsos positivos fora de domínio
+# no portão RNF04 sem reranker (ex.: stemmer RSLP casando 'acordar' com 'acordo' ou texto em inglês).
+_TERMOS_DOMINIO_PANDORA = frozenset(
+    {
+        "divida",
+        "dividas",
+        "superendividamento",
+        "superendividado",
+        "minimo",
+        "existencial",
+        "rotativo",
+        "cartao",
+        "cartoes",
+        "fatura",
+        "credito",
+        "juros",
+        "cet",
+        "parcelamento",
+        "parcela",
+        "consignado",
+        "emprestimo",
+        "financiamento",
+        "banco",
+        "bancos",
+        "bacen",
+        "bcb",
+        "pix",
+        "med",
+        "devolucao",
+        "fraude",
+        "golpe",
+        "boleto",
+        "febraban",
+        "aposta",
+        "apostas",
+        "bet",
+        "bets",
+        "cvm",
+        "consultoria",
+        "suitability",
+        "reserva",
+        "emergencia",
+        "selic",
+        "cdi",
+        "ipca",
+        "orcamento",
+        "salario",
+        "salarios",
+        "impenhoravel",
+        "impenhoraveis",
+        "impenhorabilidade",
+        "penhora",
+        "procon",
+        "defensoria",
+        "cdc",
+        "cpc",
+        "consumidor",
+        "repactuacao",
+        "conciliacao",
+        "desenrola",
+        "inadimplencia",
+        "inadimplente",
+        "serasa",
+        "spc",
+        "fgc",
+        "tesouro",
+        "poupanca",
+        "cdb",
+        "lci",
+        "lca",
+        "corretora",
+        "investimento",
+        "investimentos",
+        "tarifa",
+        "tarifas",
+        "alienacao",
+        "fiduciaria",
+        "inss",
+        "aposentadoria",
+        "lei",
+        "resolucao",
+        "decreto",
+        "sumula",
+        "14181",
+        "14690",
+        "14790",
+        "147",
+        "833",
+        "8078",
+        "8009",
+        "14015",
+        "9514",
+        "911",
+        "11150",
+        "11567",
+        "5112",
+        "5057",
+        "4881",
+        "4882",
+        "4558",
+        "19",
+        "20",
+        "30",
+    }
+)
+
+_RE_CLAUSULA_VAZIA = re.compile(
+    r"^(?:art\.?\s*\d+[a-z\-]*\.?\s*)?(?:ficam\s+revogad[oa]s|revoga[m\-]se|esta\s+lei\s+entra\s+em\s+vigor)\b",
+    re.IGNORECASE,
+)
 
 
 @tool
@@ -141,6 +255,7 @@ def criar_tool_estrategista(
 def criar_tool_coach(
     transacoes: list[TransacaoPersona],
     renda_mensal: float,
+    parcela_referencia: float | None = 450.0,
 ) -> BaseTool:
     """Cria a @tool vinculada às transações da persona para o CoachAgent."""
 
@@ -152,10 +267,14 @@ def criar_tool_coach(
         """Apura a perda líquida real em apostas (MCC 7995), apostas de madrugada (23h–06h), gatilho pós-salário e custo de oportunidade.
 
         Args:
-            queries_normativas: Queries regulatórias sobre apostas de quota fixa, jogo responsável e autoexclusão (Lei 14.790/2023).
-            mensagem_acolhimento_sem_julgamento: Orientação empática e sem julgamento moral propondo pausa noturna e janela de resfriamento (cooling-off).
+            queries_normativas: Queries regulatórias sobre apostas de quota fixa, jogo responsável e bloqueios de proteção.
+            mensagem_acolhimento_sem_julgamento: Orientação empática e sem julgamento moral propondo pausa noturna e pausa de 48h.
         """
-        analise: AnaliseCompulsao = analisar_compulsao_bets(transacoes, renda_mensal=renda_mensal)
+        analise: AnaliseCompulsao = analisar_compulsao_bets(
+            transacoes,
+            renda_mensal=renda_mensal,
+            parcela_referencia=parcela_referencia,
+        )
         queries_limpas = [mascarar(q.strip())[0] for q in queries_normativas if q and q.strip()]
         return {
             "analise": analise,
@@ -203,14 +322,50 @@ def criar_tool_guardiao(
     return tool_inspecionar_fraude_e_boleto
 
 
-def _hit_relevante_rag(hit: Hit, limiar_abstencao: float, embedder_dim: int = 0) -> bool:
+def _query_no_dominio_pandora(query: str) -> bool:
+    """Verifica se a consulta livre contém ao menos um termo real do domínio financeiro/jurídico em português."""
+    palavras = set(re.findall(r"[a-z0-9]+", _normalizar_texto(query)))
+    return bool(palavras & _TERMOS_DOMINIO_PANDORA)
+
+
+def _eh_chunk_cabecalho_ou_revogacao(hit: Hit) -> bool:
+    """Filtra preâmbulos, títulos sem conteúdo, promulgações de veto e cláusulas revogatórias."""
+    rid = (hit.registro.id or "").lower()
+    if "#preambulo" in rid:
+        return True
+    txt = (hit.registro.texto or "").strip()
+    if len(txt) < 55:
+        return True
+    norm = _normalizar_texto(txt)
+    if norm.endswith("passa a vigorar com as seguintes alteracoes:") and len(txt) < 180:
+        return True
+    if "faco saber que o congresso nacional decreta" in norm:
+        return True
+    if "clausula del credere" in norm:
+        return True
+    return bool(_RE_CLAUSULA_VAZIA.match(norm))
+
+
+def _hit_relevante_rag(
+    hit: Hit,
+    limiar_abstencao: float,
+    embedder_dim: int = 0,
+    query: str | None = None,
+) -> bool:
     if hit.score_rerank is not None:
         return hit.score_rerank >= limiar_abstencao
     if embedder_dim >= _DIM_EMBEDDER_DENSO:
         return hit.score_vetor is not None and hit.score_vetor >= _MIN_SCORE_VETOR_DENSO
     vetor_ok = hit.score_vetor is not None and hit.score_vetor >= _MIN_SCORE_VETOR_HASH
     bm25_ok = hit.score_bm25 is not None and hit.score_bm25 >= _MIN_SCORE_BM25_HASH
-    return vetor_ok and bm25_ok
+    if not (vetor_ok and bm25_ok):
+        return False
+    if query:
+        toks_q = set(tokenizar(query))
+        toks_doc = set(tokenizar(hit.registro.texto_indexado()))
+        if not (toks_q & toks_doc):
+            return False
+    return True
 
 
 def executar_busca_evidencias_rag(
@@ -218,6 +373,7 @@ def executar_busca_evidencias_rag(
     retriever: Retriever,
     k: int = 3,
     limiar_abstencao: float = 0.02,
+    consulta_livre: bool = False,
 ) -> EvidenciaNormativa:
     """Executa a busca híbrida (bge-m3 + BM25 + RRF) e aplica o portão de abstenção RNF04."""
     queries: list[str] = []
@@ -226,15 +382,27 @@ def executar_busca_evidencias_rag(
         if q_limpa and q_limpa not in queries:
             queries.append(q_limpa)
 
+    if consulta_livre and not any(_query_no_dominio_pandora(q) for q in queries):
+        return EvidenciaNormativa(
+            queries_executadas=queries,
+            hits_aprovados=0,
+            abstencao=True,
+            citacoes=[],
+            motivo_abstencao="Consulta fora do domínio financeiro/normativo oficial do PANDORA.",
+        )
+
     embedder_dim = int(getattr(retriever.embedder, "dim", 0) or 0)
+    k_busca = max(k * 3, 10)
     hits_por_id: dict[str, Hit] = {}
     hits_por_query: list[Hit] = []
     for q in queries:
-        resultados_q = [
+        candidatos_q = [
             h
-            for h in retriever.buscar(q, k=k)
-            if _hit_relevante_rag(h, limiar_abstencao, embedder_dim)
+            for h in retriever.buscar(q, k=k_busca)
+            if _hit_relevante_rag(h, limiar_abstencao, embedder_dim, query=q)
         ]
+        substantivos_q = [h for h in candidatos_q if not _eh_chunk_cabecalho_ou_revogacao(h)]
+        resultados_q = substantivos_q if substantivos_q else candidatos_q
         for h in resultados_q[:1]:
             if h.registro.id not in hits_por_id:
                 hits_por_id[h.registro.id] = h
@@ -243,7 +411,7 @@ def executar_busca_evidencias_rag(
             if h.registro.id not in hits_por_id:
                 hits_por_id[h.registro.id] = h
 
-    limite = max(k, len(queries))
+    limite = min(max(k, 3), 4)
     if len(hits_por_query) >= limite:
         hits_ordenados = hits_por_query[:limite]
     else:
@@ -300,25 +468,30 @@ def criar_tool_educador(
         combinadas: list[str] = list(queries_acumuladas)
         # Se há queries vindas dos especialistas financeiros ou de CVM, adiciona as queries do LLM;
         # se é consulta avulsa sem especialistas, preserva a consulta original para não furar o portão RNF04 fora de domínio.
+        tem_contexto_cvm = detectar_inducao_cvm(consulta_mascarada) or "cvm" in intencoes
+        if tem_contexto_cvm:
+            q_cvm = "Resolucao CVM 19 20 consultoria valores mobiliarios suitability 30"
+            if q_cvm not in combinadas:
+                combinadas.insert(0, q_cvm)
+
         tem_contexto_financeiro = bool(queries_acumuladas) or any(
             i in intencoes for i in ("dividas", "bets", "fraude", "cvm", "crise")
         )
-        if tem_contexto_financeiro:
+        if tem_contexto_financeiro and "crise" not in intencoes:
             for q in queries_pesquisa:
                 if q and q.strip() and q.strip() not in combinadas:
                     combinadas.append(q.strip())
 
+        consulta_livre = not combinadas and not tem_contexto_cvm
         if not combinadas:
-            if detectar_inducao_cvm(consulta_mascarada) or "cvm" in intencoes:
-                combinadas.append("Resolucao CVM 19 20 consultoria valores mobiliarios suitability 30")
-            else:
-                combinadas.append(consulta_mascarada)
+            combinadas.append(consulta_mascarada)
 
         ev = executar_busca_evidencias_rag(
             combinadas,
             retriever=retriever,
             k=k,
             limiar_abstencao=limiar_abstencao,
+            consulta_livre=consulta_livre,
         )
         return {"evidencias": ev}
 

@@ -8,26 +8,31 @@ SERIES_SGS_BCB: dict[str, dict[str, Any]] = {
         "nome": "Taxa média de juros — PF — Cartão de crédito rotativo",
         "valor_referencia": 435.9,
         "unidade": "% a.a.",
+        "referencia": "fev/2026",
     },
     "25467": {
         "nome": "Taxa média mensal de juros — PF — Crédito pessoal consignado INSS",
         "valor_referencia": 24.5,
         "unidade": "% a.a.",
+        "referencia": "fev/2026",
     },
     "432": {
         "nome": "Taxa de juros — Meta Selic definida pelo Copom",
         "valor_referencia": 14.25,
         "unidade": "% a.a.",
+        "referencia": "fev/2026",
     },
     "12": {
         "nome": "Taxa de juros — CDI",
         "valor_referencia": 14.15,
         "unidade": "% a.a.",
+        "referencia": "fev/2026",
     },
     "433": {
         "nome": "IPCA — Variação mensal",
         "valor_referencia": 0.45,
         "unidade": "% a.m.",
+        "referencia": "fev/2026",
     },
 }
 
@@ -78,6 +83,7 @@ PERFIS_PERSONAS: dict[str, dict[str, Any]] = {
         "renda_mensal": 1120.00,
         "renda_mensal_estimada": 3100.00,
         "minimo_existencial": 515.00,
+        "parcela_referencia": 450.00,
         "tom_comunicacao": "parceiro_sem_julgamento",
         "dividas": [],
     },

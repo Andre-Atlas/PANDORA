@@ -243,3 +243,129 @@ def test_langgraph_state_graph_e_tool_calling_nos_agentes():
     assert "SÍNTESE DO COPILOTO" in res.resposta_final
     assert all("llm_modelo" in m.dados_chave for m in res.trace)
 
+
+def test_sondagens_revisao_humana_crise_cvm_juiz_llm_e_idioma():
+    class _ProbeChatModel:
+        model = "qwen2.5:7b-probe"
+
+        def __init__(self, cenario: str, bound_tools=None):
+            self._cenario = cenario
+            self._tools = bound_tools or []
+
+        def bind_tools(self, tools):
+            return _ProbeChatModel(self._cenario, bound_tools=list(tools))
+
+        def invoke(self, messages):
+            from langchain_core.messages import AIMessage
+
+            if not self._tools:
+                if self._cenario == "crise":
+                    return AIMessage(content="Continue forte, texto do LLM que não deveria aparecer na crise.")
+                if self._cenario == "veto_juiz":
+                    return AIMessage(content="Aposte com moderação na próxima semana.")
+                return AIMessage(content="Síntese padrão.")
+
+            nome_tool = self._tools[0].name
+            if nome_tool == "tool_classificar_roteamento":
+                if self._cenario == "crise":
+                    args = {
+                        "intencoes": ["crise"],
+                        "agentes_especialistas": ["analista", "educador", "compliance"],
+                        "sinal_crise": True,
+                        "inducao_cvm": False,
+                        "justificativa_roteamento": "Ideação indireta detectada.",
+                    }
+                else:
+                    args = {
+                        "intencoes": ["bets", "dividas"],
+                        "agentes_especialistas": ["analista", "coach", "educador", "compliance"],
+                        "sinal_crise": False,
+                        "inducao_cvm": False,
+                        "justificativa_roteamento": "Apostas detectadas.",
+                    }
+                return AIMessage(content="", tool_calls=[{"name": nome_tool, "args": args, "id": "c1", "type": "tool_call"}])
+
+            if nome_tool == "tool_auditar_invariantes_compliance" and self._cenario == "veto_juiz":
+                args = {
+                    "aprovado_semantico": False,
+                    "contem_recomendacao_implicita_cvm": False,
+                    "contem_julgamento_moral": True,
+                    "observacao_auditoria": "Parecer contém linguagem inadequada; aplicar revisão.",
+                }
+                return AIMessage(content="", tool_calls=[{"name": nome_tool, "args": args, "id": "c2", "type": "tool_call"}])
+
+            defaults = {
+                "tool_calcular_raio_x_financeiro": {"foco_analise": "orcamento", "query_normativa_sugerida": ""},
+                "tool_simular_reestruturacao_dividas": {"queries_normativas": [], "recomendacao_abertura": ""},
+                "tool_analisar_compulsao_apostas": {
+                    "queries_normativas": ["Lei 14.790 apostas"],
+                    "mensagem_acolhimento_sem_julgamento": "Aposte com vergonha zero." if self._cenario != "veto_juiz" else "Você deveria ter vergonha.",
+                },
+                "tool_buscar_evidencias_rag": {"queries_pesquisa": []},
+                "tool_auditar_invariantes_compliance": {
+                    "aprovado_semantico": True,
+                    "contem_recomendacao_implicita_cvm": False,
+                    "contem_julgamento_moral": False,
+                    "observacao_auditoria": "Conforme.",
+                },
+            }
+            return AIMessage(
+                content="",
+                tool_calls=[{"name": nome_tool, "args": defaults.get(nome_tool, {}), "id": f"c_{nome_tool}", "type": "tool_call"}],
+            )
+
+    retr, _ = construir_retriever_padrao(usar_reranker=False, preferir_embutido=True)
+    grafo = GrafoPandora(retriever=retr)
+
+    # 1. Crise: LLM escreve síntese e marca sinal_crise -> CVV 188 aparece e texto livre do LLM NÃO entra
+    res_crise = grafo.executar(
+        "Às vezes penso que seria melhor não acordar",
+        persona_id="diego_24",
+        llm="qwen25-7b",
+        chat_model=_ProbeChatModel("crise"),  # type: ignore[arg-type]
+    )
+    assert res_crise.veredito is not None and res_crise.veredito.crise_acionada is True
+    assert "188" in res_crise.resposta_final
+    assert "SÍNTESE DO COPILOTO" not in res_crise.resposta_final
+    assert "não deveria aparecer na crise" not in res_crise.resposta_final
+
+    # 2. Veto do Juiz LLM força revisão automática e remove pareceres/síntese do LLM, sem plano de dívida vazio no Diego
+    res_juiz = grafo.executar(
+        "Perdi R$ 350 apostando ontem",
+        persona_id="diego_24",
+        llm="qwen25-7b",
+        chat_model=_ProbeChatModel("veto_juiz"),  # type: ignore[arg-type]
+    )
+    assert res_juiz.veredito is not None and res_juiz.veredito.aprovado is True
+    assert res_juiz.veredito.precisou_revisao is True
+    assert "PRIORIDADE DE PAGAMENTOS" not in res_juiz.resposta_final
+    assert "SÍNTESE DO COPILOTO" not in res_juiz.resposta_final
+
+    # 3. Saudação sem persona não diz "com base nos seus dados" e idioma estrangeiro responde em português
+    res_bolo = grafo.executar("Como faço uma receita de bolo?")
+    assert "com base nos seus dados" not in res_bolo.resposta_final
+    assert res_bolo.evidencias is not None and res_bolo.evidencias.abstencao is True
+
+    res_en = grafo.executar("I'm in debt with my credit card, what should I pay first?", persona_id="carla_34")
+    assert "No momento respondo apenas em português" in res_en.resposta_final
+
+
+def test_abstencao_corpus_real_bm25_hash():
+    import pytest
+
+    from pandora_rag.agents.graph import EmbedderHash
+    from pandora_rag.config import TEXT_DIR
+    from pandora_rag.index.registro import montar_registros
+    from pandora_rag.index.store import MemoryStore
+    from pandora_rag.retrieve.hybrid import IndiceBM25, Retriever
+
+    if not (TEXT_DIR.exists() and any(TEXT_DIR.iterdir())):
+        pytest.skip("Corpus extraído ausente nesta máquina")
+    regs = montar_registros("estrutural", texto_dir=TEXT_DIR)
+    emb_h = EmbedderHash()
+    retr_h = Retriever(MemoryStore(regs, emb_h.passagens([r.texto_indexado() for r in regs])), IndiceBM25(regs), emb_h)
+    grafo_h = GrafoPandora(retriever=retr_h, origem_retriever="corpus_local_bm25_hash")
+    res_h = grafo_h.executar("Como faço uma receita de bolo?")
+    assert res_h.evidencias is not None and res_h.evidencias.abstencao is True
+    assert res_h.evidencias.hits_aprovados == 0
+

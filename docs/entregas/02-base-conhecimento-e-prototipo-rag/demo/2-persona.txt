@@ -1,0 +1,24 @@
+PERGUNTA: Deixei de pagar a fatura do cartão e os juros do rotativo estão enormes. Existe um limite para o que o banco pode cobrar de juros?
+
+CHUNKS RECUPERADOS:
+  [1] Lei 14.690/2023 (Teto de juros do rotativo) Art. 28  score=0.987
+      "Art. 28. Os emissores de cartão de crédito e de outros instrumentos de pagamento pós-pagos utilizados em arranjos abertos ou fechados, como medida de autorregulação, devem submeter à aprovação do Conselho Monetário Nacio..."
+  [2] Lei 14.690/2023 (Teto de juros do rotativo) Art. 27  score=0.814
+      "Art. 27. As instituições criadas por lei própria ou autorizadas a funcionar pelo Banco Central do Brasil e outras instituições que ofereçam crédito deverão adotar medidas de educação financeira direcionadas aos seus cons..."
+  [3] Resolução CMN 5.112/2023 (Rotativo e portabilidade da fatura), inserido em Resolução CMN 4.549/2017 Art. 2-A  score=0.475
+      "Art. 2º-A Para os fins do disposto no art. 28 da Lei nº 14.690, de 3 de outubro de 2023, consideram-se: I - operação de crédito para financiamento do saldo devedor da fatura de cartão de crédito e de demais instrumentos ..."
+  [4] Resolução CMN 5.112/2023 (Rotativo e portabilidade da fatura), inserido em Resolução CMN 4.549/2017 Art. 2-B  score=0.390
+      "Art. 2º-B O valor original da dívida, bem como o valor total cobrado a título de juros e encargos financeiros aplicáveis a cada operação de crédito para financiamento do saldo devedor da fatura de cartão de crédito e dem..."
+  [5] Resolução CMN 5.112/2023 (Rotativo e portabilidade da fatura), inserido em Resolução CMN 4.549/2017 Art. 2-C  score=0.290
+      "Art. 2º-C É assegurada, a qualquer momento, a renegociação das operações de crédito de que trata o art. 2º-A, desde que o valor total cobrado a título de juros e encargos financeiros aplicáveis a cada renegociação não ex..."
+
+RESPOSTA (qwen2.5:14b, 6.5s, US$ 0.0000):
+Sim, existe um limite. Se o banco não aprovar limites para juros e encargos financeiros no crédito rotativo no prazo de 90 dias após a publicação da Lei 14.690/2023, o total cobrado de juros e encargos não pode exceder o valor original da dívida [1][3].
+
+FONTES:
+  [1] Lei 14.690/2023 (Teto de juros do rotativo) Art. 28
+      https://www.planalto.gov.br/ccivil_03/_ato2023-2026/2023/lei/l14690.htm
+      trecho: "Art. 28. Os emissores de cartão de crédito e de outros instrumentos de pagamento pós-pagos utilizados em arranjos abertos ou fechados, como medida de autorregulação, devem submeter à aprovação do Conselho Monetário Nacio..."
+  [3] Resolução CMN 5.112/2023 (Rotativo e portabilidade da fatura), inserido em Resolução CMN 4.549/2017 Art. 2-A
+      https://www.bcb.gov.br/estabilidadefinanceira/exibenormativo?tipo=Resolu%C3%A7%C3%A3o%20CMN&numero=5112
+      trecho: "Art. 2º-A Para os fins do disposto no art. 28 da Lei nº 14.690, de 3 de outubro de 2023, consideram-se: I - operação de crédito para financiamento do saldo devedor da fatura de cartão de crédito e de demais instrumentos ..."

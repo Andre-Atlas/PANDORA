@@ -81,9 +81,12 @@ PANDORA/
 ├── README.md                                           # Visão geral, arquitetura, pastas e como rodar testes/demo
 ├── docs/
 │   ├── entregas/
-│   │   └── 04-primeiro-prototipo-multiagente/          # Pasta consolidada do 4º Desafio (guia, diagramas .mmd e traces reais)
-│   ├── agentes/                                        # Documentação técnica modular dos 7 agentes (arquitetura, papéis, fluxo e demo)
-│   ├── adr/                                            # Registros de Decisão Arquitetural (ADR-0001)
+│   │   ├── 02-base-conhecimento-e-prototipo-rag/       # Entregável 02: Base de Conhecimento & RAG Híbrido
+│   │   ├── 03-llm-x-rag/                               # Entregável 03: Benchmark LLM puro × RAG
+│   │   └── 04-primeiro-prototipo-multiagente/          # Entregável 04: 7 Agentes LangGraph, executar_entrega.sh, diagramas e demos
+│   ├── agentes/                                        # Docs 01–05 dos agentes (arquitetura, papéis, fluxo, demo e revisão humana)
+│   ├── arquitetura-geral.md                            # Arquitetura unificada em 6 camadas do sistema PANDORA
+│   ├── adr/                                            # ADRs formais (ADR-0001, ADR-0002, ADR-0003)
 │   ├── rag/                                            # Documentação do RAG híbrido (v0.1.0)
 │   ├── escopo/                                         # Escopo CBL, requisitos RF01–RF18 e RNF01–RNF09
 │   ├── personas/                                       # Fichas individuais das 10 personas
@@ -91,13 +94,13 @@ PANDORA/
 ├── services/
 │   └── rag/
 │       ├── src/pandora_rag/
-│       │   ├── agents/                                 # Código do sistema multiagente (models, personas_data, tools, specialists, graph, scenarios)
+│       │   ├── agents/                                 # Código multiagente (LangGraph StateGraph, @tools, specialists, llm_provider)
 │       │   ├── ingest/                                 # Coleta, extração e chunking estrutural
 │       │   ├── index/                                  # Embeddings, pgvector e MemoryStore
 │       │   ├── retrieve/                               # Busca híbrida (vetor + BM25 + RRF + reranker)
 │       │   ├── generate/                               # Gateway LLM (Ollama/Anthropic), citação e máscara PII
 │       │   └── cli.py                                  # CLI: coletar, extrair, indexar, buscar, ask, agent e demo
-│       └── tests/                                      # Suíte automatizada pytest (58 testes: agentes + RAG)
+│       └── tests/                                      # Suíte automatizada pytest (65 testes: agentes + guardrails + RAG)
 ├── evals/                                              # Golden set, métricas e execuções de avaliação
 └── frontend/design-system/                             # Design system e telas prototipadas
 ```
@@ -107,16 +110,20 @@ PANDORA/
 Pré-requisito: [`uv`](https://docs.astral.sh/uv/) instalado (gerencia automaticamente Python `3.12` e as dependências de `services/rag/`).
 
 ```bash
+# Atalho em 1 comando (na raiz do repositório: roda 65 testes + lint + demo offline)
+sh docs/entregas/04-primeiro-prototipo-multiagente/executar_entrega.sh
+
+# Ou etapa por etapa dentro de services/rag:
 cd services/rag
 
-# Rodar toda a suíte de testes automatizados (59 testes: agentes LangGraph + Tool Calling + RAG)
+# Rodar toda a suíte de testes automatizados (65 testes: agentes LangGraph + Tool Calling + guardrails + RAG)
 uv run --extra dev pytest tests/ -v
 
-# Rodar apenas os testes do sistema multiagente (22 testes)
+# Rodar apenas os testes do sistema multiagente (28 testes)
 uv run --extra dev pytest tests/test_agents_tools.py tests/test_agents_specialists.py tests/test_agents_graph.py -v
 
 # Rodar verificação de lint (ruff) nos arquivos do sistema multiagente
-uv run --extra dev ruff check src/pandora_rag/agents/ src/pandora_rag/cli.py src/pandora_rag/config.py src/pandora_rag/generate/pii.py src/pandora_rag/index/store.py tests/test_agents_*.py
+uv run --extra dev ruff check src/pandora_rag/agents/ src/pandora_rag/cli.py tests/test_agents_*.py
 
 # Executar a demonstração completa das 4 jornadas (gera Markdown + JSON com trace dos 7 agentes)
 uv run pandora-rag demo --saida-dir ../../docs/entregas/04-primeiro-prototipo-multiagente/demo
@@ -137,11 +144,14 @@ uv run pandora-rag agent \
 
 | Documento | Conteúdo |
 |---|---|
-| [Entregável 04 · Primeiro Protótipo Multiagente](docs/entregas/04-primeiro-prototipo-multiagente/README.md) | Pasta oficial do 4º Desafio: resumo executivo, como funciona, diagramas `.mmd`, traces reais e guia de execução |
+| [Entregável 02 · Base e RAG Híbrido](docs/entregas/02-base-conhecimento-e-prototipo-rag/README.md) | Base de conhecimento oficial, chunking, embeddings `bge-m3`, `pgvector` e demonstrações |
+| [Entregável 03 · Benchmark LLM × RAG](docs/entregas/03-llm-x-rag/README.md) | Avaliação comparativa LLM puro vs. RAG híbrido no golden set |
+| [Entregável 04 · Primeiro Protótipo Multiagente](docs/entregas/04-primeiro-prototipo-multiagente/README.md) | Pasta oficial do 4º Desafio: `executar_entrega.sh`, `montar_zip.sh`, diagramas `.mmd`, traces `qwen2.5:7b` e guia de testes |
+| [Arquitetura Geral em 6 Camadas](docs/arquitetura-geral.md) | Visão canônica unificada entre Frontend, API Hexagonal, RAG Híbrido, LangGraph, ML e Banco Vetorial |
 | [Problema e Essential Question](docs/01-problema-e-essential-question.md) | Contexto, stakeholders, personas e fontes |
-| [Sistema Multiagente (Agentes + Demo)](docs/agentes/README.md) | Documentação técnica dos 7 agentes, responsabilidades, protocolo de colaboração e execução demonstrativa (`pandora-rag demo`) |
+| [Sistema Multiagente (Agentes + Revisão + Demo)](docs/agentes/README.md) | Docs 01–05 dos 7 agentes, responsabilidades, fluxo `LangGraph`, execução demonstrativa e revisão humana (`05-revisao-humana.md`) |
 | [RAG Híbrido (v0.1.0)](docs/rag/README.md) | Arquitetura de ingestão, embeddings `bge-m3`, banco vetorial `pgvector` + BM25, golden set e decisão LLM |
-| [Registros de Decisão Arquitetural (ADR)](docs/adr/README.md) | Decisões formais de arquitetura (`ADR-0001`: grafo de estado tipado multiagente) |
+| [Registros de Decisão Arquitetural (ADR)](docs/adr/README.md) | `ADR-0001` (estado tipado), `ADR-0002` (`LangGraph` + Tool Calling) e `ADR-0003` (arquitetura em 6 camadas) |
 | [Escopo e Concepção (MD + PDF)](docs/escopo/README.md) | Cenário, 10 Guiding Questions, 6 Stakeholders, 5 Personas, RF/RNF (4 Graus), Riscos, Premissas, Métricas e [PDF (5 páginas)](docs/escopo/PANDORA-Documento-de-Escopo-CBL.pdf) |
 | [Personas e Jornadas](docs/personas/README.md) | 5 personas exclusivas (fichas individuais, dores, casos de uso e barreiras) |
 | [Evidências](docs/evidencias/README.md) | Visão geral do acervo |
