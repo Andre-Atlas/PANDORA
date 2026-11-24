@@ -10,9 +10,15 @@ ROOT = Path(__file__).resolve().parents[2]
 REPO_ROOT = ROOT.parents[1]
 FONTES_PATH = ROOT / "fontes.yaml"
 LOCK_PATH = ROOT / "corpus.lock"
+DOMINIOS_PATH = ROOT / "dominios.yaml"
+SEMENTES_PATH = ROOT / "sementes.yaml"
+CANDIDATAS_PATH = ROOT / "fontes.candidatas.yaml"
 DATA_DIR = Path(os.environ.get("PANDORA_DATA_DIR", ROOT / "data"))
 RAW_DIR = DATA_DIR / "raw"
 TEXT_DIR = DATA_DIR / "text"
+CRAWL_DIR = DATA_DIR / "crawl"  # brutos e textos das candidatas, fora do corpus
+LACUNAS_PATH = DATA_DIR / "lacunas.jsonl"
+INDICE_PATH = DATA_DIR / "indice.json"  # sha256_texto de cada fonte na última indexação
 
 LIMIAR_PATH = REPO_ROOT / "training" / "abstencao" / "limiar.json"
 LIMIAR_ABSTENCAO = json.loads(LIMIAR_PATH.read_text(encoding="utf-8"))["limiar"] if LIMIAR_PATH.exists() else None

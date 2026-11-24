@@ -1,0 +1,32 @@
+# Domínios oficiais que a coleta e o crawler podem acessar. Qualquer URL fora desta lista é
+# descartada, inclusive no meio de um redirecionamento.
+#
+# Cada entrada é um host (vale também para os subdomínios dele) com prefixos de caminho opcionais.
+# Sem `caminhos`, o host inteiro vale. www.gov.br é o portal de todo o governo federal, por isso
+# fica limitado aos órgãos que interessam ao superendividamento.
+dominios:
+  - {host: planalto.gov.br, orgao: Presidência da República}
+  - {host: bcb.gov.br, orgao: Banco Central do Brasil}
+  - {host: cvm.gov.br, orgao: Comissão de Valores Mobiliários}
+  - {host: cnj.jus.br, orgao: Conselho Nacional de Justiça}
+  - {host: stf.jus.br, orgao: Supremo Tribunal Federal}
+  - {host: stj.jus.br, orgao: Superior Tribunal de Justiça}
+  - {host: tjsp.jus.br, orgao: Tribunal de Justiça de São Paulo}
+  - {host: mpf.mp.br, orgao: Ministério Público Federal}
+  - {host: aneel.gov.br, orgao: Agência Nacional de Energia Elétrica}
+  - {host: procon.sp.gov.br, orgao: Procon-SP}
+  - {host: pjf.mg.gov.br, orgao: Procon Juiz de Fora, caminhos: [/administracao_indireta/procon/]}
+  - {host: defensoria.df.gov.br, orgao: Defensoria Pública do DF}
+  - {host: defensoria.rj.def.br, orgao: Defensoria Pública do RJ}
+  - {host: defensoria.es.def.br, orgao: Defensoria Pública do ES}
+  - {host: mpce.mp.br, orgao: Ministério Público do Ceará}
+  - host: www.gov.br
+    orgao: Governo Federal
+    caminhos:
+      - /mj/
+      - /senacon/
+      - /investidor/
+      - /fazenda/
+      - /anpd/
+      - /anatel/
+      - /aneel/

@@ -7,6 +7,7 @@ Regras que afetam a recuperação:
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import re
 import unicodedata
@@ -104,16 +105,26 @@ def recortar(blocos: list[str], inicio: str | None, fim: str | None) -> list[str
     return blocos
 
 
-def extrair(fonte: Fonte, raiz_bruta: Path = RAW_DIR) -> list[dict]:
-    dados = caminho_bruto(fonte, raiz_bruta).read_bytes()
-    if fonte.formato == "pdf":
+def blocos_de(formato: str, dados: bytes, recorte_inicio: str | None = None, recorte_fim: str | None = None) -> list[dict]:
+    """Extrai os blocos de um conteúdo bruto já em memória (usado pela coleta e pelo crawler)."""
+    if formato == "pdf":
         return [{"p": p, "t": t} for p, t in blocos_pdf(dados)]
-    if fonte.formato == "bcb_api":
+    if formato == "bcb_api":
         blocos = blocos_bcb(dados)
     else:
         blocos = blocos_html(decodificar(dados))
-    blocos = recortar(blocos, fonte.recorte_inicio, fonte.recorte_fim)
+    blocos = recortar(blocos, recorte_inicio, recorte_fim)
     return [{"p": None, "t": t} for t in blocos]
+
+
+def extrair(fonte: Fonte, raiz_bruta: Path = RAW_DIR) -> list[dict]:
+    dados = caminho_bruto(fonte, raiz_bruta).read_bytes()
+    return blocos_de(fonte.formato, dados, fonte.recorte_inicio, fonte.recorte_fim)
+
+
+def hash_texto(blocos: list[dict]) -> str:
+    """Hash do texto extraído: muda quando o conteúdo muda, não quando só o layout da página muda."""
+    return hashlib.sha256("\n".join(b["t"] for b in blocos).encode("utf-8")).hexdigest()
 
 
 def salvar_texto(fonte: Fonte, blocos: list[dict], raiz: Path = TEXT_DIR) -> Path:

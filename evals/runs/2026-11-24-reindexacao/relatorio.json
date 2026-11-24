@@ -1,0 +1,209 @@
+{
+ "data": "2026-11-24",
+ "trocou": true,
+ "motivo": "índice trocado (10 candidata(s) promovida(s)); as mudanças das fontes atuais foram retidas porque pioram a busca",
+ "incremental": "novas=10 alteradas=0 removidas=0 iguais=33 embedados=109 total=1292 corpus 515669eb8f54 -> 4038efcb2eb6 | nenhuma métrica caiu além da tolerância",
+ "promovidas": [
+  "atos-anexo-i-da-recomendacao-no-125-de-24-de-dezembro",
+  "bcb-559",
+  "bcb-566",
+  "bcb-567",
+  "bcb-569",
+  "bcb-584",
+  "bcb-587",
+  "cmn-5265",
+  "cmn-5299",
+  "cmn-5319"
+ ],
+ "barradas": {
+  "defensoria-perfil-do-consumidor-superendividado-e-a-atuacao": "confiança baixa: data: sem data; falta data_referencia_normativa",
+  "mj-noticias-destaque": "confiança media: data: data por extenso; título de página de navegação",
+  "mj-portal-defesa-do-consumidor": "confiança baixa: data: sem data; falta data_referencia_normativa",
+  "mj-produto-2-cenario-superendividamento-no-brasil-e": "confiança baixa: data: sem data; falta data_referencia_normativa",
+  "bcb-caderno-de-educacao-financeira": "piora a busca: recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01)",
+  "bcb-caderno-de-educacao-financeira-2": "piora a busca: recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01)",
+  "bcb-caderno-de-educacao-financeira-3": "piora a busca: recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01); mrr caiu de 0.5969 para 0.5802 (tolerância 0.01)",
+  "bcb-relatorio-de-cidadania-financeira-2025": "piora a busca: recall@5 caiu de 0.7047 para 0.6779 (tolerância 0.01); mrr caiu de 0.5969 para 0.5729 (tolerância 0.01); artigo_top3 caiu de 0.8043 para 0.7826 (tolerância 0.01)",
+  "mj-superendividamento": "piora a busca: mrr caiu de 0.5969 para 0.5840 (tolerância 0.01)",
+  "stj-prazo-para-devedor-fiduciante-quitar-divida-apos": "piora a busca: artigo_top3 caiu de 0.8043 para 0.7935 (tolerância 0.01)"
+ },
+ "retidas": "novas=0 alteradas=10 removidas=0 iguais=23 embedados=369 total=1183 corpus 515669eb8f54 -> 515669eb8f54 | recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01); mrr caiu de 0.5969 para 0.5844 (tolerância 0.01); artigo_top3 caiu de 0.8043 para 0.7935 (tolerância 0.01)",
+ "lotes": [
+  {
+   "lote": "fontes atuais",
+   "passou": false,
+   "mudou": true,
+   "resumo": "novas=0 alteradas=10 removidas=0 iguais=23 embedados=369 total=1183 corpus 515669eb8f54 -> 515669eb8f54 | recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01); mrr caiu de 0.5969 para 0.5844 (tolerância 0.01); artigo_top3 caiu de 0.8043 para 0.7935 (tolerância 0.01)"
+  },
+  {
+   "lote": "fontes atuais",
+   "passou": true,
+   "mudou": false,
+   "resumo": "novas=0 alteradas=0 removidas=0 iguais=33 embedados=0 total=1183 corpus 515669eb8f54 -> 515669eb8f54"
+  },
+  {
+   "lote": [
+    "atos-anexo-i-da-recomendacao-no-125-de-24-de-dezembro",
+    "bcb-caderno-de-educacao-financeira",
+    "bcb-caderno-de-educacao-financeira-2",
+    "bcb-caderno-de-educacao-financeira-3",
+    "bcb-relatorio-de-cidadania-financeira-2025",
+    "mj-superendividamento",
+    "stj-prazo-para-devedor-fiduciante-quitar-divida-apos"
+   ],
+   "passou": false,
+   "resumo": "novas=7 alteradas=0 removidas=0 iguais=33 embedados=410 total=1593 corpus 515669eb8f54 -> 25754bcafc39 | recall@5 caiu de 0.7047 para 0.6779 (tolerância 0.01); mrr caiu de 0.5969 para 0.5716 (tolerância 0.01); artigo_top3 caiu de 0.8043 para 0.7826 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "atos-anexo-i-da-recomendacao-no-125-de-24-de-dezembro",
+    "bcb-caderno-de-educacao-financeira",
+    "bcb-caderno-de-educacao-financeira-2"
+   ],
+   "passou": false,
+   "resumo": "novas=3 alteradas=0 removidas=0 iguais=33 embedados=43 total=1226 corpus 515669eb8f54 -> 7463908adbaf | recall@5 caiu de 0.7047 para 0.6846 (tolerância 0.01); artigo_top3 caiu de 0.8043 para 0.7935 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "atos-anexo-i-da-recomendacao-no-125-de-24-de-dezembro"
+   ],
+   "passou": true,
+   "resumo": "novas=1 alteradas=0 removidas=0 iguais=33 embedados=2 total=1185 corpus 515669eb8f54 -> 129a5ca4ae0f | nenhuma métrica caiu além da tolerância"
+  },
+  {
+   "lote": [
+    "bcb-caderno-de-educacao-financeira",
+    "bcb-caderno-de-educacao-financeira-2"
+   ],
+   "passou": false,
+   "resumo": "novas=3 alteradas=0 removidas=0 iguais=33 embedados=43 total=1226 corpus 515669eb8f54 -> 7463908adbaf | recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "bcb-caderno-de-educacao-financeira"
+   ],
+   "passou": false,
+   "resumo": "novas=2 alteradas=0 removidas=0 iguais=33 embedados=26 total=1209 corpus 515669eb8f54 -> 2702592cdf95 | recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "bcb-caderno-de-educacao-financeira-2"
+   ],
+   "passou": false,
+   "resumo": "novas=2 alteradas=0 removidas=0 iguais=33 embedados=19 total=1202 corpus 515669eb8f54 -> 221a30c6934f | recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "bcb-caderno-de-educacao-financeira-3",
+    "bcb-relatorio-de-cidadania-financeira-2025",
+    "mj-superendividamento",
+    "stj-prazo-para-devedor-fiduciante-quitar-divida-apos"
+   ],
+   "passou": false,
+   "resumo": "novas=5 alteradas=0 removidas=0 iguais=33 embedados=369 total=1552 corpus 515669eb8f54 -> 2b3c90e092b6 | recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01); mrr caiu de 0.5969 para 0.5800 (tolerância 0.01); artigo_top3 caiu de 0.8043 para 0.7935 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "bcb-caderno-de-educacao-financeira-3",
+    "bcb-relatorio-de-cidadania-financeira-2025"
+   ],
+   "passou": false,
+   "resumo": "novas=3 alteradas=0 removidas=0 iguais=33 embedados=364 total=1547 corpus 515669eb8f54 -> a19db562907c | recall@5 caiu de 0.7047 para 0.6846 (tolerância 0.01); mrr caiu de 0.5969 para 0.5716 (tolerância 0.01); artigo_top3 caiu de 0.8043 para 0.7826 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "bcb-caderno-de-educacao-financeira-3"
+   ],
+   "passou": false,
+   "resumo": "novas=2 alteradas=0 removidas=0 iguais=33 embedados=29 total=1212 corpus 515669eb8f54 -> 48b2f7fa5ba6 | recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01); mrr caiu de 0.5969 para 0.5802 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "bcb-relatorio-de-cidadania-financeira-2025"
+   ],
+   "passou": false,
+   "resumo": "novas=2 alteradas=0 removidas=0 iguais=33 embedados=337 total=1520 corpus 515669eb8f54 -> 4fe39697ccb0 | recall@5 caiu de 0.7047 para 0.6779 (tolerância 0.01); mrr caiu de 0.5969 para 0.5729 (tolerância 0.01); artigo_top3 caiu de 0.8043 para 0.7826 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "mj-superendividamento",
+    "stj-prazo-para-devedor-fiduciante-quitar-divida-apos"
+   ],
+   "passou": false,
+   "resumo": "novas=3 alteradas=0 removidas=0 iguais=33 embedados=7 total=1190 corpus 515669eb8f54 -> 53ae1b647f26 | recall@5 caiu de 0.7047 para 0.6913 (tolerância 0.01); mrr caiu de 0.5969 para 0.5838 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "mj-superendividamento"
+   ],
+   "passou": false,
+   "resumo": "novas=2 alteradas=0 removidas=0 iguais=33 embedados=4 total=1187 corpus 515669eb8f54 -> 4a0392ad7829 | mrr caiu de 0.5969 para 0.5840 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "stj-prazo-para-devedor-fiduciante-quitar-divida-apos"
+   ],
+   "passou": false,
+   "resumo": "novas=2 alteradas=0 removidas=0 iguais=33 embedados=5 total=1188 corpus 515669eb8f54 -> 50ddf010e4ce | artigo_top3 caiu de 0.8043 para 0.7935 (tolerância 0.01)"
+  },
+  {
+   "lote": [
+    "bcb-559",
+    "bcb-566",
+    "bcb-567",
+    "bcb-569",
+    "bcb-584",
+    "bcb-587",
+    "cmn-5265",
+    "cmn-5299",
+    "cmn-5319"
+   ],
+   "passou": true,
+   "resumo": "novas=10 alteradas=0 removidas=0 iguais=33 embedados=109 total=1292 corpus 515669eb8f54 -> 4038efcb2eb6 | nenhuma métrica caiu além da tolerância"
+  }
+ ],
+ "veredito": {
+  "passou": true,
+  "motivos": [
+   "nenhuma métrica caiu além da tolerância"
+  ],
+  "atual": {
+   "recall@1": 0.5302013422818792,
+   "precision@1": 0.5302013422818792,
+   "hit@1": 0.5302013422818792,
+   "recall@3": 0.6442953020134228,
+   "precision@3": 0.2348993288590604,
+   "hit@3": 0.6442953020134228,
+   "recall@5": 0.7046979865771812,
+   "precision@5": 0.15302013422818792,
+   "hit@5": 0.7046979865771812,
+   "recall@10": 0.7449664429530202,
+   "precision@10": 0.08590604026845639,
+   "hit@10": 0.7449664429530202,
+   "mrr": 0.5968946415255141,
+   "ndcg@10": 0.6325228399100945,
+   "artigo_top3": 0.8043478260869565
+  },
+  "candidata": {
+   "recall@1": 0.5167785234899329,
+   "precision@1": 0.5167785234899329,
+   "hit@1": 0.5167785234899329,
+   "recall@3": 0.6510067114093959,
+   "precision@3": 0.23713646532438476,
+   "hit@3": 0.6510067114093959,
+   "recall@5": 0.7046979865771812,
+   "precision@5": 0.15302013422818792,
+   "hit@5": 0.7046979865771812,
+   "recall@10": 0.7449664429530202,
+   "precision@10": 0.08523489932885907,
+   "hit@10": 0.7449664429530202,
+   "mrr": 0.5880765952913604,
+   "ndcg@10": 0.625885690983692,
+   "artigo_top3": 0.8043478260869565
+  },
+  "pioraram": [
+   "g-026"
+  ]
+ },
+ "recarga": "404 {\"detail\":\"Not Found\"}"
+}
