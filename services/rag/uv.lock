@@ -2150,6 +2150,7 @@ dependencies = [
     { name = "anthropic" },
     { name = "beautifulsoup4" },
     { name = "bm25s" },
+    { name = "fastapi" },
     { name = "httpx" },
     { name = "lxml" },
     { name = "nltk" },
@@ -2161,6 +2162,7 @@ dependencies = [
     { name = "pyyaml" },
     { name = "sentence-transformers" },
     { name = "typer" },
+    { name = "uvicorn" },
 ]
 
 [package.optional-dependencies]
@@ -2194,6 +2196,7 @@ requires-dist = [
     { name = "bm25s", specifier = ">=0.2" },
     { name = "datasets", marker = "extra == 'train'", specifier = ">=3.0" },
     { name = "dspy", marker = "extra == 'train'", specifier = ">=2.5" },
+    { name = "fastapi", specifier = ">=0.115" },
     { name = "httpx", specifier = ">=0.27" },
     { name = "lxml", specifier = ">=5.0" },
     { name = "mlflow", marker = "extra == 'train'", specifier = ">=3.0" },
@@ -2215,6 +2218,7 @@ requires-dist = [
     { name = "scipy", marker = "extra == 'eval'", specifier = ">=1.13" },
     { name = "sentence-transformers", specifier = ">=5.0" },
     { name = "typer", specifier = ">=0.12" },
+    { name = "uvicorn", specifier = ">=0.30" },
 ]
 provides-extras = ["eval", "train", "lora", "dev"]
 

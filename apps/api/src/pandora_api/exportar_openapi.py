@@ -14,8 +14,19 @@ from pandora_api.adaptadores.persistencia.memoria import (
     UsuariosEmMemoria,
 )
 from pandora_api.adaptadores.seguranca.scrypt import HasherScrypt, RelogioDoSistema
+from pandora_api.portas.assistente import RespostaElpis
 
 DESTINO = Path(__file__).resolve().parents[2] / "openapi.json"
+
+
+class _SemAssistente:
+    def responder(self, pergunta, contexto=None) -> RespostaElpis:
+        raise NotImplementedError
+
+
+class _SemTrilha:
+    def etapas(self):
+        return []
 
 
 def gerar() -> str:
@@ -26,6 +37,8 @@ def gerar() -> str:
         HasherScrypt(),
         RelogioDoSistema(),
         timedelta(hours=1),
+        _SemAssistente(),
+        _SemTrilha(),
     )
     return json.dumps(criar_app(conteiner).openapi(), ensure_ascii=False, indent=2) + "\n"
 

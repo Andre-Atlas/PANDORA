@@ -267,3 +267,40 @@ class RespostaChat(Esquema):
     citacoes: list[CitacaoSaida]
     crise: bool = Field(False, description="O classificador de crise (#64) disparou: o front abre o fluxo de crise.")
     modelo: str
+
+
+# --- Trilha ----------------------------------------------------------------
+
+
+class EtapaTrilha(Esquema):
+    """Um degrau do `TrilhaCaminho`. O estado (feito, atual, próximo) é do navegador de quem usa."""
+
+    n: int
+    t: str = Field(description="Título da etapa.")
+    x: int = Field(description="Posição horizontal no desenho do caminho.")
+    lado: Literal["d", "e"]
+    marco: str | None
+    emblema: str
+    licao_id: str
+
+
+class PerguntaTrilha(Esquema):
+    enunciado: str
+    opcoes: list[str]
+    certa: int = Field(description="Índice da opção correta em `opcoes`.")
+    feedback: str = Field(description="Explicação com citação `[n]`, que aponta para `fontes` da lição.")
+    citacoes: list[int]
+
+
+class LicaoSaida(Esquema):
+    id: str
+    titulo: str
+    explicacao: str
+    citacoes_explicacao: list[int]
+    fontes: list[CitacaoSaida]
+    perguntas: list[PerguntaTrilha]
+
+
+class PorqueEntrada(Esquema):
+    pergunta_idx: int = Field(ge=0, description="Posição da pergunta em `perguntas` da lição.")
+    opcao: int = Field(ge=0, description="Índice da opção que a pessoa escolheu.")

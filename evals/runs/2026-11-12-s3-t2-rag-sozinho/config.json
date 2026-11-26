@@ -1,0 +1,11 @@
+{
+ "nome": "t2-rag-sozinho",
+ "modo": "rag",
+ "modelo": null,
+ "recuperacao": "bge-m3 estrutural + híbrido RRF + bge-reranker-v2-m3",
+ "k": 3,
+ "max_tokens": 350,
+ "limiar_abstencao": 0.02,
+ "conjunto": "dev.v1 + DEV_EXTRA (15 fora de domínio)",
+ "git": "e2e5438"
+}

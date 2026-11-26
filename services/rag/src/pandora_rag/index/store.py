@@ -94,6 +94,46 @@ class PgVectorStore:
         with self.conn.cursor() as cur:
             cur.executemany(sql, [[getattr(r, c) for c in COLUNAS] + [v] for r, v in zip(registros, vetores)])
 
+    # --- reindexação incremental e troca sem queda ---------------------------------------
+
+    def existe(self) -> bool:
+        return self.conn.execute("SELECT to_regclass(%s) IS NOT NULL", [self.tabela]).fetchone()[0]
+
+    def copiar_de(self, origem: str) -> None:
+        """Recria esta tabela com o conteúdo de `origem` (vetores inclusos, sem re-embedar)."""
+        assert origem.replace("_", "").isalnum(), "nome de tabela inválido"
+        self.criar_esquema(recriar=True)
+        if self.conn.execute("SELECT to_regclass(%s) IS NOT NULL", [origem]).fetchone()[0]:
+            cols = ", ".join(COLUNAS + ["embedding"])
+            self.conn.execute(f"INSERT INTO {self.tabela} ({cols}) SELECT {cols} FROM {origem}")
+
+    def apagar_fontes(self, fonte_ids: list[str]) -> int:
+        if not fonte_ids:
+            return 0
+        return self.conn.execute(f"DELETE FROM {self.tabela} WHERE fonte_id = ANY(%s)", [list(fonte_ids)]).rowcount
+
+    def definir_versao(self, versao: str) -> None:
+        self.conn.execute(f"UPDATE {self.tabela} SET versao_corpus = %s", [versao])
+
+    def trocar_com(self, atual: str, anterior: str) -> None:
+        """Esta tabela (candidata) vira `atual`; a atual vira `anterior`, para voltar atrás. Tudo numa transação."""
+        for t in (atual, anterior):
+            assert t.replace("_", "").isalnum(), "nome de tabela inválido"
+        nova = self.tabela
+
+        def renomear(cur, de: str, para: str) -> None:
+            cur.execute(f"ALTER TABLE {de} RENAME TO {para}")
+            cur.execute(f"ALTER TABLE {para} RENAME CONSTRAINT {de}_pkey TO {para}_pkey")
+            for sufixo in ("hnsw", "fonte"):
+                cur.execute(f"ALTER INDEX IF EXISTS {de}_{sufixo} RENAME TO {para}_{sufixo}")
+
+        with self.conn.transaction(), self.conn.cursor() as cur:
+            cur.execute(f"DROP TABLE IF EXISTS {anterior}")
+            if self.conn.execute("SELECT to_regclass(%s) IS NOT NULL", [atual]).fetchone()[0]:
+                renomear(cur, atual, anterior)
+            renomear(cur, nova, atual)
+        self.tabela = atual
+
     def carregar_registros(self) -> list[Registro]:
         with self.conn.cursor() as cur:
             cur.execute(f"SELECT {', '.join(COLUNAS)} FROM {self.tabela} ORDER BY fonte_id, ordem")
@@ -121,4 +161,6 @@ class PgVectorStore:
                 f"SELECT id, 1 - (embedding <=> %s) FROM {self.tabela} {clausula} ORDER BY embedding <=> %s LIMIT %s",
                 [consulta, *params, consulta, k],
             )
-            return [(posicao[i], float(s)) for i, s in cur.fetchall()]
+            # logo depois de uma troca de tabela, ids novos ainda não estão na memória: são ignorados
+            # até o /recarregar terminar, em vez de derrubar a consulta
+            return [(posicao[i], float(s)) for i, s in cur.fetchall() if i in posicao]

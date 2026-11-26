@@ -16,6 +16,9 @@ ROTAS_DO_CONTRATO = {
     ("post", "/plano"),
     ("get", "/previsao"),
     ("post", "/chat"),
+    ("get", "/trilha"),
+    ("get", "/trilha/licoes/{licao_id}"),
+    ("post", "/trilha/licoes/{licao_id}/porque"),
     ("post", "/consentimentos"),
     ("delete", "/eu/dados"),
 }
@@ -44,7 +47,16 @@ def test_operation_ids_unicos_e_legiveis():
 
 def test_rotas_protegidas_pedem_bearer():
     doc = json.loads(gerar())
-    publicas = {("get", "/saude"), ("post", "/auth/cadastro"), ("post", "/auth/sessoes")}
+    publicas = {
+        ("get", "/saude"),
+        ("post", "/auth/cadastro"),
+        ("post", "/auth/sessoes"),
+        # Elpis e trilha: sem login por enquanto, nenhum dado pessoal é guardado.
+        ("post", "/chat"),
+        ("get", "/trilha"),
+        ("get", "/trilha/licoes/{licao_id}"),
+        ("post", "/trilha/licoes/{licao_id}/porque"),
+    }
     for caminho, ops in doc["paths"].items():
         for metodo, op in ops.items():
             if (metodo, caminho) not in publicas:
@@ -61,7 +73,6 @@ def test_rotas_protegidas_pedem_bearer():
         ("get", "/score", None, 72),
         ("post", "/plano", {"metodo": "avalanche"}, 71),
         ("get", "/previsao?horizonte=60", None, 84),
-        ("post", "/chat", {"pergunta": "Podem bloquear meu salário?"}, 85),
     ],
 )
 def test_rotas_futuras_respondem_501_com_a_issue(autenticado, metodo, caminho, corpo, issue):

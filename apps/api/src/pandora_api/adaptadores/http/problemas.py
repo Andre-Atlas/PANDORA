@@ -43,6 +43,9 @@ def registrar_tratadores(app: FastAPI) -> None:
         (erros.CredenciaisInvalidas, 401, "credenciais-invalidas", "E-mail ou senha não conferem."),
         (erros.SessaoInvalida, 401, "sessao-invalida", "Entre de novo para continuar."),
         (erros.ConsentimentoNaoEncontrado, 404, "consentimento-nao-encontrado", "Consentimento não encontrado."),
+        (erros.LicaoNaoEncontrada, 404, "licao-nao-encontrada", "Lição não encontrada."),
+        (erros.PerguntaInvalida, 422, "pergunta-invalida", "A pergunta ou a opção não existe nesta lição."),
+        (erros.AssistenteIndisponivel, 503, "elpis-indisponivel", "A Elpis não está disponível agora."),
     ]
     for classe, status, codigo, titulo in tabela:
 

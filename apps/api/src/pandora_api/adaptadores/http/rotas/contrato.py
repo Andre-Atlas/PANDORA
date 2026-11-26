@@ -16,12 +16,10 @@ from pandora_api.adaptadores.http.esquemas import (
     ExtratoSaida,
     Horizonte,
     PaginaTransacoes,
-    PerguntaChat,
     Plano,
     PlanoEntrada,
     Previsao,
     RaioX,
-    RespostaChat,
     Score,
     TransacaoSaida,
 )
@@ -34,7 +32,6 @@ Mes = Annotated[str, Query(pattern=r"^\d{4}-\d{2}$", examples=["2026-10"])]
 raio_x = APIRouter(tags=["raio-x"], responses=respostas(401, 501))
 dividas = APIRouter(tags=["dividas"], responses=respostas(401, 501))
 previsao = APIRouter(tags=["previsao"], responses=respostas(401, 501))
-chat = APIRouter(tags=["chat"], responses=respostas(401, 501))
 
 
 @raio_x.post(
@@ -100,7 +97,3 @@ def obter_previsao(
 ) -> Previsao:
     raise NaoImplementado(84, "A previsão de caixa")
 
-
-@chat.post("/chat", summary="Perguntar à Elpis (RF09)")
-def perguntar(dados: PerguntaChat, usuario: UsuarioDep) -> RespostaChat:
-    raise NaoImplementado(85, "O chat com a Elpis")

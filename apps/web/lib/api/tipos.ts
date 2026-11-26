@@ -33,3 +33,7 @@ export type Previsao = Esquemas["Previsao"];
 
 export type RespostaChat = Esquemas["RespostaChat"];
 export type Citacao = Esquemas["CitacaoSaida"];
+
+export type EtapaTrilha = Esquemas["EtapaTrilha"];
+export type LicaoTrilha = Esquemas["LicaoSaida"];
+export type PerguntaTrilha = Esquemas["PerguntaTrilha"];

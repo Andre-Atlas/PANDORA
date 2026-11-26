@@ -6,7 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from pandora_api import __version__
 from pandora_api.adaptadores.http.conteiner import Conteiner
 from pandora_api.adaptadores.http.problemas import registrar_tratadores
-from pandora_api.adaptadores.http.rotas import conta, contrato, privacidade, sistema
+from pandora_api.adaptadores.http.rotas import chat, conta, contrato, privacidade, sistema, trilha
 
 DESCRICAO = """
 API do PANDORA. Front, ingestão, modelos e agentes conversam por aqui.
@@ -14,6 +14,7 @@ API do PANDORA. Front, ingestão, modelos e agentes conversam por aqui.
 - **Valores** em centavos inteiros. **Taxas** em decimal, enviadas como texto para não perder precisão.
 - **Erros** em `application/problem+json`.
 - Recursos que ainda não existem respondem **501** com a issue que vai implementá-los.
+- **Sem token** (o app ainda não tem login): `/chat` e `/trilha*`. Não guardam dado pessoal.
 - **Autenticação**: `POST /auth/sessoes` devolve um token; envie `Authorization: Bearer <token>`.
 - **Transação**: esquema em **rascunho** (dataset da #51), a fechar com a ingestão (#57).
 """
@@ -25,7 +26,8 @@ TAGS = [
     {"name": "raio-x", "description": "Extratos, transações e Raio-X (#72)."},
     {"name": "dividas", "description": "Mapa de dívidas, score e plano (#65, #71, #72)."},
     {"name": "previsao", "description": "Previsão de caixa (#84)."},
-    {"name": "chat", "description": "Elpis, com RAG e agentes (#85)."},
+    {"name": "chat", "description": "Elpis, com RAG (#85). Pública: o app ainda não tem login."},
+    {"name": "trilha", "description": "Trilha de educação financeira, com fontes. Pública."},
 ]
 
 
@@ -51,6 +53,6 @@ def criar_app(conteiner: Conteiner, origens_cors: tuple[str, ...] = (), lifespan
     app.include_router(sistema.router)
     app.include_router(conta.router)
     app.include_router(privacidade.router)
-    for router in (contrato.raio_x, contrato.dividas, contrato.previsao, contrato.chat):
+    for router in (contrato.raio_x, contrato.dividas, contrato.previsao, chat.router, trilha.router):
         app.include_router(router)
     return app

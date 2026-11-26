@@ -135,3 +135,11 @@ def test_decimal_zero_equivale_a_inteiro():
 
     assert numeros("R$ 600,00 por mês") == numeros("R$ 600")
     assert "600" in numeros("R$ 600,00") and "600.00" not in numeros("R$ 600,00")
+
+
+def test_numeros_milhar_com_centavos():
+    """'R$ 50.000,00' e 'R$ 50.000' são o mesmo valor (defeito achado na semana 3, LLM × RAG)."""
+    from evals.metrics.textos import numeros
+
+    assert numeros("R$ 50.000,00") == numeros("R$ 50.000") == {"50000"}
+    assert numeros("R$ 1.234,56") == {"1234.56"}

@@ -2,7 +2,7 @@
   "openapi": "3.1.0",
   "info": {
     "title": "PANDORA API",
-    "description": "\nAPI do PANDORA. Front, ingestão, modelos e agentes conversam por aqui.\n\n- **Valores** em centavos inteiros. **Taxas** em decimal, enviadas como texto para não perder precisão.\n- **Erros** em `application/problem+json`.\n- Recursos que ainda não existem respondem **501** com a issue que vai implementá-los.\n- **Autenticação**: `POST /auth/sessoes` devolve um token; envie `Authorization: Bearer <token>`.\n- **Transação**: esquema em **rascunho** (dataset da #51), a fechar com a ingestão (#57).\n",
+    "description": "\nAPI do PANDORA. Front, ingestão, modelos e agentes conversam por aqui.\n\n- **Valores** em centavos inteiros. **Taxas** em decimal, enviadas como texto para não perder precisão.\n- **Erros** em `application/problem+json`.\n- Recursos que ainda não existem respondem **501** com a issue que vai implementá-los.\n- **Sem token** (o app ainda não tem login): `/chat` e `/trilha*`. Não guardam dado pessoal.\n- **Autenticação**: `POST /auth/sessoes` devolve um token; envie `Authorization: Bearer <token>`.\n- **Transação**: esquema em **rascunho** (dataset da #51), a fechar com a ingestão (#57).\n",
     "version": "0.1.0"
   },
   "paths": {
@@ -1080,6 +1080,7 @@
           "chat"
         ],
         "summary": "Perguntar à Elpis (RF09)",
+        "description": "Responde só com base nas fontes oficiais, sempre com citação. Sem fonte suficiente, devolve `abstencao`. Sinais de crise devolvem `crise` e os contatos de apoio, sem consultar o modelo. Pública, sem token: o app ainda não tem login. Leva de 8 a 15 s.",
         "operationId": "perguntar",
         "requestBody": {
           "content": {
@@ -1102,19 +1103,8 @@
               }
             }
           },
-          "401": {
-            "description": "Unauthorized",
-            "content": {
-              "application/problem+json": {},
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/Problema"
-                }
-              }
-            }
-          },
-          "501": {
-            "description": "Not Implemented",
+          "503": {
+            "description": "Service Unavailable",
             "content": {
               "application/problem+json": {},
               "application/json": {
@@ -1134,12 +1124,172 @@
               }
             }
           }
-        },
-        "security": [
-          {
-            "HTTPBearer": []
+        }
+      }
+    },
+    "/trilha": {
+      "get": {
+        "tags": [
+          "trilha"
+        ],
+        "summary": "Etapas da trilha",
+        "operationId": "listar_etapas",
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "items": {
+                    "$ref": "#/components/schemas/EtapaTrilha"
+                  },
+                  "type": "array",
+                  "title": "Response Listar Etapas"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Not Found",
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            }
           }
-        ]
+        }
+      }
+    },
+    "/trilha/licoes/{licao_id}": {
+      "get": {
+        "tags": [
+          "trilha"
+        ],
+        "summary": "Lição com explicação, fontes e perguntas",
+        "operationId": "obter_licao",
+        "parameters": [
+          {
+            "name": "licao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Licao Id"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LicaoSaida"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/trilha/licoes/{licao_id}/porque": {
+      "post": {
+        "tags": [
+          "trilha"
+        ],
+        "summary": "Por quê? A Elpis explica a resposta de uma questão, com fontes",
+        "description": "Leva de 8 a 15 s, como o chat.",
+        "operationId": "explicar_resposta",
+        "parameters": [
+          {
+            "name": "licao_id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "title": "Licao Id"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/PorqueEntrada"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RespostaChat"
+                }
+              }
+            }
+          },
+          "404": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Not Found"
+          },
+          "422": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Unprocessable Entity"
+          },
+          "503": {
+            "content": {
+              "application/problem+json": {},
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/Problema"
+                }
+              }
+            },
+            "description": "Service Unavailable"
+          }
+        }
       }
     }
   },
@@ -1561,6 +1711,63 @@
         ],
         "title": "EntradaCalculo"
       },
+      "EtapaTrilha": {
+        "properties": {
+          "n": {
+            "type": "integer",
+            "title": "N"
+          },
+          "t": {
+            "type": "string",
+            "title": "T",
+            "description": "Título da etapa."
+          },
+          "x": {
+            "type": "integer",
+            "title": "X",
+            "description": "Posição horizontal no desenho do caminho."
+          },
+          "lado": {
+            "type": "string",
+            "enum": [
+              "d",
+              "e"
+            ],
+            "title": "Lado"
+          },
+          "marco": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Marco"
+          },
+          "emblema": {
+            "type": "string",
+            "title": "Emblema"
+          },
+          "licao_id": {
+            "type": "string",
+            "title": "Licao Id"
+          }
+        },
+        "type": "object",
+        "required": [
+          "n",
+          "t",
+          "x",
+          "lado",
+          "marco",
+          "emblema",
+          "licao_id"
+        ],
+        "title": "EtapaTrilha",
+        "description": "Um degrau do `TrilhaCaminho`. O estado (feito, atual, próximo) é do navegador de quem usa."
+      },
       "ExtratoSaida": {
         "properties": {
           "id": {
@@ -1700,6 +1907,53 @@
         ],
         "title": "ItemPlano"
       },
+      "LicaoSaida": {
+        "properties": {
+          "id": {
+            "type": "string",
+            "title": "Id"
+          },
+          "titulo": {
+            "type": "string",
+            "title": "Titulo"
+          },
+          "explicacao": {
+            "type": "string",
+            "title": "Explicacao"
+          },
+          "citacoes_explicacao": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Citacoes Explicacao"
+          },
+          "fontes": {
+            "items": {
+              "$ref": "#/components/schemas/CitacaoSaida"
+            },
+            "type": "array",
+            "title": "Fontes"
+          },
+          "perguntas": {
+            "items": {
+              "$ref": "#/components/schemas/PerguntaTrilha"
+            },
+            "type": "array",
+            "title": "Perguntas"
+          }
+        },
+        "type": "object",
+        "required": [
+          "id",
+          "titulo",
+          "explicacao",
+          "citacoes_explicacao",
+          "fontes",
+          "perguntas"
+        ],
+        "title": "LicaoSaida"
+      },
       "MetodoPlano": {
         "type": "string",
         "enum": [
@@ -1794,6 +2048,47 @@
         ],
         "title": "PerguntaChat"
       },
+      "PerguntaTrilha": {
+        "properties": {
+          "enunciado": {
+            "type": "string",
+            "title": "Enunciado"
+          },
+          "opcoes": {
+            "items": {
+              "type": "string"
+            },
+            "type": "array",
+            "title": "Opcoes"
+          },
+          "certa": {
+            "type": "integer",
+            "title": "Certa",
+            "description": "Índice da opção correta em `opcoes`."
+          },
+          "feedback": {
+            "type": "string",
+            "title": "Feedback",
+            "description": "Explicação com citação `[n]`, que aponta para `fontes` da lição."
+          },
+          "citacoes": {
+            "items": {
+              "type": "integer"
+            },
+            "type": "array",
+            "title": "Citacoes"
+          }
+        },
+        "type": "object",
+        "required": [
+          "enunciado",
+          "opcoes",
+          "certa",
+          "feedback",
+          "citacoes"
+        ],
+        "title": "PerguntaTrilha"
+      },
       "Plano": {
         "properties": {
           "metodo": {
@@ -1868,6 +2163,28 @@
           "faixa_superior_centavos"
         ],
         "title": "PontoPrevisao"
+      },
+      "PorqueEntrada": {
+        "properties": {
+          "pergunta_idx": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Pergunta Idx",
+            "description": "Posição da pergunta em `perguntas` da lição."
+          },
+          "opcao": {
+            "type": "integer",
+            "minimum": 0.0,
+            "title": "Opcao",
+            "description": "Índice da opção que a pessoa escolheu."
+          }
+        },
+        "type": "object",
+        "required": [
+          "pergunta_idx",
+          "opcao"
+        ],
+        "title": "PorqueEntrada"
       },
       "Previsao": {
         "properties": {
@@ -2325,7 +2642,11 @@
     },
     {
       "name": "chat",
-      "description": "Elpis, com RAG e agentes (#85)."
+      "description": "Elpis, com RAG (#85). Pública: o app ainda não tem login."
+    },
+    {
+      "name": "trilha",
+      "description": "Trilha de educação financeira, com fontes. Pública."
     }
   ]
 }

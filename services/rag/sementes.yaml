@@ -1,0 +1,111 @@
+# Pontos de partida do crawler (`pandora-rag descobrir`). Só entram URLs de domínios em dominios.yaml.
+#
+# profundidade: 0 visita só a própria URL; 1 segue os links dela; 2 segue os links dos links (máximo).
+# dica: metadados que a curadoria já sabe. Uma candidata com dica completa recebe confiança alta.
+# Tirado de docs/evidencias (catálogo, grupos 1 a 3, e coletânea). Blogs, escritórios e agregadores
+# da coletânea ficam de fora pela regra de fontes oficiais.
+
+termos_relevantes:  # um link só é seguido se o texto ou o endereço tiver um destes termos
+  - superendivid
+  - endivid
+  - divida
+  - dívida
+  - credito
+  - crédito
+  - juros
+  - cartao
+  - cartão
+  - rotativo
+  - consignad
+  - consumidor
+  - orcamento
+  - orçamento
+  - financeira
+  - financas
+  - finanças
+  - golpe
+  - fraude
+  - pix
+  - cidadania
+  - emprestimo
+  - empréstimo
+  - negocia
+  - renegocia
+  - minimo-existencial
+  - mínimo existencial
+
+sementes:
+  # --- Páginas índice (descoberta) ---
+  - url: https://www.bcb.gov.br/cidadaniafinanceira/cidadania_biblioteca
+    profundidade: 1
+    dica: {orgao: Banco Central do Brasil, tipo: cartilha, camada_dominio: educacao_orcamento}
+  - url: https://www.gov.br/mj/pt-br/assuntos/seus-direitos/consumidor/defesadoconsumidor/Superendividamento
+    profundidade: 1
+    dica: {orgao: Secretaria Nacional do Consumidor, camada_dominio: juridico_superendividamento}
+  - url: https://www.bcb.gov.br/publicacoes/estudosespeciais
+    profundidade: 1
+    dica: {orgao: Banco Central do Brasil, tipo: estudo, camada_dominio: educacao_orcamento}
+
+  # --- Documentos já apontados pelo catálogo e pela coletânea ---
+  - url: https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/RCF/relatorio_de_cidadania_financeira_2025.pdf
+    dica: {orgao: Banco Central do Brasil, tipo: estudo, camada_dominio: educacao_orcamento, titulo: "Relatório de Cidadania Financeira 2025", data_referencia_normativa: "2025-01-01"}
+  - url: https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/serie_cidadania/serie_cidadania_financeira_8_endividamento_risco_2ed.pdf
+    dica: {orgao: Banco Central do Brasil, tipo: estudo, camada_dominio: comportamental_vieses, titulo: "Série Cidadania Financeira 8: Endividamento de risco"}
+  - url: https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/v4_modulo_1_caderno_educacao_financeira_430206_2026.pdf
+    dica: {orgao: Banco Central do Brasil, tipo: cartilha, camada_dominio: educacao_orcamento, nivel_urgencia: preventivo, data_referencia_normativa: "2026-01-01"}
+  - url: https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/v4_modulo_2_caderno_educacao_financeira_430206_2026.pdf
+    dica: {orgao: Banco Central do Brasil, tipo: cartilha, camada_dominio: educacao_orcamento, nivel_urgencia: preventivo, data_referencia_normativa: "2026-01-01"}
+  - url: https://www.bcb.gov.br/content/cidadaniafinanceira/documentos_cidadania/Cuidando_do_seu_dinheiro_Gestao_de_Financas_Pessoais/v4_modulo_3_caderno_educacao_financeira_430206_2026.pdf
+    dica: {orgao: Banco Central do Brasil, tipo: cartilha, camada_dominio: educacao_orcamento, nivel_urgencia: preventivo, data_referencia_normativa: "2026-01-01"}
+  - url: https://atos.cnj.jus.br/files/compilado1456382022010761d854a688a41.pdf
+    dica: {orgao: Conselho Nacional de Justiça, tipo: resolucao, camada_dominio: juridico_superendividamento}
+  - url: https://www.mpce.mp.br/wp-content/uploads/2024/02/Cartilha-Educativa-Direito-do-Consumidor-Super-Endividamento-da-Pessoa-Idosa.pdf
+    dica: {orgao: Ministério Público do Ceará, tipo: cartilha, camada_dominio: juridico_superendividamento, titulo: "Cartilha do superendividamento da pessoa idosa (MPCE)", data_referencia_normativa: "2024-02-01"}
+  - url: https://defensoria.rj.def.br/uploads/arquivos/b7ca8cbd43c24d7f8aa11fce8483026e.pdf
+    dica: {orgao: Defensoria Pública do RJ, tipo: cartilha, camada_dominio: juridico_superendividamento}
+  - url: https://www.gov.br/mj/pt-br/assuntos/seus-direitos/consumidor/defesadoconsumidor/Biblioteca/editais/produto_2__cenario_do_superendividamento.pdf/@@download/file
+    dica: {orgao: Secretaria Nacional do Consumidor, tipo: estudo, camada_dominio: juridico_superendividamento}
+  - url: https://www.stj.jus.br/sites/portalp/Paginas/Comunicacao/Noticias/07072020-Prazo-para-devedor-fiduciante-quitar-divida-apos-apreensao-do-bem-deve-ser-contado-em-dias-corridos.aspx
+    dica: {orgao: Superior Tribunal de Justiça, tipo: jurisprudencia, camada_dominio: defesa_bens_servicos, modalidade_divida: financiamento_veiculo, elegivel_lei_14181: false, nivel_urgencia: critico_imediato, data_referencia_normativa: "2020-07-07"}
+
+# Normativos novos do BCB e do CMN, pela API de busca de normativos (formato bcb_api).
+bcb_busca:
+  tipos: ["Resolução CMN", "Resolução BCB", "Resolução Conjunta"]
+  # O assunto precisa ter um termo ligado ao consumidor pessoa física. "crédito" e "juros" sozinhos
+  # não bastam: trazem crédito rural, regra contábil e linha de fomento, que não servem ao usuário.
+  termos_assunto:
+    - pessoa natural
+    - consumidor
+    - cartão
+    - rotativo
+    - portabilidade
+    - consignado
+    - cheque especial
+    - tarifa
+    - superendividamento
+    - renegociação
+    - devolução
+    - fraude
+    - golpe
+    - Custo Efetivo Total
+    - encargos de atraso
+    - cobrança de
+    - correspondente
+  termos_excluir:  # qualquer um destes descarta o normativo
+    - rural
+    - Pronaf
+    - Pronamp
+    - Proagro
+    - agropecu
+    - contábil
+    - liquidez
+    - patrimônio de referência
+    - remessa de informações
+    - Fundos Constitucionais
+    - Fundo Nacional
+    - sensoriamento
+    - câmbio
+    - derivativ
+    - cooperativa
+    - consórcio
+  dias: 365  # janela da busca no `descobrir`; o `monitorar` olha só os últimos 60 dias
