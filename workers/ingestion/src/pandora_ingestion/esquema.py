@@ -28,6 +28,7 @@ class FormaPagamento(StrEnum):
 class Origem(StrEnum):
     OFX = "ofx"
     CSV = "csv"
+    PDF = "pdf"
 
 
 @dataclass(frozen=True)

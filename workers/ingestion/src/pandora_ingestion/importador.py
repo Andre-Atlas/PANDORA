@@ -11,6 +11,7 @@ from pandora_ingestion.deduplicar import atribuir_chaves, separar_novas
 from pandora_ingestion.erros import FormatoNaoSuportado
 from pandora_ingestion.esquema import Leitura
 from pandora_ingestion.ofx import ler_ofx
+from pandora_ingestion.pdf import ler_pdf
 
 # Só contagens e extensão: nome de arquivo, descrição e valores podem identificar a pessoa.
 logger = logging.getLogger("pandora.ingestao")
@@ -24,9 +25,9 @@ def ler(nome_arquivo: str, conteudo: bytes, nomes: tuple[str, ...] = ()) -> Leit
     elif extensao in (".csv", ".txt"):
         leitura = ler_csv(conteudo, nomes)
     elif extensao == ".pdf":
-        raise FormatoNaoSuportado("PDF chega com a issue #66; por enquanto, envie OFX ou CSV.")
+        leitura = ler_pdf(conteudo, nomes)
     else:
-        raise FormatoNaoSuportado("Envie o extrato em OFX ou CSV.")
+        raise FormatoNaoSuportado("Envie o extrato em OFX, CSV ou PDF.")
     return Leitura(tuple(atribuir_chaves(leitura.transacoes)), leitura.avisos)
 
 

@@ -94,8 +94,8 @@ def test_arquivos_invalidos():
         ler("x.csv", b"coluna;outra\n1;2\n")
     with pytest.raises(ArquivoIlegivel):
         ler("x.ofx", b"isto nao e um ofx")
-    with pytest.raises(FormatoNaoSuportado):
-        ler("x.pdf", b"%PDF")
+    with pytest.raises(ArquivoIlegivel):
+        ler("x.pdf", b"%PDF")  # PDF tem testes próprios em test_pdf.py
     with pytest.raises(FormatoNaoSuportado):
         ler("x.xlsx", b"")
 

@@ -1,15 +1,17 @@
 [project]
 name = "pandora-ingestion"
 version = "0.1.0"
-description = "Ingestão de extratos do PANDORA: OFX e CSV para um esquema único de transação"
+description = "Ingestão de extratos do PANDORA: OFX, CSV e PDF para um esquema único de transação"
 requires-python = ">=3.12,<3.13"
 dependencies = [
+  "pdfplumber>=0.11",
   "tzdata>=2024.1",
 ]
 
 [dependency-groups]
 dev = [
     "pytest>=8.0",
+    "reportlab>=4.0",  # só para gerar os PDFs fictícios de teste (tests/fixtures/gerar_pdfs.py)
     "ruff>=0.6",
 ]
 
