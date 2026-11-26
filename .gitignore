@@ -1,10 +1,15 @@
+.DS_Store
 .env
+
+# Node (apps/web)
+node_modules/
+
+# Python (apps/api, services/rag)
 .venv/
 __pycache__/
 *.pyc
 .pytest_cache/
 .ruff_cache/
-.DS_Store
 
 # Dados e pesos: reproduzíveis por corpus.lock e publicados em GitHub Releases
 services/rag/data/

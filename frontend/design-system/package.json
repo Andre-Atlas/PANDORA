@@ -1,0 +1,11 @@
+{
+  "name": "@pandora/design-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Tokens, componentes e assets do PANDORA. O app importa daqui; nada é copiado.",
+  "types": "components/index.d.ts",
+  "scripts": {
+    "build": "node src/build.js",
+    "test": "node src/teste.js"
+  }
+}

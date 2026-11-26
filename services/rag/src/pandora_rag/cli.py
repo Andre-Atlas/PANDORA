@@ -1,14 +1,16 @@
-"""Linha de comando: coletar, extrair, indexar, buscar e perguntar."""
+"""Linha de comando: coletar, extrair, indexar, buscar, perguntar e orquestrar agentes."""
 from __future__ import annotations
 
 import json
 import logging
 from pathlib import Path
+from typing import Optional
 
 import typer
 
+from pandora_rag.montagem import LLM_PADRAO, MODELO_EMBEDDING, montar_retriever
+
 app = typer.Typer(help="RAG híbrido do PANDORA", no_args_is_help=True)
-MODELO_EMBEDDING = "BAAI/bge-m3"
 
 
 @app.command()
@@ -19,6 +21,37 @@ def coletar() -> None:
     logging.basicConfig(level=logging.WARNING)
     for fonte, situacao in _coletar().items():
         typer.echo(f"{fonte:18} {situacao}")
+
+
+@app.command("coletar-catalogo")
+def coletar_catalogo_cmd(
+    alvo: Optional[list[str]] = typer.Option(None, "--alvo", help="Coleta só estes ids de alvo"),
+) -> None:
+    """Coleta os alvos dos 31 itens do catálogo (HTML, PDF, API) e atualiza catalogo.lock.json."""
+    from pandora_rag.coleta.executor import coletar_catalogo
+
+    logging.basicConfig(level=logging.WARNING)
+    for id_alvo, situacao in coletar_catalogo(apenas=set(alvo) if alvo else None).items():
+        typer.echo(f"{id_alvo:34} {situacao}")
+
+
+@app.command()
+def inventario(md: Optional[str] = typer.Option(None, "--md", help="Grava a tabela em Markdown neste caminho")) -> None:
+    """Mostra os 31 itens com formato, frequência e situação (coletada, manual, mista, falha, pendente)."""
+    from pandora_rag.coleta.catalogo import carregar_catalogo
+    from pandora_rag.coleta.executor import ler_lock, situacao_do_item
+    from pandora_rag.coleta.inventario import markdown, resumo
+
+    itens, lock = carregar_catalogo(), ler_lock()
+    if md:
+        Path(md).write_text(markdown(itens, lock), encoding="utf-8")
+        typer.echo(f"inventário gravado em {md}")
+    for item in itens:
+        typer.echo(
+            f"{item.numero:2} {situacao_do_item(item, lock):9} {item.frequencia:10} "
+            f"{','.join(item.formatos):12} {item.nome[:70]}"
+        )
+    typer.echo(f"\n{len(itens)} itens: {resumo(itens, lock)}")
 
 
 @app.command()
@@ -35,7 +68,12 @@ def extrair() -> None:
 
 
 @app.command()
-def indexar(modelo: str = MODELO_EMBEDDING, estrategia: str = "estrutural", tabela: str = "chunks", recriar: bool = True) -> None:
+def indexar(
+    modelo: str = MODELO_EMBEDDING,
+    estrategia: str = "estrutural",
+    tabela: str = "chunks",
+    recriar: bool = True,
+) -> None:
     """Gera embeddings e grava os chunks no pgvector."""
     from pandora_rag.config import DB_URL
     from pandora_rag.index.build import embeddings
@@ -53,47 +91,72 @@ def indexar(modelo: str = MODELO_EMBEDDING, estrategia: str = "estrutural", tabe
 
 
 def _retriever(modelo: str, tabela: str, rerank: bool):
-    from pandora_rag.config import DB_URL
-    from pandora_rag.index.embedder import Embedder
-    from pandora_rag.index.store import PgVectorStore
-    from pandora_rag.retrieve.hybrid import IndiceBM25, Reranker, Retriever
-
-    emb = Embedder(modelo)
-    pg = PgVectorStore(DB_URL, tabela, emb.dim)
-    regs = pg.carregar_registros()
-    return Retriever(pg, IndiceBM25(regs), emb, Reranker() if rerank else None)
+    return montar_retriever(modelo, tabela, rerank)
 
 
 @app.command()
-def buscar(pergunta: str, k: int = 5, tabela: str = "chunks", rerank: bool = False, modelo: str = MODELO_EMBEDDING) -> None:
+def buscar(
+    pergunta: str,
+    k: int = 5,
+    tabela: str = "chunks",
+    rerank: bool = False,
+    modelo: str = MODELO_EMBEDDING,
+) -> None:
     """Mostra os chunks recuperados, sem gerar resposta."""
     for n, h in enumerate(_retriever(modelo, tabela, rerank).buscar(pergunta, k), start=1):
         r = h.registro
-        typer.echo(f"[{n}] {r.norma} {r.artigo or ''}  score={h.score:.4f} vet={h.score_vetor} bm25={h.score_bm25}\n    {r.link}\n    {r.texto[:200]!r}")
+        typer.echo(
+            f"[{n}] {r.norma} {r.artigo or ''}  score={h.score:.4f} vet={h.score_vetor} bm25={h.score_bm25}\n"
+            f"    {r.link}\n    {r.texto[:200]!r}"
+        )
 
 
 @app.command()
-def ask(pergunta: str, llm: str = "haiku", k: int = 5, tabela: str = "chunks", rerank: bool = True,
-        modelo: str = MODELO_EMBEDDING, saida_json: bool | None = False) -> None:
+def ask(
+    pergunta: str,
+    llm: str = LLM_PADRAO,
+    k: int = 5,
+    tabela: str = "chunks",
+    rerank: bool = True,
+    modelo: str = MODELO_EMBEDDING,
+    saida_json: Optional[bool] = False,
+) -> None:
     """Consulta completa: busca, resposta fundamentada e fontes."""
+    from pandora_rag.config import LIMIAR_ABSTENCAO
     from pandora_rag.generate.answer import responder
     from pandora_rag.generate.gateway import Gateway
     from pandora_rag.generate.pii import mascarar
 
     retr = _retriever(modelo, tabela, rerank)
     hits = retr.buscar(pergunta, k)
-    resp = responder(Gateway(), llm, pergunta, hits)
+    resp = responder(Gateway(), llm, pergunta, hits, limiar_abstencao=LIMIAR_ABSTENCAO if rerank else None)
     if saida_json:
         pergunta_limpa, _ = mascarar(pergunta)
-        typer.echo(json.dumps({"pergunta": pergunta_limpa, "resposta": resp.texto, "abstencao": resp.abstencao,
-                               "citacoes": [c.__dict__ for c in resp.citacoes]}, ensure_ascii=False, indent=2))
+        typer.echo(
+            json.dumps(
+                {
+                    "pergunta": pergunta_limpa,
+                    "resposta": resp.texto,
+                    "abstencao": resp.abstencao,
+                    "citacoes": [c.__dict__ for c in resp.citacoes],
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return
     typer.echo(f"PERGUNTA: {pergunta}\n\nCHUNKS RECUPERADOS:")
     for n, h in enumerate(hits, start=1):
-        typer.echo(f"  [{n}] {h.registro.norma} {h.registro.artigo or ''}  score={h.score:.3f}")
+        typer.echo(
+            f"  [{n}] {h.registro.norma} {h.registro.artigo or ''}  score={h.score:.3f}\n"
+            f"      \"{' '.join(h.registro.texto.split())[:220]}...\""
+        )
     typer.echo(f"\nRESPOSTA ({resp.modelo}, {resp.latencia_s:.1f}s, US$ {resp.custo_usd:.4f}):\n{resp.texto}\n\nFONTES:")
     for c in resp.citacoes:
-        typer.echo(f"  [{c.n}] {c.norma} {c.artigo or ''}\n      {c.link}")
+        typer.echo(
+            f"  [{c.n}] {c.norma} {c.artigo or ''}\n      {c.link}\n"
+            f"      trecho: \"{' '.join(c.trecho.split())[:220]}...\""
+        )
     if resp.abstencao:
         typer.echo("  (abstenção: sem trecho que sustente a resposta)")
 
@@ -164,6 +227,53 @@ def demo(
         typer.echo(res.resposta_final)
     if saida_dir:
         typer.echo(f"\nArtefatos gravados em: {saida_dir}")
+
+
+@app.command("gerar-trilha")
+def gerar_trilha(
+    saida: str = "",
+    llm: str = LLM_PADRAO,
+    k: int = 4,
+    tentativas: int = 3,
+    etapa: Optional[str] = None,
+) -> None:
+    """Gera e valida o conteúdo da trilha (explicação e perguntas com fontes) e salva em JSON."""
+    from pandora_rag.config import LIMIAR_ABSTENCAO, REPO_ROOT
+    from pandora_rag.montagem import montar_gateway
+    from pandora_rag.trilha import ROTEIRO, gerar_etapa, montar_documento
+
+    destino = Path(saida) if saida else REPO_ROOT / "apps" / "api" / "src" / "pandora_api" / "dados" / "trilha.v1.json"
+    retr, gw = montar_retriever(), montar_gateway()
+
+    etapas, falhas = [], 0
+    for e in ROTEIRO:
+        if etapa and e["id"] != etapa:
+            continue
+        r = gerar_etapa(retr, gw, llm, e, LIMIAR_ABSTENCAO, k, tentativas)
+        etapas.append(r)
+        ctl = r["_controle"]
+        typer.echo(
+            f"{e['n']}. {e['t']:24} perguntas={len(r['licao']['perguntas'])} "
+            f"descartadas={len(ctl['perguntas_descartadas'])} problemas={ctl['problemas'] or '-'}"
+        )
+        for d in ctl["perguntas_descartadas"]:
+            typer.echo(f"     descartada: {' | '.join(d['erros'])}  ({(d['pergunta'] or '')[:70]})")
+        falhas += bool(ctl["problemas"])
+    versao = retr.registros[0].versao_corpus if retr.registros else "?"
+    doc = montar_documento(etapas, versao, gw.config["modelos"][llm]["id"])
+    destino.parent.mkdir(parents=True, exist_ok=True)
+    destino.write_text(json.dumps(doc, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    typer.echo(f"salvo em {destino} (corpus {versao}, hash {doc['hash'][:12]})")
+    if falhas:
+        raise typer.Exit(1)
+
+
+@app.command()
+def servir(porta: int = 8010, host: str = "127.0.0.1") -> None:
+    """Sobe o serviço HTTP (POST /responder), carregando os modelos uma vez."""
+    import uvicorn
+
+    uvicorn.run("pandora_rag.servico.app:app_padrao", factory=True, host=host, port=porta)
 
 
 if __name__ == "__main__":

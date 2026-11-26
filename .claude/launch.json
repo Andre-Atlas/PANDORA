@@ -1,0 +1,8 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    { "name": "rag", "runtimeExecutable": "bash", "runtimeArgs": ["-c", "cd services/rag && uv run pandora-rag servir --porta 8010"], "port": 8010 },
+    { "name": "api", "runtimeExecutable": "bash", "runtimeArgs": ["-c", "cd apps/api && PANDORA_ORIGENS_CORS=http://localhost:3000 uv run uvicorn pandora_api.principal:app --port 8000"], "port": 8000 },
+    { "name": "web", "runtimeExecutable": "npm", "runtimeArgs": ["run", "dev"], "port": 3000 }
+  ]
+}
