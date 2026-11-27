@@ -69,6 +69,9 @@ class Leitura:
     transacoes: tuple[Transacao, ...]
     avisos: tuple[str, ...] = ()
     """Linhas que não deu para ler e por quê. Sem repetir o conteúdo da linha, que pode ter PII."""
+    reconciliado: bool | None = None
+    divergencia_centavos: int = 0
+    usou_ocr: bool = False
 
 
 def hash_curto(texto: str, tamanho: int = 12) -> str:

@@ -5,10 +5,11 @@ import re
 
 PADROES: list[tuple[str, re.Pattern]] = [
     ("EMAIL", re.compile(r"[\w.+-]+@[\w-]+(?:\.[\w-]+)+")),
+    ("CHAVE_PIX_UUID", re.compile(r"\b[0-9a-fA-F]{8}-(?:[0-9a-fA-F]{4}-){3}[0-9a-fA-F]{12}\b")),
     ("CNPJ", re.compile(r"\b\d{2}\.?\d{3}\.?\d{3}/?\d{4}-?\d{2}\b")),
-    ("CPF", re.compile(r"\b\d{3}\.?\d{3}\.?\d{3}-?\d{2}\b")),
+    ("CPF", re.compile(r"\b\d{3}[\s.]?\d{3}[\s.]?\d{3}[\s-]?\d{2}\b")),
     ("CARTAO", re.compile(r"\b(?:\d{4}[ -]?){3}\d{4}\b")),
-    ("TELEFONE", re.compile(r"(?<!\d)(?:\+?55\s?)?\(?\d{2}\)?\s?9?\d{4}[-\s]?\d{4}(?!\d)")),
+    ("TELEFONE", re.compile(r"(?<!\d)(?:\+?55\s?)?\(?0?\d{2}\)?\s?9?\d{4}[-.\s]?\d{4}(?!\d)")),
 ]
 
 

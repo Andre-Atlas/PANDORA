@@ -17,15 +17,26 @@ import io
 import logging
 import re
 import unicodedata
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from datetime import date, datetime
 
 import pdfplumber
 
 from pandora_ingestion.erros import ArquivoIlegivel
-from pandora_ingestion.esquema import FUSO_DA_PESSOA, FormaPagamento, Leitura, Origem, Transacao
+from pandora_ingestion.esquema import (
+    FUSO_DA_PESSOA,
+    FormaPagamento,
+    Leitura,
+    Origem,
+    Transacao,
+)
 from pandora_ingestion.mascara import mascarar
-from pandora_ingestion.normalizar import centavos, forma_de_pagamento, parcela_da_descricao
+from pandora_ingestion.normalizar import (
+    centavos,
+    forma_de_pagamento,
+    parcela_da_descricao,
+)
 
 # O pdfminer registra em DEBUG cada operação de texto do PDF, ou seja, o conteúdo do extrato. Nunca em log.
 for _nome in ("pdfminer", "pdfplumber"):
@@ -223,22 +234,55 @@ def _montar(data: datetime, valor: int, bruta: str, nomes, cartao: bool) -> Tran
     )
 
 
-def ler_pdf(conteudo: bytes, nomes: tuple[str, ...] = ()) -> Leitura:
-    try:
-        pdf = pdfplumber.open(io.BytesIO(conteudo))
-    except Exception:  # pdfminer levanta vários tipos; a mensagem para a pessoa é uma só
-        raise ArquivoIlegivel("Não foi possível abrir o PDF. Ele pode estar corrompido ou protegido por senha.") from None
-    with pdf:
-        if len(pdf.pages) > MAXIMO_PAGINAS:
-            raise ArquivoIlegivel(f"O PDF tem mais de {MAXIMO_PAGINAS} páginas.")
-        try:
-            paginas = [_linhas(p) for p in pdf.pages]
-        except Exception:
-            raise ArquivoIlegivel("Não foi possível ler o texto do PDF.") from None
+def _reconciliar_saldos(
+    todas: list[list[_Palavra]],
+    transacoes: list[Transacao],
+    fatura: bool,
+) -> tuple[bool | None, int]:
+    """Confere em centavos inteiros se Saldo Anterior + lançamentos == Saldo Final."""
+    saldo_inicial: int | None = None
+    saldo_final: int | None = None
+    total_fatura: int | None = None
 
-    todas = [linha for pagina in paginas for linha in pagina]
-    if not todas:
-        raise PrecisaDeOcr("O PDF não tem texto para ler (parece escaneado). É preciso passar por OCR.")
+    for linha in todas:
+        texto_linha = _sem_acento(" ".join(p.texto for p in linha))
+        valores = [p.texto for p in linha if _VALOR.match(p.texto)]
+        if not valores:
+            continue
+        if ("saldo anterior" in texto_linha or "saldo inicial" in texto_linha) and saldo_inicial is None:
+            try:
+                saldo_inicial = centavos(valores[-1])
+            except ValueError:
+                pass
+        elif ("saldo final" in texto_linha or "saldo atual" in texto_linha) and saldo_final is None:
+            try:
+                saldo_final = centavos(valores[-1])
+            except ValueError:
+                pass
+        elif fatura and "total da fatura" in texto_linha and total_fatura is None:
+            try:
+                total_fatura = abs(centavos(valores[-1]))
+            except ValueError:
+                pass
+
+    if saldo_inicial is not None and saldo_final is not None:
+        esperado = saldo_inicial + sum(t.valor_centavos for t in transacoes)
+        divergencia = saldo_final - esperado
+        return divergencia == 0, divergencia
+
+    if fatura and total_fatura is not None and not any(t.valor_centavos > 0 for t in transacoes):
+        esperado_fatura = sum(abs(t.valor_centavos) for t in transacoes)
+        divergencia = total_fatura - esperado_fatura
+        return divergencia == 0, divergencia
+
+    return None, 0
+
+
+def _processar_linhas_pdf(
+    todas: list[list[_Palavra]],
+    nomes: tuple[str, ...] = (),
+    usou_ocr: bool = False,
+) -> Leitura:
     texto = "\n".join(" ".join(p.texto for p in linha) for linha in todas)
     contexto = _contexto(texto)
 
@@ -267,4 +311,56 @@ def ler_pdf(conteudo: bytes, nomes: tuple[str, ...] = ()) -> Leitura:
         avisos.append(f"Mais {problemas - MAXIMO_AVISOS} linha(s) com problema não listadas.")
     if not transacoes:
         raise ArquivoIlegivel("Nenhuma transação pôde ser lida. " + " ".join(avisos[:3]))
-    return Leitura(tuple(transacoes), tuple(avisos))
+    reconciliado, divergencia = _reconciliar_saldos(todas, transacoes, contexto.fatura)
+    return Leitura(
+        tuple(transacoes),
+        tuple(avisos),
+        reconciliado=reconciliado,
+        divergencia_centavos=divergencia,
+        usou_ocr=usou_ocr,
+    )
+
+
+def ler_linhas_ocr(linhas_texto: Sequence[str], nomes: tuple[str, ...] = ()) -> Leitura:
+    """Reaproveita o parser determinístico de PDF sobre linhas de texto extraídas via OCR/VLM."""
+    todas: list[list[_Palavra]] = []
+    for bruta in linhas_texto:
+        limpa = _CONTROLE.sub("", bruta).strip()
+        if not limpa:
+            continue
+        palavras: list[_Palavra] = []
+        cursor = 0.0
+        for tok in limpa.split():
+            largura = float(len(tok) * 6)
+            palavras.append(_Palavra(tok, cursor, cursor + largura))
+            cursor += largura + 6.0
+        if palavras:
+            todas.append(palavras)
+    if not todas:
+        raise ArquivoIlegivel("OCR não retornou linhas legíveis para o PDF.")
+    return _processar_linhas_pdf(todas, nomes=nomes, usou_ocr=True)
+
+
+def ler_pdf(
+    conteudo: bytes,
+    nomes: tuple[str, ...] = (),
+    extrator_ocr: Callable[[bytes], Sequence[str]] | None = None,
+) -> Leitura:
+    try:
+        pdf = pdfplumber.open(io.BytesIO(conteudo))
+    except Exception:  # pdfminer levanta vários tipos; a mensagem para a pessoa é uma só
+        raise ArquivoIlegivel("Não foi possível abrir o PDF. Ele pode estar corrompido ou protegido por senha.") from None
+    with pdf:
+        if len(pdf.pages) > MAXIMO_PAGINAS:
+            raise ArquivoIlegivel(f"O PDF tem mais de {MAXIMO_PAGINAS} páginas.")
+        try:
+            paginas = [_linhas(p) for p in pdf.pages]
+        except Exception:
+            raise ArquivoIlegivel("Não foi possível ler o texto do PDF.") from None
+
+    todas = [linha for pagina in paginas for linha in pagina]
+    if not todas:
+        if extrator_ocr is not None:
+            return ler_linhas_ocr(extrator_ocr(conteudo), nomes=nomes)
+        raise PrecisaDeOcr("O PDF não tem texto para ler (parece escaneado). É preciso passar por OCR.")
+    return _processar_linhas_pdf(todas, nomes=nomes, usou_ocr=False)

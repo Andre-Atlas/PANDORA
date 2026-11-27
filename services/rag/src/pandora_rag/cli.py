@@ -1,9 +1,10 @@
-"""Linha de comando: coletar, extrair, indexar, buscar e perguntar."""
+"""Linha de comando: coletar, extrair, indexar, buscar, perguntar e orquestrar agentes."""
 from __future__ import annotations
 
 import json
 import logging
-from typing import Optional
+from pathlib import Path
+from typing import Annotated
 
 import typer
 
@@ -23,7 +24,9 @@ def coletar() -> None:
 
 
 @app.command("coletar-catalogo")
-def coletar_catalogo_cmd(alvo: Optional[list[str]] = typer.Option(None, "--alvo", help="Coleta só estes ids de alvo")) -> None:
+def coletar_catalogo_cmd(
+    alvo: Annotated[list[str] | None, typer.Option("--alvo", help="Coleta só estes ids de alvo")] = None,
+) -> None:
     """Coleta os alvos dos 31 itens do catálogo (HTML, PDF, API) e atualiza catalogo.lock.json."""
     from pandora_rag.coleta.executor import coletar_catalogo
 
@@ -33,10 +36,10 @@ def coletar_catalogo_cmd(alvo: Optional[list[str]] = typer.Option(None, "--alvo"
 
 
 @app.command()
-def inventario(md: Optional[str] = typer.Option(None, "--md", help="Grava a tabela em Markdown neste caminho")) -> None:
+def inventario(
+    md: Annotated[str | None, typer.Option("--md", help="Grava a tabela em Markdown neste caminho")] = None,
+) -> None:
     """Mostra os 31 itens com formato, frequência e situação (coletada, manual, mista, falha, pendente)."""
-    from pathlib import Path
-
     from pandora_rag.coleta.catalogo import carregar_catalogo
     from pandora_rag.coleta.executor import ler_lock, situacao_do_item
     from pandora_rag.coleta.inventario import markdown, resumo
@@ -46,14 +49,18 @@ def inventario(md: Optional[str] = typer.Option(None, "--md", help="Grava a tabe
         Path(md).write_text(markdown(itens, lock), encoding="utf-8")
         typer.echo(f"inventário gravado em {md}")
     for item in itens:
-        typer.echo(f"{item.numero:2} {situacao_do_item(item, lock):9} {item.frequencia:10} {','.join(item.formatos):12} {item.nome[:70]}")
+        typer.echo(
+            f"{item.numero:2} {situacao_do_item(item, lock):9} {item.frequencia:10} "
+            f"{','.join(item.formatos):12} {item.nome[:70]}"
+        )
     typer.echo(f"\n{len(itens)} itens: {resumo(itens, lock)}")
 
 
 @app.command()
 def extrair() -> None:
     """Extrai o texto limpo de data/raw para data/text."""
-    from pandora_rag.ingest.extract import extrair as _extrair, salvar_texto
+    from pandora_rag.ingest.extract import extrair as _extrair
+    from pandora_rag.ingest.extract import salvar_texto
     from pandora_rag.ingest.fontes import carregar_fontes
 
     for f in carregar_fontes():
@@ -63,7 +70,12 @@ def extrair() -> None:
 
 
 @app.command()
-def indexar(modelo: str = MODELO_EMBEDDING, estrategia: str = "estrutural", tabela: str = "chunks", recriar: bool = True) -> None:
+def indexar(
+    modelo: str = MODELO_EMBEDDING,
+    estrategia: str = "estrutural",
+    tabela: str = "chunks",
+    recriar: bool = True,
+) -> None:
     """Gera embeddings e grava os chunks no pgvector."""
     from pandora_rag.config import DB_URL
     from pandora_rag.index.build import embeddings
@@ -85,50 +97,184 @@ def _retriever(modelo: str, tabela: str, rerank: bool):
 
 
 @app.command()
-def buscar(pergunta: str, k: int = 5, tabela: str = "chunks", rerank: bool = False, modelo: str = MODELO_EMBEDDING) -> None:
+def buscar(
+    pergunta: str,
+    k: int = 5,
+    tabela: str = "chunks",
+    rerank: bool = False,
+    modelo: str = MODELO_EMBEDDING,
+) -> None:
     """Mostra os chunks recuperados, sem gerar resposta."""
     for n, h in enumerate(_retriever(modelo, tabela, rerank).buscar(pergunta, k), start=1):
         r = h.registro
-        typer.echo(f"[{n}] {r.norma} {r.artigo or ''}  score={h.score:.4f} vet={h.score_vetor} bm25={h.score_bm25}\n    {r.link}\n    {r.texto[:200]!r}")
+        typer.echo(
+            f"[{n}] {r.norma} {r.artigo or ''}  score={h.score:.4f} vet={h.score_vetor} bm25={h.score_bm25}\n"
+            f"    {r.link}\n    {r.texto[:200]!r}"
+        )
 
 
 @app.command()
-def ask(pergunta: str, llm: str = LLM_PADRAO, k: int = 5, tabela: str = "chunks", rerank: bool = True,
-        modelo: str = MODELO_EMBEDDING, saida_json: Optional[bool] = False) -> None:
+def ask(
+    pergunta: str,
+    llm: str = LLM_PADRAO,
+    k: int = 5,
+    tabela: str = "chunks",
+    rerank: bool = True,
+    modelo: str = MODELO_EMBEDDING,
+    saida_json: bool | None = False,
+) -> None:
     """Consulta completa: busca, resposta fundamentada e fontes."""
     from pandora_rag.config import LIMIAR_ABSTENCAO
     from pandora_rag.generate.answer import responder
     from pandora_rag.generate.gateway import Gateway
+    from pandora_rag.generate.pii import mascarar
 
     retr = _retriever(modelo, tabela, rerank)
     hits = retr.buscar(pergunta, k)
     resp = responder(Gateway(), llm, pergunta, hits, limiar_abstencao=LIMIAR_ABSTENCAO if rerank else None)
     if saida_json:
-        typer.echo(json.dumps({"pergunta": pergunta, "resposta": resp.texto, "abstencao": resp.abstencao,
-                               "citacoes": [c.__dict__ for c in resp.citacoes]}, ensure_ascii=False, indent=2))
+        pergunta_limpa, _ = mascarar(pergunta)
+        typer.echo(
+            json.dumps(
+                {
+                    "pergunta": pergunta_limpa,
+                    "resposta": resp.texto,
+                    "abstencao": resp.abstencao,
+                    "citacoes": [c.__dict__ for c in resp.citacoes],
+                },
+                ensure_ascii=False,
+                indent=2,
+            )
+        )
         return
     typer.echo(f"PERGUNTA: {pergunta}\n\nCHUNKS RECUPERADOS:")
     for n, h in enumerate(hits, start=1):
-        typer.echo(f"  [{n}] {h.registro.norma} {h.registro.artigo or ''}  score={h.score:.3f}\n      \"{' '.join(h.registro.texto.split())[:220]}...\"")
+        typer.echo(
+            f"  [{n}] {h.registro.norma} {h.registro.artigo or ''}  score={h.score:.3f}\n"
+            f"      \"{' '.join(h.registro.texto.split())[:220]}...\""
+        )
     typer.echo(f"\nRESPOSTA ({resp.modelo}, {resp.latencia_s:.1f}s, US$ {resp.custo_usd:.4f}):\n{resp.texto}\n\nFONTES:")
     for c in resp.citacoes:
-        typer.echo(f"  [{c.n}] {c.norma} {c.artigo or ''}\n      {c.link}\n      trecho: \"{' '.join(c.trecho.split())[:220]}...\"")
+        typer.echo(
+            f"  [{c.n}] {c.norma} {c.artigo or ''}\n      {c.link}\n"
+            f"      trecho: \"{' '.join(c.trecho.split())[:220]}...\""
+        )
     if resp.abstencao:
         typer.echo("  (abstenção: sem trecho que sustente a resposta)")
 
 
-@app.command("gerar-trilha")
-def gerar_trilha(saida: str = "", llm: str = LLM_PADRAO, k: int = 4, tentativas: int = 3, etapa: Optional[str] = None) -> None:
-    """Gera e valida o conteúdo da trilha (explicação e perguntas com fontes) e salva em JSON."""
-    from pathlib import Path
+@app.command()
+def agent(
+    pergunta: str = typer.Argument("", help="Consulta ou pergunta financeira do usuário"),
+    persona: str | None = None,
+    llm: str = "qwen25-7b",
+    offline: bool = False,
+    documento_ocr: str | None = None,
+    linha_digitavel: str | None = None,
+    banco_alegado: str | None = None,
+    beneficiario_pf: bool = False,
+    imagem: Path | None = None,
+    pdf: Path | None = None,
+    extrato: Path | None = None,
+    audio: Path | None = None,
+    qrcode_pix: str | None = None,
+    vlm: str = "qwen25-vl-7b",
+    tts_saida: Annotated[
+        Path | None,
+        typer.Option("--tts-saida", "--saida-audio", help="Caminho WAV para gravar a resposta falada auditada"),
+    ] = None,
+    saida_json: bool = False,
+) -> None:
+    """Executa uma consulta completa no StateGraph (LangGraph) com suporte multimodal."""
+    from pandora_rag.agents.artifact_store import ArtifactStore
+    from pandora_rag.agents.graph import GrafoPandora, construir_retriever_padrao
+    from pandora_rag.generate.gateway import Gateway
 
+    retr, origem = construir_retriever_padrao(usar_reranker=False, preferir_embutido=offline)
+    gw = Gateway() if (llm and not offline) else None
+    grafo = GrafoPandora(retriever=retr, gateway=gw, origem_retriever=origem)
+    store = ArtifactStore()
+    try:
+        res = grafo.executar(
+            consulta=pergunta,
+            persona_id=persona,
+            documento_ocr=documento_ocr,
+            linha_digitavel=linha_digitavel,
+            banco_alegado=banco_alegado,
+            beneficiario_pf=beneficiario_pf,
+            llm=None if offline else llm,
+            caminho_imagem=imagem,
+            caminho_pdf=pdf,
+            caminho_extrato=extrato,
+            caminho_audio=audio,
+            qrcode_pix=qrcode_pix,
+            vlm=None if offline else vlm,
+            gerar_audio_tts=tts_saida is not None,
+            artifact_store=store,
+        )
+        if tts_saida is not None and res.audio_saida is not None:
+            tts_saida.parent.mkdir(parents=True, exist_ok=True)
+            tts_saida.write_bytes(store.obter_bytes(res.audio_saida.artefato_id))
+    finally:
+        store.expurgar_tudo()
+
+    if saida_json:
+        typer.echo(res.model_dump_json(indent=2))
+        return
+    typer.echo(
+        f"ORIGEM RAG: {origem} | MODO: {res.modo} | LLM: {res.modelo_llm} | "
+        f"TOOL CALLS: {res.total_tool_calls} | AGENTES: {' -> '.join(res.agentes_acionados)}"
+    )
+    typer.echo("\nTRACE DE COLABORAÇÃO:")
+    for m in res.trace:
+        typer.echo(f"  [{m.ordem}] {m.origem} -> {m.destino} ({m.tipo}): {m.resumo}")
+    typer.echo(f"\nRESPOSTA FINAL:\n{res.resposta_final}")
+    if tts_saida is not None:
+        typer.echo(f"\nÁUDIO TTS GRAVADO EM: {tts_saida}")
+
+
+@app.command()
+def demo(
+    llm: str = "qwen25-7b",
+    offline: bool = False,
+    saida_dir: Path | None = None,
+) -> None:
+    """Executa as 4 jornadas demonstrativas das personas no LangGraph e exporta o trace completo."""
+    from pandora_rag.agents.graph import GrafoPandora, construir_retriever_padrao
+    from pandora_rag.agents.scenarios import CENARIOS_DEMO, executar_demonstracao
+    from pandora_rag.generate.gateway import Gateway
+
+    retr, origem = construir_retriever_padrao(usar_reranker=False, preferir_embutido=offline)
+    gw = Gateway() if (llm and not offline) else None
+    grafo = GrafoPandora(retriever=retr, gateway=gw, origem_retriever=origem)
+    resultados = executar_demonstracao(grafo, llm=None if offline else llm, saida_dir=saida_dir)
+    typer.echo(f"Demonstração concluída ({len(resultados)} jornadas, retriever={origem}):")
+    for cen, res in zip(CENARIOS_DEMO, resultados, strict=True):
+        typer.echo(f"\n=== {cen.titulo} ===")
+        typer.echo(
+            f"Agentes: {' -> '.join(res.agentes_acionados)} "
+            f"({len(res.trace)} interações, LLM={res.modelo_llm}, tool_calls={res.total_tool_calls})"
+        )
+        typer.echo(res.resposta_final)
+    if saida_dir:
+        typer.echo(f"\nArtefatos gravados em: {saida_dir}")
+
+
+@app.command("gerar-trilha")
+def gerar_trilha(
+    saida: str = "",
+    llm: str = LLM_PADRAO,
+    k: int = 4,
+    tentativas: int = 3,
+    etapa: str | None = None,
+) -> None:
+    """Gera e valida o conteúdo da trilha (explicação e perguntas com fontes) e salva em JSON."""
     from pandora_rag.config import LIMIAR_ABSTENCAO, REPO_ROOT
     from pandora_rag.montagem import montar_gateway
-    from pandora_rag.trilha import ROTEIRO, montar_documento
+    from pandora_rag.trilha import ROTEIRO, gerar_etapa, montar_documento
 
     destino = Path(saida) if saida else REPO_ROOT / "apps" / "api" / "src" / "pandora_api" / "dados" / "trilha.v1.json"
     retr, gw = montar_retriever(), montar_gateway()
-    from pandora_rag.trilha import gerar_etapa
 
     etapas, falhas = [], 0
     for e in ROTEIRO:
@@ -137,8 +283,10 @@ def gerar_trilha(saida: str = "", llm: str = LLM_PADRAO, k: int = 4, tentativas:
         r = gerar_etapa(retr, gw, llm, e, LIMIAR_ABSTENCAO, k, tentativas)
         etapas.append(r)
         ctl = r["_controle"]
-        typer.echo(f"{e['n']}. {e['t']:24} perguntas={len(r['licao']['perguntas'])} descartadas={len(ctl['perguntas_descartadas'])} "
-                   f"problemas={ctl['problemas'] or '-'}")
+        typer.echo(
+            f"{e['n']}. {e['t']:24} perguntas={len(r['licao']['perguntas'])} "
+            f"descartadas={len(ctl['perguntas_descartadas'])} problemas={ctl['problemas'] or '-'}"
+        )
         for d in ctl["perguntas_descartadas"]:
             typer.echo(f"     descartada: {' | '.join(d['erros'])}  ({(d['pergunta'] or '')[:70]})")
         falhas += bool(ctl["problemas"])

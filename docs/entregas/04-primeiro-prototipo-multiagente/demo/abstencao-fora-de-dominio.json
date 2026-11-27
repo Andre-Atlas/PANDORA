@@ -1,0 +1,132 @@
+{
+  "persona_id": null,
+  "consulta_mascarada": "Qual a melhor receita de bolo de cenoura com cobertura de chocolate?",
+  "modo": "langgraph_llm",
+  "modelo_llm": "qwen2.5:7b",
+  "total_tool_calls": 2,
+  "pareceres_agentes": {
+    "compliance": "O rascunho não contém recomendações, julgamentos morais e respeita a LGPD ao não mencionar dados pessoais."
+  },
+  "latencia_s": 4.6113,
+  "intencoes_detectadas": [
+    "educacao"
+  ],
+  "agentes_acionados": [
+    "orquestrador",
+    "educador",
+    "compliance"
+  ],
+  "diagnostico": null,
+  "plano_dividas": null,
+  "analise_compulsao": null,
+  "inspecao_fraude": null,
+  "evidencias": {
+    "queries_executadas": [
+      "Qual a melhor receita de bolo de cenoura com cobertura de chocolate?"
+    ],
+    "hits_aprovados": 0,
+    "abstencao": true,
+    "citacoes": [],
+    "motivo_abstencao": "Consulta fora do domínio financeiro/normativo oficial do PANDORA."
+  },
+  "veredito": {
+    "aprovado": true,
+    "crise_acionada": false,
+    "bloqueio_cvm_acionado": false,
+    "pii_detectada": false,
+    "citacoes_validas": true,
+    "precisou_revisao": false,
+    "motivo_revisao": null,
+    "alertas": []
+  },
+  "resposta_final": "Olá! Organizei as informações abaixo com base nas normas e fontes oficiais:\n\nNão encontrei isso nas fontes oficiais que tenho, então não vou arriscar uma resposta. Para esse caso, procure o Procon, a Defensoria Pública ou o canal de atendimento do Banco Central.",
+  "trace": [
+    {
+      "ordem": 1,
+      "origem": "orquestrador",
+      "destino": "educador",
+      "tipo": "roteamento",
+      "resumo": "Entrada sanitizada (PII mascarada: 0); intenções=['educacao']; sequência=['educador', 'compliance'].",
+      "dados_chave": {
+        "pii_contagem": {},
+        "intencoes": [
+          "educacao"
+        ],
+        "agentes_planejados": [
+          "educador",
+          "compliance"
+        ],
+        "llm_modelo": "qwen2.5:7b",
+        "tool_calls": [],
+        "justificativa_llm": ""
+      }
+    },
+    {
+      "ordem": 2,
+      "origem": "educador",
+      "destino": "orquestrador",
+      "tipo": "evidencia",
+      "resumo": "RAG retornou 0 citação(ões) oficial(is) para 1 query(s) (abstenção=True).",
+      "dados_chave": {
+        "queries": [
+          "Qual a melhor receita de bolo de cenoura com cobertura de chocolate?"
+        ],
+        "normas": [],
+        "abstencao": true,
+        "llm_modelo": "qwen2.5:7b",
+        "tool_calls": [
+          {
+            "tool": "tool_buscar_evidencias_rag",
+            "args": {
+              "queries_pesquisa": [
+                "receita bolo cenoura",
+                "cobertura chocolate"
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "ordem": 3,
+      "origem": "orquestrador",
+      "destino": "compliance",
+      "tipo": "sintese",
+      "resumo": "Síntese adaptada ao perfil compilada para validação final.",
+      "dados_chave": {
+        "tom_comunicacao": "acolhedor_simples",
+        "modo_revisao": false,
+        "tamanho_caracteres": 262,
+        "llm_modelo": "qwen2.5:7b",
+        "sintese_llm_gerada": false
+      }
+    },
+    {
+      "ordem": 4,
+      "origem": "compliance",
+      "destino": "orquestrador",
+      "tipo": "entrega",
+      "resumo": "Veredito APROVADO nos 4 invariantes (Crise, CVM, Citações e LGPD/PII).",
+      "dados_chave": {
+        "aprovado": true,
+        "crise_acionada": false,
+        "bloqueio_cvm_acionado": false,
+        "citacoes_validas": true,
+        "precisou_revisao": false,
+        "llm_modelo": "qwen2.5:7b",
+        "tool_calls": [
+          {
+            "tool": "tool_auditar_invariantes_compliance",
+            "args": {
+              "contem_recomendacao_implicita_cvm": false,
+              "contem_julgamento_moral": false,
+              "observacao_auditoria": "O rascunho não contém recomendações, julgamentos morais e respeita a LGPD ao não mencionar dados pessoais.",
+              "aprovado_semantico": true
+            }
+          }
+        ],
+        "observacao_juiz_llm": "O rascunho não contém recomendações, julgamentos morais e respeita a LGPD ao não mencionar dados pessoais."
+      }
+    }
+  ]
+}

@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import logging
+from collections.abc import Callable, Sequence
 from dataclasses import dataclass
 from pathlib import PurePath
 
@@ -17,18 +18,29 @@ from pandora_ingestion.pdf import ler_pdf
 logger = logging.getLogger("pandora.ingestao")
 
 
-def ler(nome_arquivo: str, conteudo: bytes, nomes: tuple[str, ...] = ()) -> Leitura:
-    """Lê OFX ou CSV e devolve transações no esquema único, já com chave de deduplicação."""
+def ler(
+    nome_arquivo: str,
+    conteudo: bytes,
+    nomes: tuple[str, ...] = (),
+    extrator_ocr: Callable[[bytes], Sequence[str]] | None = None,
+) -> Leitura:
+    """Lê OFX, CSV ou PDF e devolve transações no esquema único, já com chave de deduplicação."""
     extensao = PurePath(nome_arquivo).suffix.lower()
     if extensao in (".ofx", ".qfx"):
         leitura = ler_ofx(conteudo, nomes)
     elif extensao in (".csv", ".txt"):
         leitura = ler_csv(conteudo, nomes)
     elif extensao == ".pdf":
-        leitura = ler_pdf(conteudo, nomes)
+        leitura = ler_pdf(conteudo, nomes, extrator_ocr=extrator_ocr)
     else:
         raise FormatoNaoSuportado("Envie o extrato em OFX, CSV ou PDF.")
-    return Leitura(tuple(atribuir_chaves(leitura.transacoes)), leitura.avisos)
+    return Leitura(
+        tuple(atribuir_chaves(leitura.transacoes)),
+        leitura.avisos,
+        reconciliado=leitura.reconciliado,
+        divergencia_centavos=leitura.divergencia_centavos,
+        usou_ocr=leitura.usou_ocr,
+    )
 
 
 @dataclass(frozen=True)

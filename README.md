@@ -91,11 +91,96 @@ Versão 2, só celular:
 
 <img src="frontend/design-system/assets/Ornamentos/serra.svg" alt="Ornamento serra" width="480">
 
+## Primeiro Protótipo Multiagente (4º Desafio)
+
+O sistema multiagente do PANDORA ([`docs/entregas/04-primeiro-prototipo-multiagente/`](docs/entregas/04-primeiro-prototipo-multiagente/README.md)) implementa um **grafo de estado compilado com `LangGraph` (`StateGraph(EstadoMultiagente)`)** e **Tool Calling nativo (`@tool` + `bind_tools` via `qwen2.5:7b` no Ollama local / Anthropic)** em **7 agentes especializados colaborativos**, integrados ao RAG híbrido (`BAAI/bge-m3` + `BM25` + `RRF`) e às travas de segurança (`RNF01`–`RNF05`):
+
+1. **`OrquestradorAgent`** (*Orchestrator + Communication*): mascara PII (`CPF`, `CNPJ`, telefone, e-mail, cartão, chave Pix UUID), classifica intenções, roteia para os especialistas e adapta o tom da síntese final ao perfil da persona.
+2. **`AnalistaAgent`** (*Analysis — Raio-X*): lê o extrato transacional da persona e calcula de forma determinística a renda, o **Mínimo Existencial**, a folga real e o comparativo com as séries SGS do Banco Central (`22022`, `25467`).
+3. **`EstrategistaAgent`** (*Analysis — Dívidas*): blinda 100% do Mínimo Existencial, prioriza contas vitais em atraso, compara **Avalanche** vs. **Bola de Neve** e verifica o teto da **Lei nº 14.690/2023**.
+4. **`CoachAgent`** (*Analysis + Communication — Bets*): detecta apostas (`MCC 7995`), calcula perda líquida real e concentração noturna (`23h–06h`) e traduz o impacto em custo de oportunidade sem julgamento moral.
+5. **`GuardiaoAgent`** (*Analysis + Validation — Antifraude*): neutraliza tentativas de *prompt injection* em textos OCR de boletos, valida os 47 dígitos FEBRABAN (Módulo 10, banco e beneficiário PF) e gera o roteiro do **MED do Pix (80 dias)**.
+6. **`EducadorAgent`** (*Research — RAG*): consome as sub-consultas geradas pelos especialistas, recupera trechos das 33 fontes oficiais com citações `[n]` e aplica o portão de abstenção para consultas fora de domínio.
+7. **`ComplianceAgent`** (*Validation — Guardrails*): portão final *fail-closed* que verifica Protocolo de Crise (`CVV 188`, `CAPS AD`, `Jogadores Anônimos`), Trava CVM (Recusa Educativa com 3 critérios objetivos), consistência das citações `[n]` e ausência de PII — acionando revisão automática quando necessário.
+
+## Organização das Pastas
+
+```text
+PANDORA/
+├── README.md                                           # Visão geral, arquitetura, pastas e como rodar testes/demo
+├── docs/
+│   ├── entregas/
+│   │   ├── 02-base-conhecimento-e-prototipo-rag/       # Entregável 02: Base de Conhecimento & RAG Híbrido
+│   │   ├── 03-llm-x-rag/                               # Entregável 03: Benchmark LLM puro × RAG
+│   │   └── 04-primeiro-prototipo-multiagente/          # Entregável 04: 7 Agentes LangGraph, executar_entrega.sh, diagramas e demos
+│   ├── agentes/                                        # Docs 01–05 dos agentes (arquitetura, papéis, fluxo, demo e revisão humana)
+│   ├── arquitetura-geral.md                            # Arquitetura unificada em 6 camadas do sistema PANDORA
+│   ├── adr/                                            # ADRs formais (ADR-0001, ADR-0002, ADR-0003)
+│   ├── rag/                                            # Documentação do RAG híbrido (v0.1.0)
+│   ├── escopo/                                         # Escopo CBL, requisitos RF01–RF18 e RNF01–RNF09
+│   ├── personas/                                       # Fichas individuais das 10 personas
+│   └── evidencias/                                     # Artigos, notícias e dataset sintético (amostra_transacoes_sinteticas_personas.csv)
+├── services/
+│   └── rag/
+│       ├── src/pandora_rag/
+│       │   ├── agents/                                 # Código multiagente (LangGraph StateGraph, @tools, specialists, llm_provider)
+│       │   ├── ingest/                                 # Coleta, extração e chunking estrutural
+│       │   ├── index/                                  # Embeddings, pgvector e MemoryStore
+│       │   ├── retrieve/                               # Busca híbrida (vetor + BM25 + RRF + reranker)
+│       │   ├── generate/                               # Gateway LLM (Ollama/Anthropic), citação e máscara PII
+│       │   └── cli.py                                  # CLI: coletar, extrair, indexar, buscar, ask, agent e demo
+│       └── tests/                                      # Suíte automatizada pytest (65 testes: agentes + guardrails + RAG)
+├── evals/                                              # Golden set, métricas e execuções de avaliação
+└── frontend/design-system/                             # Design system e telas prototipadas
+```
+
+## Como Rodar os Testes e a Demonstração
+
+Pré-requisito: [`uv`](https://docs.astral.sh/uv/) instalado (gerencia automaticamente Python `3.12` e as dependências de `services/rag/`).
+
+```bash
+# Atalho em 1 comando (na raiz do repositório: roda 65 testes + lint + demo offline)
+sh docs/entregas/04-primeiro-prototipo-multiagente/executar_entrega.sh
+
+# Ou etapa por etapa dentro de services/rag:
+cd services/rag
+
+# Rodar toda a suíte de testes automatizados (65 testes: agentes LangGraph + Tool Calling + guardrails + RAG)
+uv run --extra dev pytest tests/ -v
+
+# Rodar apenas os testes do sistema multiagente (28 testes)
+uv run --extra dev pytest tests/test_agents_tools.py tests/test_agents_specialists.py tests/test_agents_graph.py -v
+
+# Rodar verificação de lint (ruff) nos arquivos do sistema multiagente
+uv run --extra dev ruff check src/pandora_rag/agents/ src/pandora_rag/cli.py tests/test_agents_*.py
+
+# Executar a demonstração completa das 4 jornadas (gera Markdown + JSON com trace dos 7 agentes)
+uv run pandora-rag demo --saida-dir ../../docs/entregas/04-primeiro-prototipo-multiagente/demo
+
+# Executar a demonstração em modo 100% offline (sem Postgres, GPU ou API externa)
+uv run pandora-rag demo --offline
+
+# Executar uma consulta avulsa no sistema multiagente com saída JSON auditável
+uv run pandora-rag agent \
+  "Meu CPF 123.456.789-00. Estou no rotativo do cartão e a luz atrasou." \
+  --persona carla_34 \
+  --saida-json
+```
+
+> **Nota sobre testes de métricas (`evals/`):** para incluir também os testes de `evals/metrics/tests` (ROUGE/BLEU), rode `uv run --extra dev --extra eval pytest`.
+
 ## Documentação
 
 | Documento | Conteúdo |
 |---|---|
+| [Entregável 02 · Base e RAG Híbrido](docs/entregas/02-base-conhecimento-e-prototipo-rag/README.md) | Base de conhecimento oficial, chunking, embeddings `bge-m3`, `pgvector` e demonstrações |
+| [Entregável 03 · Benchmark LLM × RAG](docs/entregas/03-llm-x-rag/README.md) | Avaliação comparativa LLM puro vs. RAG híbrido no golden set |
+| [Entregável 04 · Primeiro Protótipo Multiagente](docs/entregas/04-primeiro-prototipo-multiagente/README.md) | Pasta oficial do 4º Desafio: `executar_entrega.sh`, `montar_zip.sh`, diagramas `.mmd`, traces `qwen2.5:7b` e guia de testes |
+| [Arquitetura Geral em 6 Camadas](docs/arquitetura-geral.md) | Visão canônica unificada entre Frontend, API Hexagonal, RAG Híbrido, LangGraph, ML e Banco Vetorial |
 | [Problema e Essential Question](docs/01-problema-e-essential-question.md) | Contexto, stakeholders, personas e fontes |
+| [Sistema Multiagente (Agentes + Revisão + Demo)](docs/agentes/README.md) | Docs 01–05 dos 7 agentes, responsabilidades, fluxo `LangGraph`, execução demonstrativa e revisão humana (`05-revisao-humana.md`) |
+| [RAG Híbrido (v0.1.0)](docs/rag/README.md) | Arquitetura de ingestão, embeddings `bge-m3`, banco vetorial `pgvector` + BM25, golden set e decisão LLM |
+| [Registros de Decisão Arquitetural (ADR)](docs/adr/README.md) | `ADR-0001` (estado tipado), `ADR-0002` (`LangGraph` + Tool Calling) e `ADR-0003` (arquitetura em 6 camadas) |
 | [Escopo e Concepção (MD + PDF)](docs/escopo/README.md) | Cenário, 10 Guiding Questions, 6 Stakeholders, 5 Personas, RF/RNF (4 Graus), Riscos, Premissas, Métricas e [PDF (5 páginas)](docs/escopo/PANDORA-Documento-de-Escopo-CBL.pdf) |
 | [Personas e Jornadas](docs/personas/README.md) | 5 personas exclusivas (fichas individuais, dores, casos de uso e barreiras) |
 | [Evidências](docs/evidencias/README.md) | Visão geral do acervo |

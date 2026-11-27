@@ -145,3 +145,37 @@ def test_pdf_sem_pii_na_saida_nem_nos_logs(tmp_path, caplog):
     saida = (tmp_path / "t.jsonl").read_text(encoding="utf-8")
     assert not any(p in saida for p in PII)
     assert not any(p in " ".join(r.getMessage() for r in caplog.records) for p in PII)
+
+
+def test_pdf_escaneado_com_extrator_ocr_e_reconciliacao_em_centavos(tmp_path):
+    dados = (FIXTURES / "escaneado.pdf").read_bytes()
+    leitura = ler(
+        "escaneado.pdf",
+        dados,
+        extrator_ocr=lambda _b: [
+            "Periodo: 01/10/2026 a 31/10/2026",
+            "Data Descricao Valor",
+            "SALDO ANTERIOR 1.000,00",
+            "05/10/2026 SALARIO EMPRESA XYZ 2.000,00",
+            "10/10/2026 ALUGUEL APARTAMENTO -800,00",
+            "SALDO FINAL 2.200,00",
+        ],
+    )
+    assert leitura.usou_ocr is True
+    assert leitura.reconciliado is True
+    assert leitura.divergencia_centavos == 0
+    assert len(leitura.transacoes) == 2
+
+    from reportlab.pdfgen import canvas
+
+    divergente = tmp_path / "divergente.pdf"
+    c = canvas.Canvas(str(divergente))
+    c.drawString(40, 800, "Periodo: 01/10/2026 a 31/10/2026")
+    c.drawString(40, 780, "Data Descricao Valor")
+    c.drawString(40, 760, "SALDO ANTERIOR 1.000,00")
+    c.drawString(40, 740, "10/10/2026 COMPRA MERCADO -100,00")
+    c.drawString(40, 720, "SALDO FINAL 500,00")
+    c.save()
+    leitura_div = ler("divergente.pdf", divergente.read_bytes())
+    assert leitura_div.reconciliado is False
+    assert leitura_div.divergencia_centavos == -40000

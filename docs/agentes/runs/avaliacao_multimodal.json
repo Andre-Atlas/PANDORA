@@ -1,0 +1,179 @@
+{
+  "modo_execucao": "ao_vivo",
+  "modelo_llm": "qwen25-7b",
+  "modelo_vlm": "qwen25-vl-7b",
+  "total_documentos": 20,
+  "taxa_deteccao_fraude": 1.0,
+  "precisao_legitimos": 1.0,
+  "taxa_citacao_med_bcb147": 1.0,
+  "bloqueio_injection_visual": 1.0,
+  "latencia_p95_imagem_pdf_s": 6.4568,
+  "latencia_media_imagem_pdf_s": 5.6433,
+  "voz_roundtrip_ok": true,
+  "latencia_voz_s": 10.0575,
+  "extrato_estagio_usado": "estagio_2_vlm",
+  "extrato_reconciliado": true,
+  "extrato_divergencia_centavos": 0,
+  "casos": [
+    {
+      "id": "leg_01_bb",
+      "tipo": "pdf",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 5.8808,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "leg_02_itau",
+      "tipo": "pdf",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 5.2043,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "leg_03_brad",
+      "tipo": "pdf",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 5.2869,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "leg_04_caixa",
+      "tipo": "pdf",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 5.2546,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "leg_05_sant",
+      "tipo": "pdf",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 5.2305,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "leg_06_bb2",
+      "tipo": "pdf",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 5.3185,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "leg_07",
+      "tipo": "imagem",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 6.1704,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "leg_08",
+      "tipo": "imagem",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 6.4568,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "leg_09_pix",
+      "tipo": "imagem",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 5.2555,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "leg_10_pix",
+      "tipo": "imagem",
+      "esperado_fraude": false,
+      "detectado_fraude": false,
+      "latencia_s": 5.027,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_01_banco",
+      "tipo": "pdf",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 5.6976,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_02_banco",
+      "tipo": "pdf",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 5.4965,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_03_valor",
+      "tipo": "pdf",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 5.4536,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_04_valor",
+      "tipo": "pdf",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 5.342,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_05_dv",
+      "tipo": "pdf",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 5.456,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_06_dv",
+      "tipo": "pdf",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 5.2899,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_07_pf",
+      "tipo": "pdf",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 5.5167,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_08_whatsapp",
+      "tipo": "imagem",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 6.1173,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_09_pix_crc",
+      "tipo": "imagem",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 5.7958,
+      "aprovado_compliance": true
+    },
+    {
+      "id": "golpe_10_injection",
+      "tipo": "imagem",
+      "esperado_fraude": true,
+      "detectado_fraude": true,
+      "latencia_s": 7.615,
+      "aprovado_compliance": true
+    }
+  ]
+}
