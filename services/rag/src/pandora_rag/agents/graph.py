@@ -1,23 +1,32 @@
 """Grafo de orquestração multiagente do PANDORA com LangGraph (StateGraph) e Tool Calling."""
 from __future__ import annotations
 
+import contextvars
 import logging
 import time
 import zlib
-from typing import Any
+from dataclasses import dataclass
+from pathlib import Path
+from typing import Literal
 
 import numpy as np
 import psycopg
 from langchain_core.language_models.chat_models import BaseChatModel
 from langgraph.graph import END, START, StateGraph
 
+from pandora_rag.agents.artifact_store import ArtifactStore
 from pandora_rag.agents.llm_provider import (
     MODELO_PADRAO_AGENTES,
     construir_chat_model,
     ollama_disponivel,
     resolver_config_modelo,
 )
-from pandora_rag.agents.models import EstadoMultiagente, ResultadoMultiagente
+from pandora_rag.agents.models import (
+    EstadoMultiagente,
+    ReferenciaMidia,
+    ResultadoMultiagente,
+)
+from pandora_rag.agents.perceiver import MODELO_VLM_PADRAO, PerceiverAgent
 from pandora_rag.agents.specialists import (
     BLOCO_PROTOCOLO_CRISE,
     AnalistaAgent,
@@ -30,7 +39,8 @@ from pandora_rag.agents.specialists import (
     bloco_recusa_educativa_cvm,
 )
 from pandora_rag.agents.tools import perfil_persona
-from pandora_rag.config import DB_URL, TEXT_DIR
+from pandora_rag.agents.voz import SintetizadorVoz, compilar_resumo_falado_tts
+from pandora_rag.config import DB_URL, OLLAMA_URL, TEXT_DIR
 from pandora_rag.generate.answer import MENSAGEM_ABSTENCAO
 from pandora_rag.generate.gateway import Gateway
 from pandora_rag.generate.pii import mascarar
@@ -292,6 +302,22 @@ def _resposta_segura_fail_closed(estado: EstadoMultiagente) -> str:
     return texto_seguro
 
 
+@dataclass
+class _ContextoExecucao:
+    chat_model: BaseChatModel | None = None
+    modelo_id: str = "offline"
+    gateway: Gateway | None = None
+    llm_chave: str | None = None
+    store: ArtifactStore | None = None
+    modelo_vlm: str | None = MODELO_VLM_PADRAO
+
+
+_CTX_EXECUCAO: contextvars.ContextVar[_ContextoExecucao | None] = contextvars.ContextVar(
+    "_CTX_EXECUCAO",
+    default=None,
+)
+
+
 class GrafoPandora:
     """Orquestrador multiagente compilado com LangGraph (StateGraph) e Tool Calling nativo."""
 
@@ -302,7 +328,7 @@ class GrafoPandora:
         k_evidencias: int = 3,
         limiar_abstencao: float = 0.02,
         origem_retriever: str | None = None,
-    ):
+    ) -> None:
         if retriever is None:
             retriever, origem = construir_retriever_padrao(usar_reranker=False, preferir_embutido=False)
             self.origem_retriever = origem_retriever or origem
@@ -313,6 +339,8 @@ class GrafoPandora:
         self.k_evidencias = k_evidencias
         self.limiar_abstencao = limiar_abstencao
 
+        self.perceiver = PerceiverAgent()
+        self.sintetizador_voz = SintetizadorVoz()
         self.orquestrador = OrquestradorAgent()
         self.analista = AnalistaAgent()
         self.estrategista = EstrategistaAgent()
@@ -321,80 +349,93 @@ class GrafoPandora:
         self.educador = EducadorAgent()
         self.compliance = ComplianceAgent()
 
-        # Contexto da execução atual usado pelos nós do StateGraph
-        self._chat_model_atual: BaseChatModel | None = None
-        self._modelo_id_atual: str = "offline"
-        self._gateway_atual: Gateway | None = None
-        self._llm_chave_atual: str | None = None
-
         self.state_graph = self._construir_state_graph()
         self.compiled_graph = self.state_graph.compile()
+
+    def _ctx(self) -> _ContextoExecucao:
+        return _CTX_EXECUCAO.get() or _ContextoExecucao()
 
     def _construir_state_graph(self) -> StateGraph:
         """Constrói o StateGraph declarativo do LangGraph com os 7 agentes e arestas condicionais."""
         workflow = StateGraph(EstadoMultiagente)
 
+        def node_perceiver(estado: EstadoMultiagente) -> EstadoMultiagente:
+            ctx = self._ctx()
+            return self.perceiver.executar(
+                estado,
+                store=ctx.store,
+                modelo_vlm=ctx.modelo_vlm,
+            )
+
         def node_orquestrador_planejar(estado: EstadoMultiagente) -> EstadoMultiagente:
+            ctx = self._ctx()
             return self.orquestrador.planejar(
                 estado,
-                chat_model=self._chat_model_atual,
-                modelo_id=self._modelo_id_atual,
+                chat_model=ctx.chat_model,
+                modelo_id=ctx.modelo_id,
             )
 
         def node_analista(estado: EstadoMultiagente) -> EstadoMultiagente:
+            ctx = self._ctx()
             return self.analista.executar(
                 estado,
-                chat_model=self._chat_model_atual,
-                modelo_id=self._modelo_id_atual,
+                chat_model=ctx.chat_model,
+                modelo_id=ctx.modelo_id,
             )
 
         def node_estrategista(estado: EstadoMultiagente) -> EstadoMultiagente:
+            ctx = self._ctx()
             return self.estrategista.executar(
                 estado,
-                chat_model=self._chat_model_atual,
-                modelo_id=self._modelo_id_atual,
+                chat_model=ctx.chat_model,
+                modelo_id=ctx.modelo_id,
             )
 
         def node_coach(estado: EstadoMultiagente) -> EstadoMultiagente:
+            ctx = self._ctx()
             return self.coach.executar(
                 estado,
-                chat_model=self._chat_model_atual,
-                modelo_id=self._modelo_id_atual,
+                chat_model=ctx.chat_model,
+                modelo_id=ctx.modelo_id,
             )
 
         def node_guardiao(estado: EstadoMultiagente) -> EstadoMultiagente:
+            ctx = self._ctx()
             return self.guardiao.executar(
                 estado,
-                chat_model=self._chat_model_atual,
-                modelo_id=self._modelo_id_atual,
+                chat_model=ctx.chat_model,
+                modelo_id=ctx.modelo_id,
             )
 
         def node_educador(estado: EstadoMultiagente) -> EstadoMultiagente:
+            ctx = self._ctx()
             return self.educador.executar(
                 estado,
                 self.retriever,
                 k=self.k_evidencias,
                 limiar_abstencao=self.limiar_abstencao,
-                chat_model=self._chat_model_atual,
-                modelo_id=self._modelo_id_atual,
+                chat_model=ctx.chat_model,
+                modelo_id=ctx.modelo_id,
             )
 
         def node_orquestrador_sintetizar(estado: EstadoMultiagente) -> EstadoMultiagente:
+            ctx = self._ctx()
             modo_revisao = estado.revisoes_realizadas > 0
             return self.orquestrador.sintetizar(
                 estado,
-                gateway=None if modo_revisao else self._gateway_atual,
-                modelo=None if modo_revisao else self._llm_chave_atual,
+                gateway=None if modo_revisao else ctx.gateway,
+                modelo=None if modo_revisao else ctx.llm_chave,
                 modo_revisao=modo_revisao,
-                chat_model=None if modo_revisao else self._chat_model_atual,
-                modelo_id=self._modelo_id_atual,
+                chat_model=None if modo_revisao else ctx.chat_model,
+                modelo_id=ctx.modelo_id,
             )
 
         def node_compliance(estado: EstadoMultiagente) -> EstadoMultiagente:
+            ctx = self._ctx()
             return self.compliance.validar(
                 estado,
-                chat_model=self._chat_model_atual,
-                modelo_id=self._modelo_id_atual,
+                chat_model=ctx.chat_model,
+                modelo_id=ctx.modelo_id,
             )
 
         def node_preparar_revisao(estado: EstadoMultiagente) -> EstadoMultiagente:
@@ -403,8 +444,10 @@ class GrafoPandora:
 
         def node_fail_closed(estado: EstadoMultiagente) -> EstadoMultiagente:
             estado.resposta_final = _resposta_segura_fail_closed(estado)
+            estado.resumo_falado_tts = compilar_resumo_falado_tts(estado)
             return estado
 
+        workflow.add_node("perceiver_multimodal", node_perceiver)
         workflow.add_node("orquestrador_planejar", node_orquestrador_planejar)
         workflow.add_node("analista", node_analista)
         workflow.add_node("estrategista", node_estrategista)
@@ -449,7 +492,20 @@ class GrafoPandora:
             "educador": "educador",
         }
 
-        workflow.add_edge(START, "orquestrador_planejar")
+        def rotear_entrada(estado: EstadoMultiagente) -> str:
+            if estado.midias or estado.qrcode_pix_bruto:
+                return "perceiver_multimodal"
+            return "orquestrador_planejar"
+
+        workflow.add_conditional_edges(
+            START,
+            rotear_entrada,
+            {
+                "perceiver_multimodal": "perceiver_multimodal",
+                "orquestrador_planejar": "orquestrador_planejar",
+            },
+        )
+        workflow.add_edge("perceiver_multimodal", "orquestrador_planejar")
         workflow.add_conditional_edges("orquestrador_planejar", rotear_apos_planejamento, mapa_destinos)
 
         for esp in _ORDEM_ESPECIALISTAS_DOMINIO:
@@ -485,7 +541,7 @@ class GrafoPandora:
             return None, "offline", "deterministico"
 
         if info.get("provedor") == "ollama" and not ollama_disponivel():
-            logger.info("Daemon Ollama indisponível em localhost:11434; rodando nós em fallback determinístico.")
+            logger.info("Daemon Ollama indisponível em %s; rodando nós em fallback determinístico.", OLLAMA_URL)
             return None, "offline", "deterministico"
 
         chat_model, modelo_id = construir_chat_model(llm)
@@ -501,44 +557,95 @@ class GrafoPandora:
         beneficiario_pf: bool = False,
         llm: str | None = None,
         chat_model: BaseChatModel | None = None,
+        midias: list[ReferenciaMidia] | None = None,
+        caminho_imagem: Path | None = None,
+        caminho_pdf: Path | None = None,
+        caminho_extrato: Path | None = None,
+        caminho_audio: Path | None = None,
+        qrcode_pix: str | None = None,
+        vlm: str | None = MODELO_VLM_PADRAO,
+        gerar_audio_tts: bool = False,
+        artifact_store: ArtifactStore | None = None,
     ) -> ResultadoMultiagente:
         """Executa o StateGraph compilado do LangGraph e devolve ResultadoMultiagente auditável."""
         t0 = time.perf_counter()
 
         if chat_model is not None:
-            self._chat_model_atual = chat_model
-            self._modelo_id_atual = llm or getattr(chat_model, "model", MODELO_PADRAO_AGENTES)
-            modo: Any = "langgraph_llm"
+            chat_atual: BaseChatModel | None = chat_model
+            modelo_id_atual = llm or getattr(chat_model, "model", MODELO_PADRAO_AGENTES)
+            modo: Literal["deterministico", "hibrido_llm", "langgraph_llm"] = "langgraph_llm"
         else:
-            self._chat_model_atual, self._modelo_id_atual, modo = self._preparar_llm_execucao(llm)
+            chat_atual, modelo_id_atual, modo = self._preparar_llm_execucao(llm)
 
-        if self._modelo_id_atual == "offline":
-            self._gateway_atual = None
-            self._llm_chave_atual = None
+        if modelo_id_atual == "offline":
+            gw_atual = None
+            llm_chave_atual = None
         else:
-            self._gateway_atual = self.gateway if llm else None
-            self._llm_chave_atual = llm
-            if self._gateway_atual is not None and llm and modo == "deterministico":
+            gw_atual = self.gateway if llm else None
+            llm_chave_atual = llm
+            if gw_atual is not None and llm and modo == "deterministico":
                 modo = "hibrido_llm"
 
-        estado_inicial = EstadoMultiagente(
-            persona_id=persona_id,
-            consulta_usuario=consulta,
-            documento_ocr=documento_ocr,
-            linha_digitavel=linha_digitavel,
-            banco_alegado=banco_alegado,
-            beneficiario_pf=beneficiario_pf,
-            modo=modo,
-            modelo_llm=self._modelo_id_atual,
+        store_criado = artifact_store is None and any(
+            x is not None for x in (caminho_imagem, caminho_pdf, caminho_extrato, caminho_audio)
         )
+        store_ativo = artifact_store or (ArtifactStore() if store_criado else None)
+        modelo_vlm_atual = "offline" if modelo_id_atual == "offline" else vlm
 
-        resultado_raw = self.compiled_graph.invoke(estado_inicial)
-        if isinstance(resultado_raw, EstadoMultiagente):
-            estado_final = resultado_raw
-        else:
-            estado_final = EstadoMultiagente.model_validate(resultado_raw)
+        lista_midias = list(midias or [])
+        if store_ativo is not None:
+            if caminho_imagem is not None:
+                lista_midias.append(store_ativo.registrar_arquivo(caminho_imagem, tipo="imagem_documento"))
+            if caminho_pdf is not None:
+                lista_midias.append(store_ativo.registrar_arquivo(caminho_pdf, tipo="pdf_documento"))
+            if caminho_extrato is not None:
+                lista_midias.append(store_ativo.registrar_arquivo(caminho_extrato, tipo="extrato_arquivo"))
+            if caminho_audio is not None:
+                lista_midias.append(store_ativo.registrar_arquivo(caminho_audio, tipo="audio_voz"))
 
-        if estado_final.veredito is None or not estado_final.veredito.aprovado or not estado_final.resposta_final:
-            estado_final.resposta_final = _resposta_segura_fail_closed(estado_final)
+        token = _CTX_EXECUCAO.set(
+            _ContextoExecucao(
+                chat_model=chat_atual,
+                modelo_id=modelo_id_atual,
+                gateway=gw_atual,
+                llm_chave=llm_chave_atual,
+                store=store_ativo,
+                modelo_vlm=modelo_vlm_atual,
+            )
+        )
+        try:
+            estado_inicial = EstadoMultiagente(
+                persona_id=persona_id,
+                consulta_usuario=consulta[:8000],
+                documento_ocr=documento_ocr,
+                linha_digitavel=linha_digitavel,
+                banco_alegado=banco_alegado,
+                beneficiario_pf=beneficiario_pf,
+                midias=lista_midias,
+                qrcode_pix_bruto=qrcode_pix,
+                gerar_audio_tts=gerar_audio_tts,
+                modo=modo,
+                modelo_llm=modelo_id_atual,
+            )
 
-        return ResultadoMultiagente.de_estado(estado_final, latencia_s=time.perf_counter() - t0)
+            resultado_raw = self.compiled_graph.invoke(estado_inicial)
+            if isinstance(resultado_raw, EstadoMultiagente):
+                estado_final = resultado_raw
+            else:
+                estado_final = EstadoMultiagente.model_validate(resultado_raw)
+
+            if estado_final.veredito is None or not estado_final.veredito.aprovado or not estado_final.resposta_final:
+                estado_final.resposta_final = _resposta_segura_fail_closed(estado_final)
+                estado_final.resumo_falado_tts = compilar_resumo_falado_tts(estado_final)
+
+            if gerar_audio_tts and store_ativo is not None and not store_criado and estado_final.resumo_falado_tts:
+                estado_final.audio_saida = self.sintetizador_voz.sintetizar_no_store(
+                    estado_final.resumo_falado_tts,
+                    store_ativo,
+                )
+
+            return ResultadoMultiagente.de_estado(estado_final, latencia_s=time.perf_counter() - t0)
+        finally:
+            _CTX_EXECUCAO.reset(token)
+            if store_criado and store_ativo is not None:
+                store_ativo.expurgar_tudo()

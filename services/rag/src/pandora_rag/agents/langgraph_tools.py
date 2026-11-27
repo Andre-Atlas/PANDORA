@@ -14,6 +14,7 @@ from pandora_rag.agents.models import (
     EvidenciaNormativa,
     InspecaoFraude,
     PlanoReestruturacao,
+    ResultadoPercepcaoMultimodal,
     TransacaoPersona,
 )
 from pandora_rag.agents.tools import (
@@ -291,15 +292,16 @@ def criar_tool_guardiao(
     linha_digitavel: str | None,
     banco_alegado: str | None,
     beneficiario_pf: bool,
+    percepcao: ResultadoPercepcaoMultimodal | None = None,
 ) -> BaseTool:
-    """Cria a @tool vinculada aos artefatos suspeitos para o GuardiaoAgent."""
+    """Cria a @tool vinculada aos artefatos suspeitos e à percepção multimodal para o GuardiaoAgent."""
 
     @tool
     def tool_inspecionar_fraude_e_boleto(
         queries_normativas: list[str],
         orientacao_emergencial: str = "",
     ) -> dict[str, Any]:
-        """Sanitiza documentos externos contra Prompt Injection, valida linha digitável FEBRABAN (Módulo 10) e gera roteiro do MED Pix (Res. BCB 147/2021).
+        """Sanitiza documentos externos contra Prompt Injection, valida linha digitável FEBRABAN (Módulo 10/11) e QR Pix (CRC-16) e gera roteiro do MED Pix (Res. BCB 147/2021).
 
         Args:
             queries_normativas: Queries regulatórias sobre fraude bancária, MED do Pix (Resolução BCB 147/2021) e segurança.
@@ -311,6 +313,7 @@ def criar_tool_guardiao(
             linha_digitavel=linha_digitavel,
             banco_alegado=banco_alegado,
             beneficiario_pf=beneficiario_pf,
+            percepcao=percepcao,
         )
         queries_limpas = [mascarar(q.strip())[0] for q in queries_normativas if q and q.strip()]
         return {
@@ -381,6 +384,7 @@ def executar_busca_evidencias_rag(
         q_limpa, _ = mascarar(q.strip())
         if q_limpa and q_limpa not in queries:
             queries.append(q_limpa)
+    queries = queries[:6]
 
     if consulta_livre and not any(_query_no_dominio_pandora(q) for q in queries):
         return EvidenciaNormativa(

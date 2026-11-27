@@ -9,6 +9,10 @@ from datetime import datetime
 from pathlib import Path
 from typing import Any
 
+from pandora_rag.agents.codecs_financeiros import (
+    linha_digitavel_47_para_barras_44,
+    validar_barras_44,
+)
 from pandora_rag.agents.models import (
     AnaliseCompulsao,
     DiagnosticoFinanceiro,
@@ -16,6 +20,7 @@ from pandora_rag.agents.models import (
     EstrategiaDivida,
     InspecaoFraude,
     PlanoReestruturacao,
+    ResultadoPercepcaoMultimodal,
     TransacaoPersona,
     ValidacaoBoleto,
 )
@@ -514,8 +519,10 @@ def validar_boleto_febraban(
     linha_digitavel: str,
     banco_alegado: str | None = None,
     beneficiario_pf: bool = False,
+    valor_impresso_centavos: int | None = None,
+    exigir_mod11: bool = False,
 ) -> ValidacaoBoleto:
-    """Valida comprimento (47 dígitos), DVs módulo 10 (campos 1–3), banco e beneficiário."""
+    """Valida comprimento (47 dígitos), DVs módulo 10/11, valor cross-modal, banco e beneficiário."""
     digitos = re.sub(r"\D", "", linha_digitavel)
     tamanho_valido = len(digitos) == 47
     codigo_banco = digitos[:3] if len(digitos) >= 3 else None
@@ -527,6 +534,10 @@ def validar_boleto_febraban(
         )
 
     dv_valido = False
+    dv11_valido: bool | None = None
+    valor_boleto_centavos: int | None = None
+    divergencia_valor = False
+
     if tamanho_valido:
         dv1 = _modulo_10(digitos[0:9]) == int(digitos[9])
         dv2 = _modulo_10(digitos[10:20]) == int(digitos[20])
@@ -534,6 +545,23 @@ def validar_boleto_febraban(
         dv_valido = dv1 and dv2 and dv3
         if not dv_valido:
             motivos.append("Dígito verificador (módulo 10) inválido na linha digitável.")
+
+        barras_44 = linha_digitavel_47_para_barras_44(digitos)
+        dv11_valido, valor_boleto_centavos = validar_barras_44(barras_44)
+        if exigir_mod11 and dv11_valido is False:
+            motivos.append("Dígito verificador geral (módulo 11) inválido no código de barras.")
+
+        if (
+            valor_impresso_centavos is not None
+            and valor_boleto_centavos is not None
+            and valor_boleto_centavos > 0
+            and valor_impresso_centavos != valor_boleto_centavos
+        ):
+            divergencia_valor = True
+            motivos.append(
+                f"Valor impresso no documento ({_fmt_brl(valor_impresso_centavos / 100.0)}) diverge "
+                f"do valor codificado no boleto ({_fmt_brl(valor_boleto_centavos / 100.0)})."
+            )
 
     banco_esperado = _normalizar_codigo_banco(banco_alegado)
     if banco_esperado and codigo_banco and banco_esperado != codigo_banco:
@@ -549,6 +577,9 @@ def validar_boleto_febraban(
         linha_digitavel_limpa=digitos,
         tamanho_valido=tamanho_valido,
         digito_verificador_valido=dv_valido,
+        dv_geral_mod11_valido=dv11_valido,
+        valor_boleto_centavos=valor_boleto_centavos,
+        divergencia_valor_impresso=divergencia_valor,
         codigo_banco_extraido=codigo_banco,
         banco_alegado=banco_esperado or banco_alegado,
         beneficiario_pf=beneficiario_pf,
@@ -563,15 +594,31 @@ def inspecionar_fraudes(
     linha_digitavel: str | None = None,
     banco_alegado: str | None = None,
     beneficiario_pf: bool = False,
+    percepcao: ResultadoPercepcaoMultimodal | None = None,
 ) -> InspecaoFraude:
-    """Executa isolamento anti-injection, auditoria FEBRABAN e roteiro do MED do Pix."""
+    """Executa isolamento anti-injection, auditoria FEBRABAN/Pix cross-modal e roteiro do MED do Pix."""
     texto_sanitizado = ""
     injection_detectada = False
     banco_inferido = banco_alegado
     pf_inferido = beneficiario_pf
+    valor_impresso: int | None = None
+    sinais_visuais: list[str] = []
+
+    if percepcao is not None and percepcao.visual is not None:
+        v = percepcao.visual
+        if v.possui_instrucao_oculta_suspeita:
+            injection_detectada = True
+        if not banco_inferido and v.banco_impresso_no_layout:
+            banco_inferido = v.banco_impresso_no_layout
+        if v.beneficiario_parece_pf:
+            pf_inferido = True
+        if v.valor_impresso_centavos is not None:
+            valor_impresso = v.valor_impresso_centavos
+        sinais_visuais = list(v.sinais_engenharia_social)
 
     if documento_ocr:
-        texto_sanitizado, injection_detectada = sanitizar_documento_nao_confiavel(documento_ocr)
+        texto_sanitizado, inj_ocr = sanitizar_documento_nao_confiavel(documento_ocr)
+        injection_detectada = injection_detectada or inj_ocr
         if not banco_inferido:
             banco_inferido = _inferir_banco_em_texto(texto_sanitizado)
         norm_ocr = _normalizar_texto(texto_sanitizado)
@@ -580,15 +627,37 @@ def inspecionar_fraudes(
         ):
             pf_inferido = True
 
+    exigir_mod11 = bool(percepcao is not None and percepcao.codigo_barras_44d)
     boleto = (
         validar_boleto_febraban(
             linha_digitavel,
             banco_alegado=banco_inferido,
             beneficiario_pf=pf_inferido,
+            valor_impresso_centavos=valor_impresso,
+            exigir_mod11=exigir_mod11,
         )
         if linha_digitavel
         else None
     )
+
+    pix_brcode = percepcao.pix_brcode if percepcao is not None else None
+    pix_suspeito = False
+    if pix_brcode is not None:
+        motivos_pix = list(pix_brcode.motivos)
+        if (
+            valor_impresso is not None
+            and pix_brcode.valor_centavos is not None
+            and valor_impresso != pix_brcode.valor_centavos
+        ):
+            motivos_pix.append(
+                f"Valor impresso ({_fmt_brl(valor_impresso / 100.0)}) diverge do QR Code Pix "
+                f"({_fmt_brl(pix_brcode.valor_centavos / 100.0)})."
+            )
+        if banco_inferido and pix_brcode.tipo_chave == "cpf":
+            motivos_pix.append("Cobrança institucional usando chave Pix de pessoa física (CPF).")
+        if motivos_pix:
+            pix_brcode = pix_brcode.model_copy(update={"motivos": list(dict.fromkeys(motivos_pix)), "suspeito": True})
+        pix_suspeito = pix_brcode.suspeito
 
     suspeitas = [
         tx
@@ -601,6 +670,8 @@ def inspecionar_fraudes(
     fraude_detectada = (
         injection_detectada
         or (boleto is not None and boleto.suspeito)
+        or pix_suspeito
+        or bool(sinais_visuais)
         or bool(suspeitas)
     )
 
@@ -609,6 +680,10 @@ def inspecionar_fraudes(
         alertas.append("Tentativa de prompt injection oculta no documento foi neutralizada.")
     if boleto is not None and boleto.suspeito:
         alertas.extend(boleto.motivos)
+    if pix_brcode is not None and pix_brcode.suspeito:
+        alertas.extend(pix_brcode.motivos)
+    if sinais_visuais:
+        alertas.append(f"Sinais visuais de engenharia social detectados: {', '.join(sinais_visuais)}.")
     if suspeitas:
         alertas.append(f"{len(suspeitas)} transação(ões) marcada(s) com indício de fraude no histórico.")
 
@@ -618,6 +693,8 @@ def inspecionar_fraudes(
         texto_sanitizado=texto_sanitizado,
         injection_detectada=injection_detectada,
         boleto=boleto,
+        pix_brcode=pix_brcode,
+        sinais_engenharia_social=sinais_visuais,
         transacoes_suspeitas=suspeitas,
         fraude_detectada=fraude_detectada,
         roteiro_med_pix=roteiro_med,

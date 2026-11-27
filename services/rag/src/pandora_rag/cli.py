@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 import logging
 from pathlib import Path
-from typing import Optional
+from typing import Annotated
 
 import typer
 
@@ -25,7 +25,7 @@ def coletar() -> None:
 
 @app.command("coletar-catalogo")
 def coletar_catalogo_cmd(
-    alvo: Optional[list[str]] = typer.Option(None, "--alvo", help="Coleta só estes ids de alvo"),
+    alvo: Annotated[list[str] | None, typer.Option("--alvo", help="Coleta só estes ids de alvo")] = None,
 ) -> None:
     """Coleta os alvos dos 31 itens do catálogo (HTML, PDF, API) e atualiza catalogo.lock.json."""
     from pandora_rag.coleta.executor import coletar_catalogo
@@ -36,7 +36,9 @@ def coletar_catalogo_cmd(
 
 
 @app.command()
-def inventario(md: Optional[str] = typer.Option(None, "--md", help="Grava a tabela em Markdown neste caminho")) -> None:
+def inventario(
+    md: Annotated[str | None, typer.Option("--md", help="Grava a tabela em Markdown neste caminho")] = None,
+) -> None:
     """Mostra os 31 itens com formato, frequência e situação (coletada, manual, mista, falha, pendente)."""
     from pandora_rag.coleta.catalogo import carregar_catalogo
     from pandora_rag.coleta.executor import ler_lock, situacao_do_item
@@ -119,7 +121,7 @@ def ask(
     tabela: str = "chunks",
     rerank: bool = True,
     modelo: str = MODELO_EMBEDDING,
-    saida_json: Optional[bool] = False,
+    saida_json: bool | None = False,
 ) -> None:
     """Consulta completa: busca, resposta fundamentada e fontes."""
     from pandora_rag.config import LIMIAR_ABSTENCAO
@@ -163,7 +165,7 @@ def ask(
 
 @app.command()
 def agent(
-    pergunta: str,
+    pergunta: str = typer.Argument("", help="Consulta ou pergunta financeira do usuário"),
     persona: str | None = None,
     llm: str = "qwen25-7b",
     offline: bool = False,
@@ -171,24 +173,51 @@ def agent(
     linha_digitavel: str | None = None,
     banco_alegado: str | None = None,
     beneficiario_pf: bool = False,
+    imagem: Path | None = None,
+    pdf: Path | None = None,
+    extrato: Path | None = None,
+    audio: Path | None = None,
+    qrcode_pix: str | None = None,
+    vlm: str = "qwen25-vl-7b",
+    tts_saida: Annotated[
+        Path | None,
+        typer.Option("--tts-saida", "--saida-audio", help="Caminho WAV para gravar a resposta falada auditada"),
+    ] = None,
     saida_json: bool = False,
 ) -> None:
-    """Executa uma consulta completa no StateGraph (LangGraph) dos 7 agentes especializados."""
+    """Executa uma consulta completa no StateGraph (LangGraph) com suporte multimodal."""
+    from pandora_rag.agents.artifact_store import ArtifactStore
     from pandora_rag.agents.graph import GrafoPandora, construir_retriever_padrao
     from pandora_rag.generate.gateway import Gateway
 
     retr, origem = construir_retriever_padrao(usar_reranker=False, preferir_embutido=offline)
     gw = Gateway() if (llm and not offline) else None
     grafo = GrafoPandora(retriever=retr, gateway=gw, origem_retriever=origem)
-    res = grafo.executar(
-        consulta=pergunta,
-        persona_id=persona,
-        documento_ocr=documento_ocr,
-        linha_digitavel=linha_digitavel,
-        banco_alegado=banco_alegado,
-        beneficiario_pf=beneficiario_pf,
-        llm=None if offline else llm,
-    )
+    store = ArtifactStore()
+    try:
+        res = grafo.executar(
+            consulta=pergunta,
+            persona_id=persona,
+            documento_ocr=documento_ocr,
+            linha_digitavel=linha_digitavel,
+            banco_alegado=banco_alegado,
+            beneficiario_pf=beneficiario_pf,
+            llm=None if offline else llm,
+            caminho_imagem=imagem,
+            caminho_pdf=pdf,
+            caminho_extrato=extrato,
+            caminho_audio=audio,
+            qrcode_pix=qrcode_pix,
+            vlm=None if offline else vlm,
+            gerar_audio_tts=tts_saida is not None,
+            artifact_store=store,
+        )
+        if tts_saida is not None and res.audio_saida is not None:
+            tts_saida.parent.mkdir(parents=True, exist_ok=True)
+            tts_saida.write_bytes(store.obter_bytes(res.audio_saida.artefato_id))
+    finally:
+        store.expurgar_tudo()
+
     if saida_json:
         typer.echo(res.model_dump_json(indent=2))
         return
@@ -200,6 +229,8 @@ def agent(
     for m in res.trace:
         typer.echo(f"  [{m.ordem}] {m.origem} -> {m.destino} ({m.tipo}): {m.resumo}")
     typer.echo(f"\nRESPOSTA FINAL:\n{res.resposta_final}")
+    if tts_saida is not None:
+        typer.echo(f"\nÁUDIO TTS GRAVADO EM: {tts_saida}")
 
 
 @app.command()
@@ -235,7 +266,7 @@ def gerar_trilha(
     llm: str = LLM_PADRAO,
     k: int = 4,
     tentativas: int = 3,
-    etapa: Optional[str] = None,
+    etapa: str | None = None,
 ) -> None:
     """Gera e valida o conteúdo da trilha (explicação e perguntas com fontes) e salva em JSON."""
     from pandora_rag.config import LIMIAR_ABSTENCAO, REPO_ROOT

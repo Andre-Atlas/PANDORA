@@ -5,7 +5,16 @@ from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
+TipoMidia = Literal[
+    "imagem_documento",
+    "pdf_documento",
+    "extrato_arquivo",
+    "audio_voz",
+    "audio_tts_saida",
+]
+
 AgentRole = Literal[
+    "perceiver",
     "orquestrador",
     "analista",
     "estrategista",
@@ -16,6 +25,7 @@ AgentRole = Literal[
 ]
 
 TipoMensagem = Literal[
+    "percepcao",
     "roteamento",
     "analise",
     "solicitacao_pesquisa",
@@ -123,12 +133,97 @@ class AnaliseCompulsao(BaseModel):
     alertas: list[str] = Field(default_factory=list)
 
 
+class ReferenciaMidia(BaseModel):
+    """Ponteiro leve para artefato no ArtifactStore efêmero (zero bytes/base64 no estado)."""
+
+    artefato_id: str = Field(pattern=r"^[a-f0-9]{32}$")
+    tipo: TipoMidia
+    nome_original_sanitizado: str = Field(max_length=128)
+    mime_type: str = Field(max_length=64)
+    sha256: str = Field(pattern=r"^[a-f0-9]{64}$")
+    tamanho_bytes: int = Field(ge=0)
+
+
+class DadosPixBRCode(BaseModel):
+    """Payload EMV BRCode Pix decodificado e validado via CRC-16/CCITT-FALSE."""
+
+    payload_mascarado: str = ""
+    crc16_valido: bool = False
+    chave_pix_mascarada: str | None = None
+    tipo_chave: str | None = None
+    nome_recebedor_mascarado: str | None = None
+    cidade: str | None = None
+    valor_centavos: int | None = Field(default=None, ge=0)
+    mcc: str | None = None
+    url_dinamica: str | None = None
+    suspeito: bool = False
+    motivos: list[str] = Field(default_factory=list)
+
+
+class ExtracaoVisualQuarantinada(BaseModel):
+    """Schema fechado emitido pelo VLM Perceiver em quarentena (zero @tools)."""
+
+    tipo_visual: Literal[
+        "boleto",
+        "print_whatsapp",
+        "comprovante_pix",
+        "extrato_ou_fatura",
+        "outro",
+    ] = "outro"
+    banco_impresso_no_layout: str | None = None
+    beneficiario_impresso: str | None = None
+    beneficiario_parece_pf: bool = False
+    valor_impresso_centavos: int | None = Field(default=None, ge=0)
+    linha_digitavel_visivel: str | None = None
+    sinais_engenharia_social: list[str] = Field(default_factory=list)
+    possui_instrucao_oculta_suspeita: bool = False
+
+
+class LancamentoExtratoVLM(BaseModel):
+    """Lançamento estruturado extraído pelo VLM no Estágio 2 de extratos PDF."""
+
+    data: str
+    descricao: str
+    valor_brl: str
+    natureza: Literal["D", "C"] = "D"
+
+
+class ExtratoDocumentalVLM(BaseModel):
+    """Estrutura fechada de extrato/fatura retornada pelo VLM em quarentena."""
+
+    eh_fatura_cartao: bool = False
+    saldo_inicial_brl: str | None = None
+    saldo_final_ou_total_brl: str | None = None
+    lancamentos: list[LancamentoExtratoVLM] = Field(default_factory=list)
+
+
+class ResultadoPercepcaoMultimodal(BaseModel):
+    """Consolidação sanitizada produzida pelo PerceiverNode para os 7 agentes."""
+
+    transcricao_voz_mascarada: str | None = None
+    codigo_barras_44d: str | None = None
+    linha_digitavel_47d: str | None = None
+    valor_barras_centavos: int | None = Field(default=None, ge=0)
+    dv_geral_mod11_valido: bool | None = None
+    pix_brcode: DadosPixBRCode | None = None
+    visual: ExtracaoVisualQuarantinada | None = None
+    extrato_lido_qtd: int = Field(default=0, ge=0)
+    extrato_reconciliado: bool | None = None
+    extrato_divergencia_centavos: int = 0
+    extrato_estagio_usado: str | None = None
+    latencia_percepcao_s: float = Field(default=0.0, ge=0.0)
+    modelo_vlm: str | None = None
+
+
 class ValidacaoBoleto(BaseModel):
-    """Resultado da validação estrutural e de módulo 10 de linha digitável FEBRABAN."""
+    """Resultado da validação estrutural e de módulo 10/11 de linha digitável FEBRABAN."""
 
     linha_digitavel_limpa: str = ""
     tamanho_valido: bool = False
     digito_verificador_valido: bool = False
+    dv_geral_mod11_valido: bool | None = None
+    valor_boleto_centavos: int | None = Field(default=None, ge=0)
+    divergencia_valor_impresso: bool = False
     codigo_banco_extraido: str | None = None
     banco_alegado: str | None = None
     beneficiario_pf: bool = False
@@ -137,11 +232,13 @@ class ValidacaoBoleto(BaseModel):
 
 
 class InspecaoFraude(BaseModel):
-    """Saída do GuardiaoAgent com sanitização anti-injection, boleto e roteiro MED Pix."""
+    """Saída do GuardiaoAgent com sanitização anti-injection, boleto, Pix QR e roteiro MED Pix."""
 
     texto_sanitizado: str = ""
     injection_detectada: bool = False
     boleto: ValidacaoBoleto | None = None
+    pix_brcode: DadosPixBRCode | None = None
+    sinais_engenharia_social: list[str] = Field(default_factory=list)
     transacoes_suspeitas: list[TransacaoPersona] = Field(default_factory=list)
     fraude_detectada: bool = False
     roteiro_med_pix: list[str] = Field(default_factory=list)
@@ -194,6 +291,12 @@ class EstadoMultiagente(BaseModel):
     linha_digitavel: str | None = Field(default=None, max_length=256)
     banco_alegado: str | None = Field(default=None, max_length=256)
     beneficiario_pf: bool = False
+    midias: list[ReferenciaMidia] = Field(default_factory=list)
+    qrcode_pix_bruto: str | None = Field(default=None, max_length=4096)
+    percepcao: ResultadoPercepcaoMultimodal | None = None
+    gerar_audio_tts: bool = False
+    resumo_falado_tts: str = ""
+    audio_saida: ReferenciaMidia | None = None
     consulta_mascarada: str = ""
     pii_contagem: dict[str, int] = Field(default_factory=dict)
     intencoes_detectadas: list[str] = Field(default_factory=list)
@@ -254,6 +357,9 @@ class ResultadoMultiagente(BaseModel):
     inspecao_fraude: InspecaoFraude | None = None
     evidencias: EvidenciaNormativa | None = None
     veredito: VereditoCompliance | None = None
+    percepcao: ResultadoPercepcaoMultimodal | None = None
+    resumo_falado_tts: str = ""
+    audio_saida: ReferenciaMidia | None = None
     resposta_final: str = ""
     trace: list[MensagemAgente] = Field(default_factory=list)
 
@@ -286,6 +392,9 @@ class ResultadoMultiagente(BaseModel):
             inspecao_fraude=estado.inspecao_fraude,
             evidencias=estado.evidencias,
             veredito=estado.veredito,
+            percepcao=estado.percepcao,
+            resumo_falado_tts=estado.resumo_falado_tts,
+            audio_saida=estado.audio_saida,
             resposta_final=estado.resposta_final,
             trace=list(estado.trace),
         )

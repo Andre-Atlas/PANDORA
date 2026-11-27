@@ -39,6 +39,7 @@ from pandora_rag.agents.tools import (
     perfil_persona,
     simular_estrategias_divida,
 )
+from pandora_rag.agents.voz import compilar_resumo_falado_tts
 from pandora_rag.generate.answer import MENSAGEM_ABSTENCAO, RE_CITACAO
 from pandora_rag.generate.gateway import Gateway, OrcamentoExcedido
 from pandora_rag.generate.pii import mascarar
@@ -227,9 +228,25 @@ def _classificar_intencoes_guardrail(estado: EstadoMultiagente, texto_limpo: str
     if tem_termo_aposta:
         intencoes.append("bets")
 
+    tem_fraude_multimodal = bool(
+        estado.percepcao is not None
+        and (
+            estado.percepcao.codigo_barras_44d
+            or estado.percepcao.pix_brcode
+            or (
+                estado.percepcao.visual is not None
+                and (
+                    estado.percepcao.visual.tipo_visual in {"boleto", "print_whatsapp", "comprovante_pix"}
+                    or estado.percepcao.visual.possui_instrucao_oculta_suspeita
+                    or bool(estado.percepcao.visual.sinais_engenharia_social)
+                )
+            )
+        )
+    )
     if (
         estado.documento_ocr
         or estado.linha_digitavel
+        or tem_fraude_multimodal
         or re.search(
             r"\b(?:golpes?|fraudes?|boletos?|falsa\s+central|med|pix)\b",
             norm,
@@ -303,6 +320,9 @@ def _montar_blocos_sintese(
                     f"{_formatar_pct(comp['cet_usuario_pct_aa'], 1)}% a.a. contra a média oficial de "
                     f"{_formatar_pct(comp['media_bcb_pct_aa'], 1)}% a.a."
                 )
+            for alerta_diag in d.alertas:
+                if "reconcilia" in alerta_diag.lower() or "diverg" in alerta_diag.lower():
+                    linhas_diag.append(f"- Aviso de leitura do extrato: {alerta_diag}")
             parecer_ana = estado.pareceres_agentes.get("analista", "").strip()
             if (
                 incluir_pareceres_llm
@@ -403,6 +423,20 @@ def _montar_blocos_sintese(
                 linhas_fraude.append(
                     "- O formato da linha digitável está correto, mas isso não prova que o boleto é verdadeiro; confirme o CNPJ recebedor no app do banco antes de pagar."
                 )
+        if f.pix_brcode is not None:
+            if f.pix_brcode.suspeito:
+                linhas_fraude.append(
+                    "- PARE! NÃO PAGUE ESTE QR CODE PIX. Motivos detectados: "
+                    + " | ".join(f.pix_brcode.motivos)
+                )
+            else:
+                linhas_fraude.append(
+                    "- O checksum CRC-16 do QR Code Pix é válido, mas confira os dados do recebedor no aplicativo do banco antes de confirmar."
+                )
+        if f.sinais_engenharia_social:
+            linhas_fraude.append(
+                "- Alerta visual de engenharia social detectado: " + ", ".join(f.sinais_engenharia_social)
+            )
         if f.roteiro_med_pix:
             titulo_med = (
                 "- Vimos no seu histórico um Pix com indício de golpe — como tentar recuperar (MED — prazo legal de até 80 dias):"
@@ -462,7 +496,10 @@ class OrquestradorAgent:
         estado.consulta_mascarada = consulta_limpa
         estado.pii_contagem = pii
 
-        if _eh_consulta_outro_idioma(consulta_limpa):
+        tem_artefato_suspeito = bool(
+            estado.percepcao is not None or estado.documento_ocr or estado.linha_digitavel
+        )
+        if _eh_consulta_outro_idioma(consulta_limpa) and not tem_artefato_suspeito:
             estado.intencoes_detectadas = ["educacao"]
             estado.agentes_planejados = ["educador", "compliance"]
             estado.registrar_mensagem(
@@ -489,7 +526,8 @@ class OrquestradorAgent:
             f"Persona ID: {estado.persona_id or 'visitante'}\n"
             f"Possui documento OCR anexado: {bool(estado.documento_ocr)}\n"
             f"Possui linha digitável de boleto: {bool(estado.linha_digitavel)}\n"
-            "Classifique as intenções e os agentes especialistas invocando `tool_classificar_roteamento`."
+            "Classifique as intenções e os agentes especialistas invocando `tool_classificar_roteamento`. "
+            "Use justificativa_roteamento curta (até 8 palavras)."
         )
         res_llm = executar_agente_com_tools(
             agente="orquestrador",
@@ -536,13 +574,20 @@ class OrquestradorAgent:
             intencoes = intencoes_guardrail
 
         # Se não há persona nem artefatos de fraude/apostas/dívidas na consulta curta fora de domínio, evita falsos positivos do LLM
-        if not estado.persona_id and not estado.documento_ocr and not estado.linha_digitavel and se_so_educacao_no_guardrail:
+        if (
+            not estado.persona_id
+            and not estado.documento_ocr
+            and not estado.linha_digitavel
+            and estado.percepcao is None
+            and not estado.transacoes
+            and se_so_educacao_no_guardrail
+        ):
             intencoes = ["educacao"]
 
         estado.intencoes_detectadas = intencoes
 
         planejados: list[AgentRole] = []
-        if estado.persona_id:
+        if estado.persona_id or estado.transacoes:
             planejados.append("analista")
         if "dividas" in intencoes and (tem_dividas_no_perfil or "dividas" in intencoes_guardrail):
             planejados.append("estrategista")
@@ -633,10 +678,12 @@ class OrquestradorAgent:
         )
         resumo_orq_llm = ""
         if chat_model is not None and not modo_revisao and not abstev and not crise_ativa and not cvm_ativo:
+            resumo_secoes = secoes[0][:350] if secoes else ""
             contexto_sintese = (
                 f"Tom da persona: {tom}\n"
                 f"Consulta: {consulta_base}\n"
-                f"Seções calculadas:\n" + "\n".join(secoes[:2])
+                f"Resumo calculado:\n{resumo_secoes}\n"
+                "Responda em no máximo 2 frases curtas (até 30 palavras)."
             )
             res_sint = executar_agente_com_tools(
                 agente="orquestrador_sintese",
@@ -679,13 +726,14 @@ class OrquestradorAgent:
                 if comp.texto.strip():
                     texto_llm = comp.texto.strip().replace("[USUARIO]", nome)
                     if cvm_ativo:
-                        texto_llm = f"{texto_llm}\n\n{bloco_recusa_educativa_cvm(perfil)}"
+                        texto_llm = f"{texto_llm}\n\n{bloco_recusa_educativa_cvm(perfil, corretora=corretora_cvm)}"
                     rascunho = texto_llm
             except (httpx.HTTPError, anthropic.AnthropicError, OrcamentoExcedido, KeyError, RuntimeError, ValueError) as exc:
                 logger.warning("Fallback determinístico na síntese do Orquestrador: %s", exc)
 
         rascunho, _ = mascarar(rascunho)
         estado.rascunho_resposta = rascunho
+        estado.resumo_falado_tts = compilar_resumo_falado_tts(estado)
         estado.registrar_mensagem(
             origem="orquestrador",
             destino="compliance",
@@ -728,7 +776,8 @@ class AnalistaAgent:
             f"Persona: {pid}\n"
             f"Consulta do usuário: {estado.consulta_mascarada or estado.consulta_usuario}\n"
             f"Quantidade de transações carregadas: {len(estado.transacoes)}\n"
-            "Invoque `tool_calcular_raio_x_financeiro` para calcular o orçamento e o mínimo existencial."
+            "Invoque `tool_calcular_raio_x_financeiro` para calcular o orçamento e o mínimo existencial. "
+            "Use query_normativa_sugerida curta (até 6 palavras)."
         )
         res_llm = executar_agente_com_tools(
             agente="analista",
@@ -753,6 +802,12 @@ class AnalistaAgent:
 
         if diag is None:
             diag = calcular_raio_x(pid, estado.transacoes)
+
+        if estado.percepcao is not None and estado.percepcao.extrato_reconciliado is False:
+            div_reais = _formatar_brl(abs(estado.percepcao.extrato_divergencia_centavos) / 100.0)
+            diag.alertas.append(
+                f"Extrato PDF não reconciliou completamente (divergência de {div_reais}); confirme as linhas em 1 toque."
+            )
 
         estado.diagnostico = diag
         estado.total_tool_calls += len(tool_calls_log)
@@ -806,7 +861,8 @@ class EstrategistaAgent:
         if estado.diagnostico is None:
             estado = AnalistaAgent().executar(estado, chat_model=chat_model, modelo_id=modelo_id)
         diag = estado.diagnostico
-        assert diag is not None
+        if diag is None:
+            raise RuntimeError("Diagnóstico financeiro ausente após execução do AnalistaAgent.")
 
         dividas: list[DividaItem] = list(diag.dividas_identificadas)
 
@@ -823,7 +879,8 @@ class EstrategistaAgent:
             f"Consulta do usuário: {estado.consulta_mascarada or estado.consulta_usuario}\n"
             f"Renda mensal: R$ {diag.renda_mensal:.2f} | Mínimo Existencial: R$ {diag.minimo_existencial:.2f} | Folga: R$ {diag.folga_disponivel:.2f}\n"
             f"Dívidas: {resumo_dividas}\n"
-            "Invoque `tool_simular_reestruturacao_dividas` informando as queries normativas (Lei 14.181/2021, Lei 14.690/2023, CPC art. 833) e sua recomendação prática."
+            "Invoque `tool_simular_reestruturacao_dividas` com 1 query curta (Lei 14.181/2021, Lei 14.690/2023) "
+            "e recomendacao_abertura em 1 frase curta (até 15 palavras)."
         )
         res_llm = executar_agente_com_tools(
             agente="estrategista",
@@ -914,7 +971,8 @@ class CoachAgent:
         prompt_usr = (
             f"Consulta do usuário: {estado.consulta_mascarada or estado.consulta_usuario}\n"
             f"Renda mensal apurada: R$ {renda:.2f} | Total de transações: {len(estado.transacoes)}\n"
-            "Invoque `tool_analisar_compulsao_apostas` informando queries sobre a Lei 14.790/2023 e uma mensagem empática sem julgamento."
+            "Invoque `tool_analisar_compulsao_apostas` com 1 query curta sobre a Lei 14.790/2023 "
+            "e mensagem_acolhimento_sem_julgamento curta (até 15 palavras)."
         )
         res_llm = executar_agente_com_tools(
             agente="coach",
@@ -1003,13 +1061,15 @@ class GuardiaoAgent:
             linha_digitavel=estado.linha_digitavel,
             banco_alegado=estado.banco_alegado,
             beneficiario_pf=estado.beneficiario_pf,
+            percepcao=estado.percepcao,
         )
         prompt_usr = (
             f"Consulta do usuário: {estado.consulta_mascarada or estado.consulta_usuario}\n"
             f"Linha digitável enviada: {bool(estado.linha_digitavel)}\n"
             f"Possui documento OCR anexado: {bool(estado.documento_ocr)}\n"
             f"Banco alegado: {estado.banco_alegado or 'não informado'} | Beneficiário PF: {estado.beneficiario_pf}\n"
-            "Invoque `tool_inspecionar_fraude_e_boleto` informando queries sobre a Resolução BCB 147/2021 (MED Pix) e orientação protetiva."
+            "Invoque `tool_inspecionar_fraude_e_boleto` com 1 query curta sobre Resolução BCB 147/2021 (MED Pix) "
+            "e orientacao_emergencial em 1 frase curta (até 15 palavras)."
         )
         res_llm = executar_agente_com_tools(
             agente="guardiao",
@@ -1039,6 +1099,7 @@ class GuardiaoAgent:
                 linha_digitavel=estado.linha_digitavel,
                 banco_alegado=estado.banco_alegado,
                 beneficiario_pf=estado.beneficiario_pf,
+                percepcao=estado.percepcao,
             )
 
         estado.inspecao_fraude = inspecao
@@ -1092,7 +1153,10 @@ class EducadorAgent:
         consulta_limpa, _ = mascarar(estado.consulta_mascarada or estado.consulta_usuario)
         queries_acumuladas = list(estado.queries_normativas)
 
-        if _eh_consulta_outro_idioma(consulta_limpa):
+        tem_artefato_suspeito = bool(
+            estado.percepcao is not None or estado.documento_ocr or estado.linha_digitavel
+        )
+        if _eh_consulta_outro_idioma(consulta_limpa) and not tem_artefato_suspeito:
             from pandora_rag.agents.models import EvidenciaNormativa
 
             estado.evidencias = EvidenciaNormativa(
@@ -1123,7 +1187,7 @@ class EducadorAgent:
             f"Consulta do usuário: {consulta_limpa}\n"
             f"Intenções: {estado.intencoes_detectadas}\n"
             f"Queries já solicitadas pelos especialistas: {queries_acumuladas}\n"
-            "Invoque `tool_buscar_evidencias_rag` passando as queries de pesquisa normativa."
+            "Invoque `tool_buscar_evidencias_rag` com 1 query curta (até 6 palavras)."
         )
         res_llm = executar_agente_com_tools(
             agente="educador",
@@ -1225,10 +1289,12 @@ class ComplianceAgent:
         norm_rascunho = _normalizar_texto(rascunho)
 
         # Avaliação semântica via Tool Calling (LLM-as-a-Judge)
+        pareceres_txt = "\n".join(f"{k}: {v}" for k, v in estado.pareceres_agentes.items() if v)
+        trecho_juiz = f"Rascunho:\n{rascunho[:900]}\nPareceres:\n{pareceres_txt[:400]}".strip()
         prompt_usr = (
             f"Consulta original mascarada: {consulta}\n"
-            f"Rascunho de resposta a auditar:\n{rascunho[:2500]}\n\n"
-            "Invoque `tool_auditar_invariantes_compliance` registrando sua auditoria ética e regulatória."
+            f"{trecho_juiz[:1300]}\n\n"
+            "Invoque `tool_auditar_invariantes_compliance` com observacao_auditoria curta (até 8 palavras)."
         )
         res_llm = executar_agente_com_tools(
             agente="compliance",
@@ -1350,6 +1416,12 @@ class ComplianceAgent:
                 "Síntese omitiu valores determinísticos obrigatórios calculados pelos especialistas."
             )
 
+        resumo_tts = estado.resumo_falado_tts or compilar_resumo_falado_tts(estado)
+        norm_tts = _normalizar_texto(resumo_tts)
+        _, pii_tts = mascarar(resumo_tts)
+        if pii_tts or _RE_RECOMENDACAO_DIRETA_CVM.search(norm_tts) or _RE_JULGAMENTO_MORAL.search(norm_tts):
+            motivos_reprovacao.append("Resumo falado para TTS violou invariantes de PII, CVM ou tom acolhedor.")
+
         aprovado = len(motivos_reprovacao) == 0
         veredito = VereditoCompliance(
             aprovado=aprovado,
@@ -1365,6 +1437,7 @@ class ComplianceAgent:
 
         if aprovado:
             estado.resposta_final = rascunho
+            estado.resumo_falado_tts = compilar_resumo_falado_tts(estado)
             estado.registrar_mensagem(
                 origem="compliance",
                 destino="orquestrador",

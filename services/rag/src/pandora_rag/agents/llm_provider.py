@@ -68,7 +68,7 @@ def ollama_disponivel(timeout: float = 1.5) -> bool:
 
 def construir_chat_model(
     chave_ou_id: str | None = MODELO_PADRAO_AGENTES,
-    max_tokens: int = 512,
+    max_tokens: int = 160,
 ) -> tuple[BaseChatModel | None, str]:
     """Instancia ChatOllama ou ChatAnthropic com suporte nativo a bind_tools."""
     info = resolver_config_modelo(chave_ou_id)
@@ -86,7 +86,8 @@ def construir_chat_model(
             base_url=OLLAMA_URL,
             temperature=0,
             num_predict=max_tokens,
-            num_ctx=8192,
+            num_ctx=2048,
+            keep_alive="30m",
         )
         return chat, modelo_id
 
